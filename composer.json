@@ -1,0 +1,35 @@
+{
+    "name": "rlustosa/laravel-generator",
+    "description": "Laravel Module management for my projects",
+    "type": "project",
+    "require": {
+        "php": ">=7.2",
+        "ext-json": "*"
+    },
+    "require-dev": {
+        "laravel/framework": "^6.5"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Rupert Brasil Lustosa",
+            "email": "rupertlustosa@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Rlustosa\\LaravelGenerator\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Rlustosa\\LaravelGenerator\\LaravelGeneratorServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev"
+}
