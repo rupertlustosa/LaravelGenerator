@@ -25,6 +25,8 @@ class LaravelGeneratorServiceProvider extends ServiceProvider
             __DIR__.'/../resources/views', 'lustosa-generator'
         );
 
+        $this->registerPublishing();
+
     }
 
     /**
@@ -109,5 +111,31 @@ class LaravelGeneratorServiceProvider extends ServiceProvider
     public function provides()
     {
         return [];
+    }
+
+    /**
+     * Register the package's publishable resources.
+     *
+     * @return void
+     */
+    private function registerPublishing()
+    {
+        if ($this->app->runningInConsole()) {
+            /*$this->publishes([
+                __DIR__.'/Storage/migrations' => database_path('migrations'),
+            ], 'telescope-migrations');*/
+
+            $this->publishes([
+                __DIR__.'/../public' => public_path('vendor/rlustosa'),
+            ], 'rlustosa-assets');
+
+            /*$this->publishes([
+                __DIR__.'/../config/telescope.php' => config_path('telescope.php'),
+            ], 'telescope-config');
+
+            $this->publishes([
+                __DIR__.'/../stubs/TelescopeServiceProvider.stub' => app_path('Providers/TelescopeServiceProvider.php'),
+            ], 'telescope-provider');*/
+        }
     }
 }

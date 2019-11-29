@@ -17,6 +17,11 @@ class LustosaGenerateController extends Controller
     public function index()
     {
 
-        return view('lustosa-generator::index');
+        return view('lustosa-generator::layout')
+            ->with('telescopeScriptVariables', [
+                'path' => 'rlustosa',
+                'timezone' => config('app.timezone'),
+                'recording' => true,
+            ]);
     }
 }
