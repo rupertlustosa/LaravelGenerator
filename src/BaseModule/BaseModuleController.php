@@ -2,12 +2,13 @@
 
 namespace Rlustosa\LaravelGenerator\BaseModule;
 
+use App\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Symfony\Component\HttpFoundation\Response;
 
-class BaseModuleController
+class BaseModuleController extends Controller
 {
     /**
      * success response method.
@@ -20,7 +21,6 @@ class BaseModuleController
     {
 
         $response = [
-            'success' => true,
             'data' => $result,
             'message' => $message,
         ];
@@ -53,9 +53,7 @@ class BaseModuleController
     public function sendResource(JsonResource $result, string $message = ''): JsonResponse
     {
 
-        $response = [
-            'success' => true,
-        ];
+        $response = [];
 
         if (!empty($result) || !empty($message)) {
 
@@ -81,7 +79,7 @@ class BaseModuleController
     public function sendPaginate(JsonResource $result): JsonResponse
     {
 
-        return response()->json($result->additional(['success' => true])->resource, Response::HTTP_OK);
+        return response()->json($result->additional([])->resource, Response::HTTP_OK);
     }
 
     /**
@@ -96,7 +94,6 @@ class BaseModuleController
     {
 
         $response = [
-            'success' => false,
             'message' => $error,
         ];
 
@@ -117,7 +114,6 @@ class BaseModuleController
     {
 
         $response = [
-            'success' => false,
             'message' => 'Acesso não autorizado',
         ];
 
@@ -136,7 +132,6 @@ class BaseModuleController
     {
 
         $response = [
-            'success' => false,
             'message' => $error,
         ];
 
@@ -158,7 +153,6 @@ class BaseModuleController
     {
 
         $response = [
-            'success' => false,
             'message' => 'Não encontrado',
         ];
 

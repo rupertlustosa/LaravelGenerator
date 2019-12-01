@@ -151,6 +151,16 @@ abstract class GeneratorCommand extends Command
     }
 
     /**
+     * Get the root namespace for the class.
+     *
+     * @return string
+     */
+    protected function rootNamespace()
+    {
+        return 'Modules';
+    }
+
+    /**
      * Get the default namespace for the class.
      *
      * @return string
@@ -256,7 +266,25 @@ abstract class GeneratorCommand extends Command
     protected function getServiceProviderName()
     {
 
-        return Str::studly($this->getModuleName()).'ServiceProvider';
+        return Str::studly($this->getModuleName()) . 'ServiceProvider';
+    }
+
+    /**
+     * @return array|string
+     */
+    protected function getModuleName()
+    {
+        return Str::studly($this->getModuleInput());
+    }
+
+    /**
+     * Get the desired class name from the input.
+     *
+     * @return string
+     */
+    protected function getModuleInput()
+    {
+        return trim($this->argument('module'));
     }
 
     /**
@@ -336,17 +364,6 @@ abstract class GeneratorCommand extends Command
      *
      * @return string
      */
-    protected function getDefaultControllerNamespace()
-    {
-
-        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Http\Controllers');
-    }
-
-    /**
-     * Get the default namespace for the model class.
-     *
-     * @return string
-     */
     protected function getDefaultModelNamespace()
     {
 
@@ -354,31 +371,14 @@ abstract class GeneratorCommand extends Command
     }
 
     /**
-     * Get the root namespace for the class.
+     * Get the default namespace for the model class.
      *
      * @return string
      */
-    protected function rootNamespace()
+    protected function getDefaultControllerNamespace()
     {
-        return 'Modules';
-    }
 
-    /**
-     * @return array|string
-     */
-    protected function getModuleName()
-    {
-        return Str::studly($this->getModuleInput());
-    }
-
-    /**
-     * Get the desired class name from the input.
-     *
-     * @return string
-     */
-    protected function getModuleInput()
-    {
-        return trim($this->argument('module'));
+        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Http\Controllers');
     }
 
     /**

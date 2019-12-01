@@ -21,7 +21,7 @@ class DummyControllerClass extends BaseModuleController
     public function __construct(DummyServiceClass $DummyServiceVariable)
     {
 
-        $this->middleware('jwt.auth');
+        //$this->middleware('jwt.auth');
         $this->service = $DummyServiceVariable;
     }
 
@@ -38,6 +38,13 @@ class DummyControllerClass extends BaseModuleController
             $limit = (int)(request('limit') ?? 20);
             $data = $this->service->paginate($limit);
 
+            return $this->sendResponse([
+                'model' => 'DummyModel',
+                'namespace' => __NAMESPACE__,
+                'class' => __CLASS__,
+                'function' => __FUNCTION__,
+                'method' => __METHOD__,
+            ]);
             //return $this->sendPaginate(new DummyModelClassCollection($data));
 
         } catch (Exception $exception) {
@@ -59,6 +66,13 @@ class DummyControllerClass extends BaseModuleController
 
             $data = $this->service->all();
 
+            return $this->sendResponse([
+                'model' => 'DummyModel',
+                'namespace' => __NAMESPACE__,
+                'class' => __CLASS__,
+                'function' => __FUNCTION__,
+                'method' => __METHOD__,
+            ]);
             //return $this->sendResource(DummyModelClassResource::collection($data));
 
         } catch (Exception $exception) {
@@ -84,6 +98,13 @@ class DummyControllerClass extends BaseModuleController
                 return $this->sendNotFound();
             }
 
+            return $this->sendResponse([
+                'model' => 'DummyModel',
+                'namespace' => __NAMESPACE__,
+                'class' => __CLASS__,
+                'function' => __FUNCTION__,
+                'method' => __METHOD__,
+            ]);
             //return $this->sendResource(new DummyModelClassResource($item));
 
         } catch (Exception $exception) {

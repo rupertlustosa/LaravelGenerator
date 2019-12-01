@@ -16,10 +16,10 @@ class DummyServiceProviderClass extends ServiceProvider
     {
 
         $this->registerTranslations();
-        $this->registerConfig();
+        //$this->registerConfig();
         $this->registerViews();
         $this->registerFactories();
-        $this->loadMigrationsFrom('Modules/DummyModule/Database/Migrations');
+        $this->loadMigrationsFrom(base_path() . '/Modules/DummyModule/Database/Migrations');
 
     }
 
@@ -41,10 +41,10 @@ class DummyServiceProviderClass extends ServiceProvider
     protected function registerConfig()
     {
         $this->publishes([
-            'Modules/DummyModule/Config/config.php' => config_path('DummyModuleLowerCase.php'),
+            base_path() . '/Modules/DummyModule/Config/config.php' => config_path('DummyModuleLowerCase.php'),
         ], 'config');
         $this->mergeConfigFrom(
-            'Modules/DummyModule/Config/config.php', 'DummyModuleLowerCase'
+            base_path() . '/Modules/DummyModule/Config/config.php', 'DummyModuleLowerCase'
         );
     }
 
@@ -57,7 +57,7 @@ class DummyServiceProviderClass extends ServiceProvider
     {
         $viewPath = resource_path('views/modules/DummyModuleLowerCase');
 
-        $sourcePath = 'Modules/DummyModule/Resources/views';
+        $sourcePath = base_path() . '/Modules/DummyModule/Resources/views';
 
         $this->publishes([
             $sourcePath => $viewPath
@@ -80,7 +80,7 @@ class DummyServiceProviderClass extends ServiceProvider
         if (is_dir($langPath)) {
             $this->loadTranslationsFrom($langPath, 'DummyModuleLowerCase');
         } else {
-            $this->loadTranslationsFrom('Modules/DummyModule/Resources/lang', 'DummyModuleLowerCase');
+            $this->loadTranslationsFrom(base_path() . '/Modules/DummyModule/Resources/lang', 'DummyModuleLowerCase');
         }
     }
 
@@ -92,7 +92,7 @@ class DummyServiceProviderClass extends ServiceProvider
     public function registerFactories()
     {
         if (! app()->environment('production') && $this->app->runningInConsole()) {
-            app(Factory::class)->load('Modules/DummyModule/Database/factories');
+            app(Factory::class)->load(base_path() . '/Modules/DummyModule/Database/factories');
         }
     }
 

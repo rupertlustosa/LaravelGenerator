@@ -18,7 +18,7 @@ class DummyControllerClass extends BaseModuleController
     public function __construct()
     {
 
-        $this->middleware('jwt.auth');
+        //$this->middleware('jwt.auth');
     }
 
     /**
