@@ -204,14 +204,6 @@ class ControllerMakeCommand extends GeneratorCommand
     }
 
     /**
-     * @return array|string
-     */
-    protected function getModuleName()
-    {
-        return Str::studly($this->getModuleInput());
-    }
-
-    /**
      * Get the console command arguments.
      *
      * @return array
@@ -219,8 +211,8 @@ class ControllerMakeCommand extends GeneratorCommand
     protected function getArguments()
     {
         return [
-            ['name', InputArgument::REQUIRED, 'The name of the controller class.'],
             ['module', InputArgument::REQUIRED, 'The name of module will be used.'],
+            ['name', InputArgument::REQUIRED, 'The name of the controller class.'],
         ];
     }
 
