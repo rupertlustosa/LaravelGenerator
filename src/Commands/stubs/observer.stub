@@ -1,0 +1,46 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Observers;
+
+use App\Models\{{class}};
+
+class {{class}}Observer
+{
+
+    /**
+     * Handle the {{classVar}} "creating" event.
+     *
+     * @param  \App\Models\{{class}}  ${{classVar}}
+     * @return void
+     */
+    public function creating({{class}} ${{classVar}})
+    {
+
+    }
+
+
+    /**
+     * Handle the {{classVar}} "updating" event.
+     *
+     * @param  \App\Models\{{class}}  ${{classVar}}
+     * @return void
+     */
+    public function updating({{class}} ${{classVar}})
+    {
+
+    }
+
+
+    /**
+     * Handle the {{classVar}} "deleting" event.
+     *
+     * @param  \App\Models\{{class}}  ${{classVar}}
+     * @return void
+     */
+    public function deleting({{class}} ${{classVar}})
+    {
+
+    }
+}

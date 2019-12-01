@@ -1,0 +1,49 @@
+<?php
+/**
+ * @package    Requests
+ * @author     Rupert Brasil Lustosa <rupertlustosa@gmail.com>
+ * @date       {{date}} {{time}}
+ */
+
+declare(strict_types=1);
+
+namespace App\Http\Requests;
+
+use App\Rules\{{class}}Rule;
+use Illuminate\Foundation\Http\FormRequest;
+
+class {{class}}UpdateRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
+    {
+
+        return $this->user()->can('update', $this->{{classVar}});
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
+     */
+    public function rules()
+    {
+
+        return {{class}}Rule::rules();
+    }
+
+    /**
+     * Get the validation messages that apply to the request.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+
+        return {{class}}Rule::messages();
+    }
+}

@@ -5,28 +5,28 @@ namespace Rlustosa\LaravelGenerator\Commands;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
-class ControllerMakeCommand extends GeneratorCommand
+class PolicyMakeCommand extends GeneratorCommand
 {
     /**
      * The console command name.
      *
      * @var string
      */
-    protected $name = 'rlustosa:make-controller';
+    protected $name = 'rlustosa:make-policy';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Generate new restful controller for the specified module.';
+    protected $description = 'Generate new policy for the specified module.';
 
     /**
      * The type of class being generated.
      *
      * @var string
      */
-    protected $type = 'Controller';
+    protected $type = 'Policy';
 
     /**
      * Get the stub file for the generator.
@@ -38,10 +38,10 @@ class ControllerMakeCommand extends GeneratorCommand
 
         if ($this->option('model')) {
 
-            $stub = '/stubs/controller-resource.stub';
+            $stub = '/stubs/policy-resource.stub';
         } else {
 
-            $stub = '/stubs/controller-generic.stub';
+            $stub = '/stubs/policy-generic.stub';
         }
 
         return __DIR__ . $stub;
@@ -55,7 +55,7 @@ class ControllerMakeCommand extends GeneratorCommand
     public function getDestinationFilePath()
     {
 
-        return base_path($this->rootNamespace() . '/' . $this->getModuleName() . '/Http/Controllers/' . $this->getControllerName() . '.php');
+        return base_path($this->rootNamespace() . '/' . $this->getModuleName() . '/Policies/' . $this->getPolicyName() . '.php');
     }
 
     /**
@@ -66,8 +66,9 @@ class ControllerMakeCommand extends GeneratorCommand
     protected function getDefaultNamespace()
     {
 
-        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Http\Controllers');
+        return $this->getDefaultPolicyNamespace();
     }
+
 
     /**
      * Build the class with the given name.
@@ -80,31 +81,16 @@ class ControllerMakeCommand extends GeneratorCommand
     protected function buildClass()
     {
 
-        $controllerNamespace = $this->getDefaultNamespace();
+        $policyNamespace = $this->getDefaultNamespace();
 
         $replace = [];
-        $replace['DummyControllerNamespace'] = $controllerNamespace;
-        $replace['RootController'] = 'Rlustosa\LaravelGenerator\BaseModule\BaseModuleController';
-        $replace['DummyControllerClass'] = $this->getControllerName();
+        $replace['DummyPolicyNamespace'] = $policyNamespace;
+        $replace['DummyPolicyClass'] = $this->getPolicyName();
 
         if ($this->option('model')) {
 
             $replace = $this->buildModelReplacements($replace);
-            $replace = $this->buildServiceReplacements($replace);
-
-            $model = $this->option('model');
-
-            $policyNamespace = $this->getDefaultPolicyNamespace();
-            $policyClass = $policyNamespace . '\\' . $this->getPolicyName();
-
-            if (!class_exists($policyClass)) {
-                if ($this->confirm("A {$policyNamespace} policy does not exist. Do you want to generate it?", true)) {
-                    $this->call('rlustosa:make-policy', ['module' => $this->getModuleInput(), 'name' => $model, '--model' => $model]);
-                }
-            }
         }
-
-        $replace["use {$controllerNamespace}\Controller;\n"] = '';
 
         $stub = $this->files->get($this->getStub());
 
@@ -112,6 +98,7 @@ class ControllerMakeCommand extends GeneratorCommand
             array_keys($replace), array_values($replace), $stub
         );
     }
+
 
     /**
      * Get the console command arguments.
@@ -122,7 +109,7 @@ class ControllerMakeCommand extends GeneratorCommand
     {
         return [
             ['module', InputArgument::REQUIRED, 'The name of module will be used.'],
-            ['name', InputArgument::REQUIRED, 'The name of the controller class.'],
+            ['name', InputArgument::REQUIRED, 'The name of the policy class.'],
         ];
     }
 
@@ -140,12 +127,7 @@ class ControllerMakeCommand extends GeneratorCommand
     protected function getOptions()
     {
         return [
-            ['model', 'm', InputOption::VALUE_OPTIONAL, 'Generate a resource controller for the given model.'],
+            ['model', 'm', InputOption::VALUE_OPTIONAL, 'Generate a resource policy for the given model.'],
         ];
-    }
-
-    protected function createdSuccessfully()
-    {
-        $this->info($this->type . ' created successfully.');
     }
 }

@@ -1,0 +1,45 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Requests;
+
+use App\Models\{{class}};
+use App\Rules\{{class}}Rule;
+use Illuminate\Foundation\Http\FormRequest;
+
+class {{class}}StoreRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
+    {
+
+        return $this->user()->can('create', {{class}}::class);
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
+     */
+    public function rules()
+    {
+
+        return {{class}}Rule::rules();
+    }
+
+    /**
+     * Get the validation messages that apply to the request.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+
+        return {{class}}Rule::messages();
+    }
+}

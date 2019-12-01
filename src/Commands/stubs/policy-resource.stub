@@ -1,0 +1,94 @@
+<?php
+
+namespace DummyPolicyNamespace;
+
+use Illuminate\Auth\Access\HandlesAuthorization;
+use Modules\User\Models\User as AuthenticatedUser;
+use DummyFullModelClass;
+
+class DummyPolicyClass
+{
+    use HandlesAuthorization;
+
+    /**
+     * Determine whether the user can view any DocDummyPluralModel.
+     *
+     * @param  AuthenticatedUser $authenticatedUser
+     * @return mixed
+     */
+    public function viewAny(AuthenticatedUser $authenticatedUser)
+    {
+        //
+    }
+
+    /**
+     * Determine whether the user can view the DocDummyModelClass.
+     *
+     * @param  AuthenticatedUser  $authenticatedUser
+     * @param  DummyModelClass  $DummyModelVariable
+     * @return mixed
+     */
+    public function view(AuthenticatedUser $authenticatedUser, DummyModelClass $DummyModelVariable)
+    {
+        //
+    }
+
+    /**
+     * Determine whether the user can create DocDummyPluralModel.
+     *
+     * @param  AuthenticatedUser  $authenticatedUser
+     * @return mixed
+     */
+    public function create(AuthenticatedUser $authenticatedUser)
+    {
+        //
+    }
+
+    /**
+     * Determine whether the user can update the DocDummyModelClass.
+     *
+     * @param  AuthenticatedUser  $authenticatedUser
+     * @param  DummyModelClass  $DummyModelVariable
+     * @return mixed
+     */
+    public function update(AuthenticatedUser $authenticatedUser, DummyModelClass $DummyModelVariable)
+    {
+        //
+    }
+
+    /**
+     * Determine whether the user can delete the DocDummyModelClass.
+     *
+     * @param  AuthenticatedUser  $authenticatedUser
+     * @param  DummyModelClass  $DummyModelVariable
+     * @return mixed
+     */
+    public function delete(AuthenticatedUser $authenticatedUser, DummyModelClass $DummyModelVariable)
+    {
+        //
+    }
+
+    /**
+     * Determine whether the user can restore the DocDummyModelClass.
+     *
+     * @param  AuthenticatedUser  $authenticatedUser
+     * @param  DummyModelClass  $DummyModelVariable
+     * @return mixed
+     */
+    public function restore(AuthenticatedUser $authenticatedUser, DummyModelClass $DummyModelVariable)
+    {
+        //
+    }
+
+    /**
+     * Determine whether the user can permanently delete the DocDummyModelClass.
+     *
+     * @param  AuthenticatedUser  $authenticatedUser
+     * @param  DummyModelClass  $DummyModelVariable
+     * @return mixed
+     */
+    public function forceDelete(AuthenticatedUser $authenticatedUser, DummyModelClass $DummyModelVariable)
+    {
+        //
+    }
+}

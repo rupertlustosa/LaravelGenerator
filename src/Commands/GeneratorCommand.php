@@ -77,7 +77,8 @@ abstract class GeneratorCommand extends Command
 
         $this->files->put($path, $this->sortImports($this->buildClass()));
 
-        $this->createdSuccessfully();
+        //$this->createdSuccessfully();
+        $this->info($this->type . ' created successfully.');
     }
 
     /**
@@ -192,6 +193,21 @@ abstract class GeneratorCommand extends Command
     }
 
     /**
+     * @return array|string
+     */
+    protected function getPolicyName()
+    {
+
+        $policy = Str::studly($this->getNameInput());
+
+        if (Str::contains(strtolower($policy), 'policy') === false) {
+            $policy .= 'Policy';
+        }
+
+        return $policy;
+    }
+
+    /**
      * Build the model replacement values.
      *
      * @param array $replace
@@ -202,9 +218,10 @@ abstract class GeneratorCommand extends Command
 
         $model = $this->option('model');
         $modelClass = $this->parseModel($model);
+//dd($modelClass == 'Modules\User\Models\User', class_exists($modelClass));
 
         if (!class_exists($modelClass)) {
-            if ($this->confirm("A {$modelClass} model does not exist. Do you want to generate it?", true)) {
+            if ($this->confirm("A {$modelClass} model does not exist XXX. Do you want to generate it?", true)) {
                 $this->call('rlustosa:make-model', ['module' => $this->getModuleInput(), 'name' => $model]);
             }
         }
@@ -305,6 +322,17 @@ abstract class GeneratorCommand extends Command
     }
 
     /**
+     * Get the default namespace for the class.
+     *
+     * @return string
+     */
+    protected function getDefaultPolicyNamespace()
+    {
+
+        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Policies');
+    }
+
+    /**
      * Alphabetically sorts the imports for the given stub.
      *
      * @param string $stub
@@ -330,7 +358,7 @@ abstract class GeneratorCommand extends Command
      */
     abstract protected function alreadyExists();
 
-    abstract protected function createdSuccessfully();
+    //abstract protected function createdSuccessfully();
 
 
     /**
