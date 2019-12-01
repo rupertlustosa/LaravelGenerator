@@ -2,6 +2,7 @@
 
 namespace Rlustosa\LaravelGenerator\Commands;
 
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -29,54 +30,12 @@ class PolicyMakeCommand extends GeneratorCommand
     protected $type = 'Policy';
 
     /**
-     * Get the stub file for the generator.
-     *
-     * @return string
-     */
-    protected function getStub()
-    {
-
-        if ($this->option('model')) {
-
-            $stub = '/stubs/policy-resource.stub';
-        } else {
-
-            $stub = '/stubs/policy-generic.stub';
-        }
-
-        return __DIR__ . $stub;
-    }
-
-    /**
-     * Get controller name.
-     *
-     * @return string
-     */
-    public function getDestinationFilePath()
-    {
-
-        return base_path($this->rootNamespace() . '/' . $this->getModuleName() . '/Policies/' . $this->getPolicyName() . '.php');
-    }
-
-    /**
-     * Get the default namespace for the class.
-     *
-     * @return string
-     */
-    protected function getDefaultNamespace()
-    {
-
-        return $this->getDefaultPolicyNamespace();
-    }
-
-
-    /**
      * Build the class with the given name.
      *
      * Remove the base controller import if we are already in base namespace.
      *
      * @return string
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     protected function buildClass()
     {
@@ -99,6 +58,35 @@ class PolicyMakeCommand extends GeneratorCommand
         );
     }
 
+    /**
+     * Get the default namespace for the class.
+     *
+     * @return string
+     */
+    protected function getDefaultNamespace()
+    {
+
+        return $this->getDefaultPolicyNamespace();
+    }
+
+    /**
+     * Get the stub file for the generator.
+     *
+     * @return string
+     */
+    protected function getStub()
+    {
+
+        if ($this->option('model')) {
+
+            $stub = '/stubs/policy-resource.stub';
+        } else {
+
+            $stub = '/stubs/policy-generic.stub';
+        }
+
+        return __DIR__ . $stub;
+    }
 
     /**
      * Get the console command arguments.
@@ -117,6 +105,17 @@ class PolicyMakeCommand extends GeneratorCommand
     {
 
         return $this->files->exists($this->getDestinationFilePath());
+    }
+
+    /**
+     * Get controller name.
+     *
+     * @return string
+     */
+    public function getDestinationFilePath()
+    {
+
+        return base_path($this->rootNamespace() . '/' . $this->getModuleName() . '/Policies/' . $this->getPolicyName() . '.php');
     }
 
     /**

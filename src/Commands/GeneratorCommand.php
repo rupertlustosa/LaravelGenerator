@@ -12,7 +12,7 @@ abstract class GeneratorCommand extends Command
     /**
      * The filesystem instance.
      *
-     * @var \Illuminate\Filesystem\Filesystem
+     * @var Filesystem
      */
     protected $files;
 
@@ -26,7 +26,7 @@ abstract class GeneratorCommand extends Command
     /**
      * Create a new controller creator command instance.
      *
-     * @param \Illuminate\Filesystem\Filesystem $files
+     * @param Filesystem $files
      * @return void
      */
     public function __construct(Filesystem $files)
@@ -35,20 +35,6 @@ abstract class GeneratorCommand extends Command
 
         $this->files = $files;
     }
-
-    /**
-     * Get the stub file for the generator.
-     *
-     * @return string
-     */
-    abstract protected function getStub();
-
-    /**
-     * Get the destination file path.
-     *
-     * @return string
-     */
-    abstract protected function getDestinationFilePath();
 
     /**
      * Execute the console command.
@@ -82,44 +68,64 @@ abstract class GeneratorCommand extends Command
     }
 
     /**
-     * @return array|string
-     */
-    protected function getModuleName()
-    {
-        return Str::studly($this->getModuleInput());
-    }
-
-    /**
-     * Get the desired class name from the input.
+     * Get the destination file path.
      *
      * @return string
      */
-    protected function getNameInput()
+    abstract protected function getDestinationFilePath();
+
+    abstract protected function alreadyExists();
+
+    /**
+     * Build the directory for the class if necessary.
+     *
+     * @param string $path
+     * @return string
+     */
+    protected function makeDirectory($path)
     {
-        return trim($this->argument('name'));
+        if (!$this->files->isDirectory(dirname($path))) {
+            $this->files->makeDirectory(dirname($path), 0777, true, true);
+        }
+
+        return $path;
     }
 
     /**
-     * Get the desired class name from the input.
+     * Alphabetically sorts the imports for the given stub.
      *
+     * @param string $stub
      * @return string
      */
-    protected function getModuleInput()
+    protected function sortImports($stub)
     {
-        return trim($this->argument('module'));
-    }
+        if (preg_match('/(?P<imports>(?:use [^;]+;$\n?)+)/m', $stub, $match)) {
+            $imports = explode("\n", trim($match['imports']));
 
+            sort($imports);
+
+            return str_replace(trim($match['imports']), implode("\n", $imports), $stub);
+        }
+
+        return $stub;
+    }
 
     /**
-     * Get the default namespace for the model class.
+     * Get class name.
      *
      * @return string
      */
-    protected function getDefaultModelNamespace()
+    public function getClass()
     {
-
-        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Models');
+        return class_basename($this->argument($this->argumentName));
     }
+
+    /**
+     * Get the stub file for the generator.
+     *
+     * @return string
+     */
+    abstract protected function getStub();
 
     /**
      * Parse the class name and format according to the root namespace.
@@ -145,14 +151,11 @@ abstract class GeneratorCommand extends Command
     }
 
     /**
-     * Get the root namespace for the class.
+     * Get the default namespace for the class.
      *
      * @return string
      */
-    protected function rootNamespace()
-    {
-        return 'Modules';
-    }
+    abstract protected function getDefaultNamespace();
 
     /**
      * @return array|string
@@ -161,6 +164,16 @@ abstract class GeneratorCommand extends Command
     {
 
         return Str::studly($this->getNameInput());
+    }
+
+    /**
+     * Get the desired class name from the input.
+     *
+     * @return string
+     */
+    protected function getNameInput()
+    {
+        return trim($this->argument('name'));
     }
 
     /**
@@ -180,21 +193,6 @@ abstract class GeneratorCommand extends Command
     /**
      * @return array|string
      */
-    protected function getServiceName()
-    {
-
-        $service = Str::studly($this->getNameInput());
-
-        if (Str::contains(strtolower($service), 'service') === false) {
-            $service .= 'Service';
-        }
-
-        return $service;
-    }
-
-    /**
-     * @return array|string
-     */
     protected function getPolicyName()
     {
 
@@ -206,6 +204,7 @@ abstract class GeneratorCommand extends Command
 
         return $policy;
     }
+
     /**
      * @return array|string
      */
@@ -220,6 +219,7 @@ abstract class GeneratorCommand extends Command
 
         return $validator;
     }
+
     /**
      * @return array|string
      */
@@ -234,6 +234,7 @@ abstract class GeneratorCommand extends Command
 
         return $validator;
     }
+
     /**
      * @return array|string
      */
@@ -247,6 +248,34 @@ abstract class GeneratorCommand extends Command
         }
 
         return $validator;
+    }
+
+    /**
+     * @return array|string
+     */
+    protected function getServiceProviderName()
+    {
+
+        return Str::studly($this->getModuleName()).'ServiceProvider';
+    }
+
+    /**
+     * @return array|string
+     */
+    protected function getRouteServiceProviderName()
+    {
+
+        //return Str::studly($this->getModuleName()).'RouteServiceProvider';
+        return 'RouteServiceProvider';
+    }
+
+    /**
+     * @return array|string
+     */
+    protected function getRouteApiName()
+    {
+
+        return 'api';
     }
 
     /**
@@ -273,6 +302,83 @@ abstract class GeneratorCommand extends Command
             'DummyModelClass' => class_basename($modelClass),
             'DummyModelVariable' => lcfirst(class_basename($modelClass)),
         ]);
+    }
+
+    /**
+     * Get the fully-qualified model class name.
+     *
+     * @param string $model
+     * @return string
+     *
+     * @throws InvalidArgumentException
+     */
+    protected function parseModel($model)
+    {
+
+        $model = Str::studly($model);
+
+        if (preg_match('([^A-Za-z0-9_/\\\\])', $model)) {
+            throw new InvalidArgumentException('Model name contains invalid characters.');
+        }
+
+        $model = trim(str_replace('/', '\\', $model), '\\');
+
+
+        if (!Str::startsWith($model, $this->getDefaultModelNamespace())) {
+            $model = $this->getDefaultModelNamespace() . '\\' . $model;
+        }
+
+        return $model;
+    }
+
+    /**
+     * Get the default namespace for the model class.
+     *
+     * @return string
+     */
+    protected function getDefaultControllerNamespace()
+    {
+
+        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Http\Controllers');
+    }
+
+    /**
+     * Get the default namespace for the model class.
+     *
+     * @return string
+     */
+    protected function getDefaultModelNamespace()
+    {
+
+        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Models');
+    }
+
+    /**
+     * Get the root namespace for the class.
+     *
+     * @return string
+     */
+    protected function rootNamespace()
+    {
+        return 'Modules';
+    }
+
+    /**
+     * @return array|string
+     */
+    protected function getModuleName()
+    {
+        return Str::studly($this->getModuleInput());
+    }
+
+    /**
+     * Get the desired class name from the input.
+     *
+     * @return string
+     */
+    protected function getModuleInput()
+    {
+        return trim($this->argument('module'));
     }
 
     /**
@@ -306,31 +412,38 @@ abstract class GeneratorCommand extends Command
     }
 
     /**
-     * Get the fully-qualified model class name.
+     * Get the default namespace for the class.
      *
-     * @param string $model
      * @return string
-     *
-     * @throws \InvalidArgumentException
      */
-    protected function parseModel($model)
+    protected function getDefaultServiceNamespace()
     {
 
-        $model = Str::studly($model);
-
-        if (preg_match('([^A-Za-z0-9_/\\\\])', $model)) {
-            throw new InvalidArgumentException('Model name contains invalid characters.');
-        }
-
-        $model = trim(str_replace('/', '\\', $model), '\\');
-
-
-        if (!Str::startsWith($model, $this->getDefaultModelNamespace())) {
-            $model = $this->getDefaultModelNamespace() . '\\' . $model;
-        }
-
-        return $model;
+        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Services');
     }
+
+    /*
+     * Determine if the class already exists.
+     *
+     * @return bool
+     */
+
+    /**
+     * @return array|string
+     */
+    protected function getServiceName()
+    {
+
+        $service = Str::studly($this->getNameInput());
+
+        if (Str::contains(strtolower($service), 'service') === false) {
+            $service .= 'Service';
+        }
+
+        return $service;
+    }
+
+    //abstract protected function createdSuccessfully();
 
     /**
      * Get the default namespace for the class.
@@ -357,17 +470,6 @@ abstract class GeneratorCommand extends Command
      *
      * @return string
      */
-    protected function getDefaultServiceNamespace()
-    {
-
-        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Services');
-    }
-
-    /**
-     * Get the default namespace for the class.
-     *
-     * @return string
-     */
     protected function getDefaultPolicyNamespace()
     {
 
@@ -386,63 +488,13 @@ abstract class GeneratorCommand extends Command
     }
 
     /**
-     * Alphabetically sorts the imports for the given stub.
-     *
-     * @param string $stub
-     * @return string
-     */
-    protected function sortImports($stub)
-    {
-        if (preg_match('/(?P<imports>(?:use [^;]+;$\n?)+)/m', $stub, $match)) {
-            $imports = explode("\n", trim($match['imports']));
-
-            sort($imports);
-
-            return str_replace(trim($match['imports']), implode("\n", $imports), $stub);
-        }
-
-        return $stub;
-    }
-
-    /*
-     * Determine if the class already exists.
-     *
-     * @return bool
-     */
-    abstract protected function alreadyExists();
-
-    //abstract protected function createdSuccessfully();
-
-
-    /**
-     * Get class name.
-     *
-     * @return string
-     */
-    public function getClass()
-    {
-        return class_basename($this->argument($this->argumentName));
-    }
-
-    /**
      * Get the default namespace for the class.
      *
      * @return string
      */
-    abstract protected function getDefaultNamespace();
-
-    /**
-     * Build the directory for the class if necessary.
-     *
-     * @param string $path
-     * @return string
-     */
-    protected function makeDirectory($path)
+    protected function getDefaultProvidersNamespace()
     {
-        if (!$this->files->isDirectory(dirname($path))) {
-            $this->files->makeDirectory(dirname($path), 0777, true, true);
-        }
 
-        return $path;
+        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Providers');
     }
 }

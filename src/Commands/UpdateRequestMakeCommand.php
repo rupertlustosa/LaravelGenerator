@@ -2,6 +2,7 @@
 
 namespace Rlustosa\LaravelGenerator\Commands;
 
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -29,30 +30,6 @@ class UpdateRequestMakeCommand extends GeneratorCommand
     protected $type = 'UpdateRequest';
 
     /**
-     * Get the stub file for the generator.
-     *
-     * @return string
-     */
-    protected function getStub()
-    {
-
-        $stub = '/stubs/update-request.stub';
-
-        return __DIR__ . $stub;
-    }
-
-    /**
-     * Get controller name.
-     *
-     * @return string
-     */
-    public function getDestinationFilePath()
-    {
-
-        return base_path($this->rootNamespace() . '/' . $this->getModuleName() . '/Validators/' . $this->getValidatorUpdateRequestName() . '.php');
-    }
-
-    /**
      * Get the default namespace for the class.
      *
      * @return string
@@ -63,14 +40,13 @@ class UpdateRequestMakeCommand extends GeneratorCommand
         return $this->getDefaultValidatorsNamespace();
     }
 
-
     /**
      * Build the class with the given name.
      *
      * Remove the base controller import if we are already in base namespace.
      *
      * @return string
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     protected function buildClass()
     {
@@ -91,6 +67,18 @@ class UpdateRequestMakeCommand extends GeneratorCommand
         );
     }
 
+    /**
+     * Get the stub file for the generator.
+     *
+     * @return string
+     */
+    protected function getStub()
+    {
+
+        $stub = '/stubs/update-request.stub';
+
+        return __DIR__ . $stub;
+    }
 
     /**
      * Get the console command arguments.
@@ -108,6 +96,17 @@ class UpdateRequestMakeCommand extends GeneratorCommand
     {
 
         return $this->files->exists($this->getDestinationFilePath());
+    }
+
+    /**
+     * Get controller name.
+     *
+     * @return string
+     */
+    public function getDestinationFilePath()
+    {
+
+        return base_path($this->rootNamespace() . '/' . $this->getModuleName() . '/Validators/' . $this->getValidatorUpdateRequestName() . '.php');
     }
 
     /**

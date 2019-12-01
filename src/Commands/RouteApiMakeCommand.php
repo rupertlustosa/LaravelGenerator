@@ -3,31 +3,31 @@
 namespace Rlustosa\LaravelGenerator\Commands;
 
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 
-class StoreRequestMakeCommand extends GeneratorCommand
+class RouteApiMakeCommand extends GeneratorCommand
 {
     /**
      * The console command name.
      *
      * @var string
      */
-    protected $name = 'rlustosa:make-store-request';
+    protected $name = 'rlustosa:make-route-api';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Generate a store request for the specified model.';
+    protected $description = 'Generate a route service provider for the specified module.';
 
     /**
      * The type of class being generated.
      *
      * @var string
      */
-    protected $type = 'StoreRequest';
+    protected $type = 'RouteApi';
 
     /**
      * Get the default namespace for the class.
@@ -37,7 +37,7 @@ class StoreRequestMakeCommand extends GeneratorCommand
     protected function getDefaultNamespace()
     {
 
-        return $this->getDefaultValidatorsNamespace();
+        return '';
     }
 
     /**
@@ -51,14 +51,12 @@ class StoreRequestMakeCommand extends GeneratorCommand
     protected function buildClass()
     {
 
-        $validatorNamespace = $this->getDefaultValidatorsNamespace();
+        $providerNamespace = $this->getDefaultProvidersNamespace();
 
         $replace = [];
-        $replace['DummyValidatorNamespace'] = $validatorNamespace;
-        $replace['DummyRuleClass'] = $this->getValidatorRuleName();
-        $replace['DummyValidatorRuleNamespace'] = $validatorNamespace . '\\' . $this->getValidatorRuleName();
 
-        //$replace = $this->buildModelReplacements($replace);
+        $replace['DummyController'] = $this->getControllerName();
+        $replace['DummyModulePlural'] = Str::plural(strtolower(Str::snake($this->getModuleName())));
 
         $stub = $this->files->get($this->getStub());
 
@@ -75,7 +73,7 @@ class StoreRequestMakeCommand extends GeneratorCommand
     protected function getStub()
     {
 
-        $stub = '/stubs/store-request.stub';
+        $stub = '/stubs/route-api.stub';
 
         return __DIR__ . $stub;
     }
@@ -89,6 +87,7 @@ class StoreRequestMakeCommand extends GeneratorCommand
     {
         return [
             ['module', InputArgument::REQUIRED, 'The name of module will be used.'],
+            ['name', InputArgument::REQUIRED, 'The name of the controller class.'],
         ];
     }
 
@@ -106,18 +105,6 @@ class StoreRequestMakeCommand extends GeneratorCommand
     public function getDestinationFilePath()
     {
 
-        return base_path($this->rootNamespace() . '/' . $this->getModuleName() . '/Validators/' . $this->getValidatorStoreRequestName() . '.php');
-    }
-
-    /**
-     * Get the console command options.
-     *
-     * @return array
-     */
-    protected function getOptions()
-    {
-        return [
-            ['model', 'm', InputOption::VALUE_REQUIRED, 'Generate a resource policy for the given model.'],
-        ];
+        return base_path($this->rootNamespace() . '/' . $this->getModuleName() . '/routes/' . $this->getRouteApiName() . '.php');
     }
 }

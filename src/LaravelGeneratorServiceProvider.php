@@ -2,6 +2,7 @@
 
 namespace Rlustosa\LaravelGenerator;
 
+use Config;
 use Illuminate\Support\ServiceProvider;
 use Rlustosa\LaravelGenerator\Providers\ConsoleServiceProvider;
 use Rlustosa\LaravelGenerator\Providers\RouteServiceProvider;
@@ -31,6 +32,32 @@ class LaravelGeneratorServiceProvider extends ServiceProvider
     }
 
     /**
+     * Register the package's publishable resources.
+     *
+     * @return void
+     */
+    private function registerPublishing()
+    {
+        if ($this->app->runningInConsole()) {
+            /*$this->publishes([
+                __DIR__.'/Storage/migrations' => database_path('migrations'),
+            ], 'telescope-migrations');*/
+
+            $this->publishes([
+                __DIR__ . '/../public' => public_path('vendor/rlustosa'),
+            ], 'rlustosa-assets');
+
+            /*$this->publishes([
+                __DIR__.'/../config/telescope.php' => config_path('telescope.php'),
+            ], 'telescope-config');
+
+            $this->publishes([
+                __DIR__.'/../stubs/TelescopeServiceProvider.stub' => app_path('Providers/TelescopeServiceProvider.php'),
+            ], 'telescope-provider');*/
+        }
+    }
+
+    /**
      * Register the service provider.
      *
      * @return void
@@ -52,21 +79,6 @@ class LaravelGeneratorServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register config.
-     *
-     * @return void
-     */
-    protected function registerConfig()
-    {
-        $this->publishes([
-            module_path('Tip', 'Config/config.php') => config_path('tip.php'),
-        ], 'config');
-        $this->mergeConfigFrom(
-            module_path('Tip', 'Config/config.php'), 'tip'
-        );
-    }
-
-    /**
      * Register views.
      *
      * @return void
@@ -83,7 +95,7 @@ class LaravelGeneratorServiceProvider extends ServiceProvider
 
         $this->loadViewsFrom(array_merge(array_map(function ($path) {
             return $path . '/modules/tip';
-        }, \Config::get('view.paths')), [$sourcePath]), 'tip');
+        }, Config::get('view.paths')), [$sourcePath]), 'tip');
     }
 
     /**
@@ -125,28 +137,17 @@ class LaravelGeneratorServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register the package's publishable resources.
+     * Register config.
      *
      * @return void
      */
-    private function registerPublishing()
+    protected function registerConfig()
     {
-        if ($this->app->runningInConsole()) {
-            /*$this->publishes([
-                __DIR__.'/Storage/migrations' => database_path('migrations'),
-            ], 'telescope-migrations');*/
-
-            $this->publishes([
-                __DIR__ . '/../public' => public_path('vendor/rlustosa'),
-            ], 'rlustosa-assets');
-
-            /*$this->publishes([
-                __DIR__.'/../config/telescope.php' => config_path('telescope.php'),
-            ], 'telescope-config');
-
-            $this->publishes([
-                __DIR__.'/../stubs/TelescopeServiceProvider.stub' => app_path('Providers/TelescopeServiceProvider.php'),
-            ], 'telescope-provider');*/
-        }
+        $this->publishes([
+            module_path('Tip', 'Config/config.php') => config_path('tip.php'),
+        ], 'config');
+        $this->mergeConfigFrom(
+            module_path('Tip', 'Config/config.php'), 'tip'
+        );
     }
 }

@@ -5,6 +5,7 @@ namespace Rlustosa\LaravelGenerator\Http\Controllers;
 
 
 use Illuminate\Routing\Controller;
+use Illuminate\View\View;
 
 class LustosaGenerateController extends Controller
 {
@@ -12,7 +13,7 @@ class LustosaGenerateController extends Controller
     /**
      * Show the dashboard.
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function index()
     {

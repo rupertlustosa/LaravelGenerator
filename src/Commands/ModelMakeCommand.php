@@ -2,6 +2,7 @@
 
 namespace Rlustosa\LaravelGenerator\Commands;
 
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -29,48 +30,12 @@ class ModelMakeCommand extends GeneratorCommand
     protected $type = 'Model';
 
     /**
-     * Get the stub file for the generator.
-     *
-     * @return string
-     */
-    protected function getStub()
-    {
-
-        $stub = '/stubs/model.stub';
-
-        return __DIR__ . $stub;
-    }
-
-    /**
-     * Get controller name.
-     *
-     * @return string
-     */
-    public function getDestinationFilePath()
-    {
-
-        return base_path($this->rootNamespace() . '/' . $this->getModuleName() . '/Models/' . $this->getModelName() . '.php');
-    }
-
-    /**
-     * Get the default namespace for the class.
-     *
-     * @return string
-     */
-    protected function getDefaultNamespace()
-    {
-
-        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Models');
-    }
-
-
-    /**
      * Build the class with the given name.
      *
      * Remove the base controller import if we are already in base namespace.
      *
      * @return string
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     protected function buildClass()
     {
@@ -88,6 +53,29 @@ class ModelMakeCommand extends GeneratorCommand
         );
     }
 
+    /**
+     * Get the default namespace for the class.
+     *
+     * @return string
+     */
+    protected function getDefaultNamespace()
+    {
+
+        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Models');
+    }
+
+    /**
+     * Get the stub file for the generator.
+     *
+     * @return string
+     */
+    protected function getStub()
+    {
+
+        $stub = '/stubs/model.stub';
+
+        return __DIR__ . $stub;
+    }
 
     /**
      * Get the console command arguments.
@@ -106,6 +94,17 @@ class ModelMakeCommand extends GeneratorCommand
     {
 
         return $this->files->exists($this->getDestinationFilePath());
+    }
+
+    /**
+     * Get controller name.
+     *
+     * @return string
+     */
+    public function getDestinationFilePath()
+    {
+
+        return base_path($this->rootNamespace() . '/' . $this->getModuleName() . '/Models/' . $this->getModelName() . '.php');
     }
 
     /**
