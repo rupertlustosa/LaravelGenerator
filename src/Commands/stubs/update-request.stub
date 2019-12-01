@@ -1,18 +1,13 @@
 <?php
-/**
- * @package    Requests
- * @author     Rupert Brasil Lustosa <rupertlustosa@gmail.com>
- * @date       {{date}} {{time}}
- */
 
 declare(strict_types=1);
 
-namespace App\Http\Requests;
+namespace DummyValidatorNamespace;
 
-use App\Rules\{{class}}Rule;
+use DummyValidatorRuleNamespace;
 use Illuminate\Foundation\Http\FormRequest;
 
-class {{class}}UpdateRequest extends FormRequest
+class DummyUpdateRequestClass extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +17,7 @@ class {{class}}UpdateRequest extends FormRequest
     public function authorize()
     {
 
-        return $this->user()->can('update', $this->{{classVar}});
+        return true;
     }
 
     /**
@@ -33,7 +28,7 @@ class {{class}}UpdateRequest extends FormRequest
     public function rules()
     {
 
-        return {{class}}Rule::rules();
+        return DummyRuleClass::rules();
     }
 
     /**
@@ -44,6 +39,6 @@ class {{class}}UpdateRequest extends FormRequest
     public function messages()
     {
 
-        return {{class}}Rule::messages();
+        return DummyRuleClass::messages();
     }
 }

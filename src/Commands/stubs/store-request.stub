@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Requests;
+namespace DummyValidatorNamespace;
 
-use App\Models\{{class}};
-use App\Rules\{{class}}Rule;
+use DummyValidatorRuleNamespace;
 use Illuminate\Foundation\Http\FormRequest;
 
-class {{class}}StoreRequest extends FormRequest
+class DummyStoreRequestClass extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -18,7 +17,7 @@ class {{class}}StoreRequest extends FormRequest
     public function authorize()
     {
 
-        return $this->user()->can('create', {{class}}::class);
+        return true;
     }
 
     /**
@@ -29,7 +28,7 @@ class {{class}}StoreRequest extends FormRequest
     public function rules()
     {
 
-        return {{class}}Rule::rules();
+        return DummyRuleClass::rules();
     }
 
     /**
@@ -40,6 +39,6 @@ class {{class}}StoreRequest extends FormRequest
     public function messages()
     {
 
-        return {{class}}Rule::messages();
+        return DummyRuleClass::messages();
     }
 }

@@ -6,7 +6,11 @@ use Illuminate\Support\ServiceProvider;
 use Rlustosa\LaravelGenerator\Commands\ControllerMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\ModelMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\PolicyMakeCommand;
+use Rlustosa\LaravelGenerator\Commands\RuleMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\ServiceMakeCommand;
+use Rlustosa\LaravelGenerator\Commands\StoreRequestMakeCommand;
+use Rlustosa\LaravelGenerator\Commands\UpdateRequestMakeCommand;
+use Rlustosa\LaravelGenerator\Commands\ValidatorsMakeCommand;
 
 class ConsoleServiceProvider extends ServiceProvider
 {
@@ -21,6 +25,10 @@ class ConsoleServiceProvider extends ServiceProvider
         ModelMakeCommand::class,
         ServiceMakeCommand::class,
         PolicyMakeCommand::class,
+        ValidatorsMakeCommand::class,
+        RuleMakeCommand::class,
+        StoreRequestMakeCommand::class,
+        UpdateRequestMakeCommand::class,
     ];
 
     /**

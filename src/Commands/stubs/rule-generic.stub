@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Rules;
+namespace DummyValidatorNamespace;
 
-class {{class}}Rule
+class DummyRuleClass
 {
 
     /**
@@ -12,7 +12,7 @@ class {{class}}Rule
      *
      * @var array
      */
-	protected static $rules = [];
+	protected static $rules = [DummyRules];
 
     /**
      * Return default rules

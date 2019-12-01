@@ -206,6 +206,48 @@ abstract class GeneratorCommand extends Command
 
         return $policy;
     }
+    /**
+     * @return array|string
+     */
+    protected function getValidatorRuleName()
+    {
+
+        $validator = Str::studly($this->option('model'));
+
+        if (Str::contains(strtolower($validator), 'rule') === false) {
+            $validator .= 'Rule';
+        }
+
+        return $validator;
+    }
+    /**
+     * @return array|string
+     */
+    protected function getValidatorStoreRequestName()
+    {
+
+        $validator = Str::studly($this->option('model'));
+
+        if (Str::contains(strtolower($validator), 'storerequest') === false) {
+            $validator .= 'StoreRequest';
+        }
+
+        return $validator;
+    }
+    /**
+     * @return array|string
+     */
+    protected function getValidatorUpdateRequestName()
+    {
+
+        $validator = Str::studly($this->option('model'));
+
+        if (Str::contains(strtolower($validator), 'updaterequest') === false) {
+            $validator .= 'UpdateRequest';
+        }
+
+        return $validator;
+    }
 
     /**
      * Build the model replacement values.
@@ -330,6 +372,17 @@ abstract class GeneratorCommand extends Command
     {
 
         return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Policies');
+    }
+
+    /**
+     * Get the default namespace for the class.
+     *
+     * @return string
+     */
+    protected function getDefaultValidatorsNamespace()
+    {
+
+        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Validators');
     }
 
     /**
