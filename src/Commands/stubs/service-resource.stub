@@ -1,0 +1,93 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DummyServiceNamespace;
+
+use DummyFullModelClass;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
+
+class DummyServiceClass
+{
+
+    private function buildQuery(): Builder
+    {
+
+        $query = DummyModelClass::query();
+
+        $query->when(request('id'), function ($query, $id) {
+
+            return $query->whereId($id);
+        });
+
+        $query->when(request('search'), function ($query, $search) {
+
+            return $query->where('id', 'LIKE', '%' . $search . '%');
+        });
+
+        return $query;
+    }
+
+    public function paginate(int $limit): LengthAwarePaginator
+    {
+
+        return $this->buildQuery()->paginate($limit);
+    }
+
+    public function all(): Collection
+    {
+
+        return $this->buildQuery()->get();
+    }
+
+    public function find(int $id): ?DummyModelClass
+    {
+
+        //return Cache::remember('DummyModelClass_find_' . $id, config('cache.cache_time'), function () use ($id) {
+        return DummyModelClass::find($id);
+        //});
+    }
+
+    public function create(array $data): DummyModelClass
+    {
+
+        return DB::transaction(function () use ($data) {
+
+            $DummyModelVariable = new DummyModelClass();
+            $DummyModelVariable->fill($data);
+            $DummyModelVariable->save();
+
+            return $DummyModelVariable;
+        });
+    }
+
+    public function update(array $data, DummyModelClass $DummyModelVariable): DummyModelClass
+    {
+
+        $DummyModelVariable->fill($data);
+        $DummyModelVariable->save();
+
+        return $DummyModelVariable;
+    }
+
+    public function delete(DummyModelClass $DummyModelVariable): ?bool
+    {
+        //$DummyModelVariable->user_eraser_id = \Auth::id();
+        //$DummyModelVariable->save();
+
+        return $DummyModelVariable->delete();
+    }
+
+    public function lists(): array
+    {
+        //return Cache::remember('DummyModelClass_lists', config('cache.cache_time'), function () {
+
+        return DummyModelClass::orderBy('name')
+            ->pluck('name', 'id')
+            ->toArray();
+        //});
+    }
+}

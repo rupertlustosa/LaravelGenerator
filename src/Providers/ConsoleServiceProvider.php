@@ -5,6 +5,7 @@ namespace Rlustosa\LaravelGenerator\Providers;
 use Illuminate\Support\ServiceProvider;
 use Rlustosa\LaravelGenerator\Commands\ControllerMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\ModelMakeCommand;
+use Rlustosa\LaravelGenerator\Commands\ServiceMakeCommand;
 
 class ConsoleServiceProvider extends ServiceProvider
 {
@@ -17,6 +18,7 @@ class ConsoleServiceProvider extends ServiceProvider
     protected $commands = [
         ControllerMakeCommand::class,
         ModelMakeCommand::class,
+        ServiceMakeCommand::class,
     ];
 
     /**

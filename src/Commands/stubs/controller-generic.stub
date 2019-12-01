@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace DummyNamespace;
+namespace DummyControllerNamespace;
 
 use RootController;
 use Illuminate\Http\Request;
 use Exception;
 use Illuminate\Http\JsonResponse;
 
-class DummyClass extends BaseModuleController
+class DummyControllerClass extends BaseModuleController
 {
     /**
      * Display a listing of the resource.

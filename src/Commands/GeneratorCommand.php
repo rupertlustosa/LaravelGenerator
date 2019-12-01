@@ -5,6 +5,7 @@ namespace Rlustosa\LaravelGenerator\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 
 abstract class GeneratorCommand extends Command
 {
@@ -151,6 +152,96 @@ abstract class GeneratorCommand extends Command
     protected function rootNamespace()
     {
         return 'Modules';
+    }
+
+    /**
+     * @return array|string
+     */
+    protected function getModelName()
+    {
+
+        return Str::studly($this->getNameInput());
+    }
+
+    /**
+     * @return array|string
+     */
+    protected function getControllerName()
+    {
+        $controller = Str::studly($this->getNameInput());
+
+        if (Str::contains(strtolower($controller), 'controller') === false) {
+            $controller .= 'Controller';
+        }
+
+        return $controller;
+    }
+
+    /**
+     * @return array|string
+     */
+    protected function getServiceName()
+    {
+        // Se existir a opção model, use ele como referencia!
+        $service = Str::studly($this->getNameInput());
+
+        if (Str::contains(strtolower($service), 'service') === false) {
+            $service .= 'Service';
+        }
+
+        return $service;
+    }
+
+    /**
+     * Build the model replacement values.
+     *
+     * @param array $replace
+     * @return array
+     */
+    protected function buildModelReplacements(array $replace)
+    {
+
+        $model = $this->option('model');
+        $modelClass = $this->parseModel($model);
+
+        if (!class_exists($modelClass)) {
+            if ($this->confirm("A {$modelClass} model does not exist. Do you want to generate it?", true)) {
+                $this->call('rlustosa:make-model', ['module' => $this->getModuleInput(), 'name' => $model]);
+            }
+        }
+
+        return array_merge($replace, [
+            'DummyFullModelClass' => $modelClass,
+            'DummyModelClass' => class_basename($modelClass),
+            'DummyModelVariable' => lcfirst(class_basename($modelClass)),
+        ]);
+    }
+
+    /**
+     * Get the fully-qualified model class name.
+     *
+     * @param string $model
+     * @return string
+     *
+     * @throws \InvalidArgumentException
+     */
+    protected function parseModel($model)
+    {
+
+        $model = Str::studly($model);
+
+        if (preg_match('([^A-Za-z0-9_/\\\\])', $model)) {
+            throw new InvalidArgumentException('Model name contains invalid characters.');
+        }
+
+        $model = trim(str_replace('/', '\\', $model), '\\');
+
+
+        if (!Str::startsWith($model, $this->getDefaultModelNamespace())) {
+            $model = $this->getDefaultModelNamespace() . '\\' . $model;
+        }
+
+        return $model;
     }
 
     /**

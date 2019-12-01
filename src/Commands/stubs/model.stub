@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace DummyNamespace;
+namespace DummyModelNamespace;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class DummyClass extends Model
+class DummyModelClass extends Model
 {
 
     use SoftDeletes;

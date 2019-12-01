@@ -5,21 +5,21 @@ namespace Rlustosa\LaravelGenerator\Commands;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
-class ModelMakeCommand extends GeneratorCommand
+class ServiceMakeCommand extends GeneratorCommand
 {
     /**
      * The console command name.
      *
      * @var string
      */
-    protected $name = 'rlustosa:make-model';
+    protected $name = 'rlustosa:make-service';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Generate new model for the specified module.';
+    protected $description = 'Generate new service for the specified module.';
 
     /**
      * The type of class being generated.
@@ -36,7 +36,13 @@ class ModelMakeCommand extends GeneratorCommand
     protected function getStub()
     {
 
-        $stub = '/stubs/model.stub';
+        if ($this->option('model')) {
+
+            $stub = '/stubs/service-resource.stub';
+        } else {
+
+            $stub = '/stubs/service-generic.stub';
+        }
 
         return __DIR__ . $stub;
     }
@@ -49,7 +55,7 @@ class ModelMakeCommand extends GeneratorCommand
     public function getDestinationFilePath()
     {
 
-        return base_path($this->rootNamespace() . '/' . $this->getModuleName() . '/Models/' . $this->getModelName() . '.php');
+        return base_path($this->rootNamespace() . '/' . $this->getModuleName() . '/Services/' . $this->getServiceName() . '.php');
     }
 
     /**
@@ -60,7 +66,7 @@ class ModelMakeCommand extends GeneratorCommand
     protected function getDefaultNamespace()
     {
 
-        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Models');
+        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Services');
     }
 
 
@@ -75,11 +81,15 @@ class ModelMakeCommand extends GeneratorCommand
     protected function buildClass()
     {
 
-        $modelNamespace = $this->getDefaultNamespace();
+        $serviceNamespace = $this->getDefaultNamespace();
 
         $replace = [];
-        $replace['DummyModelNamespace'] = $modelNamespace;
-        $replace['DummyModelClass'] = $this->getModelName();
+        $replace['DummyServiceNamespace'] = $serviceNamespace;
+        $replace['DummyServiceClass'] = $this->getServiceName();
+
+        if ($this->option('model')) {
+            $replace = $this->buildModelReplacements($replace);
+        }
 
         $stub = $this->files->get($this->getStub());
 
@@ -87,7 +97,6 @@ class ModelMakeCommand extends GeneratorCommand
             array_keys($replace), array_values($replace), $stub
         );
     }
-
 
     /**
      * Get the console command arguments.
@@ -98,7 +107,7 @@ class ModelMakeCommand extends GeneratorCommand
     {
         return [
             ['module', InputArgument::REQUIRED, 'The name of module will be used.'],
-            ['name', InputArgument::REQUIRED, 'The name of the controller class.'],
+            ['name', InputArgument::REQUIRED, 'The name of the service class.'],
         ];
     }
 
@@ -116,7 +125,7 @@ class ModelMakeCommand extends GeneratorCommand
     protected function getOptions()
     {
         return [
-            ['migration', 'm', InputOption::VALUE_NONE, 'Flag to create associated migrations', null],
+            ['model', 'm', InputOption::VALUE_OPTIONAL, 'Generate a resource service for the given model.'],
         ];
     }
 }
