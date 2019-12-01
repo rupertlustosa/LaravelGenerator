@@ -3,6 +3,7 @@
 namespace Rlustosa\LaravelGenerator;
 
 use Illuminate\Support\ServiceProvider;
+use Rlustosa\LaravelGenerator\Providers\ConsoleServiceProvider;
 use Rlustosa\LaravelGenerator\Providers\RouteServiceProvider;
 
 class LaravelGeneratorServiceProvider extends ServiceProvider
@@ -22,7 +23,7 @@ class LaravelGeneratorServiceProvider extends ServiceProvider
         $this->registerFactories();
         $this->loadMigrationsFrom(module_path('Tip', 'Database/Migrations'));*/
         $this->loadViewsFrom(
-            __DIR__.'/../resources/views', 'lustosa-generator'
+            __DIR__ . '/../resources/views', 'lustosa-generator'
         );
 
         $this->registerPublishing();
@@ -37,7 +38,17 @@ class LaravelGeneratorServiceProvider extends ServiceProvider
     public function register()
     {
 
+        $this->registerProviders();
+    }
+
+    /**
+     * Register providers.
+     */
+    protected function registerProviders()
+    {
+
         $this->app->register(RouteServiceProvider::class);
+        $this->app->register(ConsoleServiceProvider::class);
     }
 
     /**
@@ -68,7 +79,7 @@ class LaravelGeneratorServiceProvider extends ServiceProvider
 
         $this->publishes([
             $sourcePath => $viewPath
-        ],'views');
+        ], 'views');
 
         $this->loadViewsFrom(array_merge(array_map(function ($path) {
             return $path . '/modules/tip';
@@ -98,7 +109,7 @@ class LaravelGeneratorServiceProvider extends ServiceProvider
      */
     public function registerFactories()
     {
-        if (! app()->environment('production') && $this->app->runningInConsole()) {
+        if (!app()->environment('production') && $this->app->runningInConsole()) {
             app(Factory::class)->load(module_path('Tip', 'Database/factories'));
         }
     }
@@ -126,7 +137,7 @@ class LaravelGeneratorServiceProvider extends ServiceProvider
             ], 'telescope-migrations');*/
 
             $this->publishes([
-                __DIR__.'/../public' => public_path('vendor/rlustosa'),
+                __DIR__ . '/../public' => public_path('vendor/rlustosa'),
             ], 'rlustosa-assets');
 
             /*$this->publishes([
