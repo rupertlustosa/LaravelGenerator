@@ -1,0 +1,25 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DummyNamespace;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class DummyClass extends Model
+{
+
+    use SoftDeletes;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [];
+
+    # Accessors & Mutators
+
+    # Relationships
+}

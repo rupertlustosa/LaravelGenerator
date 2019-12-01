@@ -60,9 +60,10 @@ abstract class GeneratorCommand extends Command
         // First we will check to see if the class already exists. If it does, we don't want
         // to create the class and overwrite the user's code. So, we will bail out so the
         // code is untouched. Otherwise, we will continue generating this class' files.
-        if ((!$this->hasOption('force') ||
-                !$this->option('force')) &&
-            $this->alreadyExists()) {
+        if (
+            (!$this->hasOption('force') || !$this->option('force')) &&
+            $this->alreadyExists()
+        ) {
             $this->error($this->type . ' already exists!');
 
             return false;
@@ -77,6 +78,14 @@ abstract class GeneratorCommand extends Command
         $this->files->put($path, $this->sortImports($this->buildClass()));
 
         $this->info($this->type . ' created successfully.');
+    }
+
+    /**
+     * @return array|string
+     */
+    protected function getModuleName()
+    {
+        return Str::studly($this->getModuleInput());
     }
 
     /**
@@ -99,10 +108,22 @@ abstract class GeneratorCommand extends Command
         return trim($this->argument('module'));
     }
 
+
+    /**
+     * Get the default namespace for the model class.
+     *
+     * @return string
+     */
+    protected function getDefaultModelNamespace()
+    {
+
+        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Models');
+    }
+
     /**
      * Parse the class name and format according to the root namespace.
      *
-     * @param  string  $name
+     * @param string $name
      * @return string
      */
     protected function qualifyClass($name)
@@ -118,7 +139,7 @@ abstract class GeneratorCommand extends Command
         $name = str_replace('/', '\\', $name);
 
         return $this->qualifyClass(
-            $this->getDefaultNamespace(trim($rootNamespace, '\\')).'\\'.$name
+            $this->getDefaultNamespace(trim($rootNamespace, '\\')) . '\\' . $name
         );
     }
 
@@ -135,7 +156,7 @@ abstract class GeneratorCommand extends Command
     /**
      * Alphabetically sorts the imports for the given stub.
      *
-     * @param  string  $stub
+     * @param string $stub
      * @return string
      */
     protected function sortImports($stub)
@@ -183,12 +204,12 @@ abstract class GeneratorCommand extends Command
     /**
      * Build the directory for the class if necessary.
      *
-     * @param  string  $path
+     * @param string $path
      * @return string
      */
     protected function makeDirectory($path)
     {
-        if (! $this->files->isDirectory(dirname($path))) {
+        if (!$this->files->isDirectory(dirname($path))) {
             $this->files->makeDirectory(dirname($path), 0777, true, true);
         }
 

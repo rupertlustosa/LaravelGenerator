@@ -66,18 +66,6 @@ class ControllerMakeCommand extends GeneratorCommand
     }
 
     /**
-     * Get the default namespace for the model class.
-     *
-     * @return string
-     */
-    protected function getDefaultModelNamespace()
-    {
-
-        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Models');
-    }
-
-
-    /**
      * Build the class with the given name.
      *
      * Remove the base controller import if we are already in base namespace.
@@ -89,20 +77,15 @@ class ControllerMakeCommand extends GeneratorCommand
     {
 
         $controllerNamespace = $this->getDefaultNamespace();
-        //dd($controllerNamespace);
 
         $replace = [];
         $replace['DummyNamespace'] = $controllerNamespace;
         $replace['RootController'] = 'Rlustosa\LaravelGenerator\BaseModule\BaseModuleController';
         $replace['DummyClass'] = $this->getControllerName();
 
-        /*if ($this->option('parent')) {
-            $replace = $this->buildParentReplacements();
-        }*/
-
-        //if ($this->option('model')) {
-        $replace = $this->buildModelReplacements($replace);
-        //}
+        if ($this->option('model')) {
+            $replace = $this->buildModelReplacements($replace);
+        }
 
         $replace["use {$controllerNamespace}\Controller;\n"] = '';
 
@@ -114,30 +97,6 @@ class ControllerMakeCommand extends GeneratorCommand
     }
 
     /**
-     * Build the replacements for a parent controller.
-     *
-     * @return array
-     */
-    /*protected function buildParentReplacements()
-    {
-
-        $model = $this->option('model') ?? $this->argument('module');
-        $parentModelClass = $this->parseModel($model);
-
-        if (!class_exists($parentModelClass)) {
-            if ($this->confirm("A {$parentModelClass} model does not exist. Do you want to generate it?", true)) {
-                $this->call('make:model', ['name' => $parentModelClass]);
-            }
-        }
-
-        return [
-            'ParentDummyFullModelClass' => $parentModelClass,
-            'ParentDummyModelClass' => class_basename($parentModelClass),
-            'ParentDummyModelVariable' => lcfirst(class_basename($parentModelClass)),
-        ];
-    }*/
-
-    /**
      * Build the model replacement values.
      *
      * @param array $replace
@@ -146,12 +105,12 @@ class ControllerMakeCommand extends GeneratorCommand
     protected function buildModelReplacements(array $replace)
     {
 
-        $model = $this->option('model') ?? $this->argument('module');
+        $model = $this->option('model');
         $modelClass = $this->parseModel($model);
 
         if (!class_exists($modelClass)) {
             if ($this->confirm("A {$modelClass} model does not exist. Do you want to generate it?", true)) {
-                $this->call('make:model', ['name' => $modelClass]);
+                $this->call('rlustosa:make-model', ['module' => $this->getModuleInput(), 'name' => $model]);
             }
         }
 
