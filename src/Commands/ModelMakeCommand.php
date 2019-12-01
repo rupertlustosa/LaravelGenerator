@@ -119,4 +119,9 @@ class ModelMakeCommand extends GeneratorCommand
             ['migration', 'm', InputOption::VALUE_NONE, 'Flag to create associated migrations', null],
         ];
     }
+
+    protected function createdSuccessfully()
+    {
+        $this->info($this->type . ' created successfully.');
+    }
 }

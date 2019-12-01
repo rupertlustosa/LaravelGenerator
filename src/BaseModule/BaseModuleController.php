@@ -2,7 +2,7 @@
 
 namespace Rlustosa\LaravelGenerator\BaseModule;
 
-
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Symfony\Component\HttpFoundation\Response;

@@ -5,64 +5,115 @@ declare(strict_types=1);
 namespace DummyControllerNamespace;
 
 use RootController;
-use Illuminate\Http\Request;
 use Exception;
 use Illuminate\Http\JsonResponse;
 
 class DummyControllerClass extends BaseModuleController
 {
+
     /**
-     * Display a listing of the resource.
+     * Create a new controller instance.
      *
-     * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function __construct()
     {
-        //
+
+        $this->middleware('jwt.auth');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Paginate.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
-    public function store(Request $request)
+    public function index(): JsonResponse
     {
-        //
+
+        try {
+
+            return $this->sendResponse([]);
+
+        } catch (Exception $exception) {
+
+            return $this->sendError('Server Error.', $exception);
+
+        }
     }
 
     /**
-     * Display the specified resource.
+     * return all.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
-    public function show($id)
+    public function all(): JsonResponse
     {
-        //
+
+        try {
+
+            return $this->sendResponse([]);
+
+        } catch (Exception $exception) {
+
+            return $this->sendError('Server Error.', $exception);
+
+        }
     }
 
     /**
-     * Update the specified resource in storage.
+     * Find detail using id.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return JsonResponse
      */
-    public function update(Request $request, $id)
+    public function show(int $id): JsonResponse
     {
-        //
+
+        try {
+
+            return $this->sendResponse([]);
+
+        } catch (Exception $exception) {
+
+            return $this->sendError('Server Error.', $exception);
+
+        }
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Store.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
-    public function destroy($id)
+    public function store()
     {
-        //
+    
+        try {
+
+            return $this->sendResponse([]);
+
+        } catch (Exception $exception) {
+
+            return $this->sendError('Server Error.', $exception);
+
+        }
+    }
+
+    /**
+     * Update.
+     *
+     * @return JsonResponse
+     */
+    public function update(int $id)
+    {
+
+        try {
+
+            return $this->sendResponse([]);
+
+        } catch (Exception $exception) {
+
+            return $this->sendError('Server Error.', $exception);
+
+        }
     }
 }

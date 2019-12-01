@@ -75,10 +75,9 @@ abstract class GeneratorCommand extends Command
         // stub files so that it gets the correctly formatted namespace and class name.
         $this->makeDirectory($path);
 
-        //dd($this->sortImports($this->buildClass()));
         $this->files->put($path, $this->sortImports($this->buildClass()));
 
-        $this->info($this->type . ' created successfully.');
+        $this->createdSuccessfully();
     }
 
     /**
@@ -182,7 +181,7 @@ abstract class GeneratorCommand extends Command
      */
     protected function getServiceName()
     {
-        // Se existir a opção model, use ele como referencia!
+
         $service = Str::studly($this->getNameInput());
 
         if (Str::contains(strtolower($service), 'service') === false) {
@@ -218,6 +217,36 @@ abstract class GeneratorCommand extends Command
     }
 
     /**
+     * Build the service replacement values.
+     *
+     * @param array $replace
+     * @return array
+     */
+    protected function buildServiceReplacements(array $replace)
+    {
+
+        $model = $this->option('model');
+
+        $serviceNamespace = $this->getDefaultServiceNamespace();
+
+        $serviceClass = $serviceNamespace . '\\' . $this->getServiceName();
+        //$serviceClass = $this->getFullyQualifiedServiceClassName($model);
+
+        if (!class_exists($serviceClass)) {
+            if ($this->confirm("A {$serviceClass} service does not exist. Do you want to generate it?", true)) {
+                $this->call('rlustosa:make-service', ['module' => $this->getModuleInput(), 'name' => $model, '--model' => $model]);
+            }
+        }
+
+        return array_merge($replace, [
+            'DummyFullServiceClass' => $serviceClass,
+            'DummyServiceNamespace' => $serviceNamespace,
+            'DummyServiceClass' => $this->getServiceName(),
+            'DummyServiceVariable' => lcfirst($this->getServiceName()),
+        ]);
+    }
+
+    /**
      * Get the fully-qualified model class name.
      *
      * @param string $model
@@ -245,6 +274,37 @@ abstract class GeneratorCommand extends Command
     }
 
     /**
+     * Get the default namespace for the class.
+     *
+     * @param string $model
+     * @return string
+     */
+    protected function getFullyQualifiedServiceClassName($model)
+    {
+
+        $model = Str::studly($model);
+
+        if (preg_match('([^A-Za-z0-9_/\\\\])', $model)) {
+            throw new InvalidArgumentException('Model name contains invalid characters.');
+        }
+
+        $model = trim(str_replace('/', '\\', $model), '\\');
+
+        return trim($this->getDefaultServiceNamespace() . '\\' . $model);
+    }
+
+    /**
+     * Get the default namespace for the class.
+     *
+     * @return string
+     */
+    protected function getDefaultServiceNamespace()
+    {
+
+        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Services');
+    }
+
+    /**
      * Alphabetically sorts the imports for the given stub.
      *
      * @param string $stub
@@ -269,11 +329,9 @@ abstract class GeneratorCommand extends Command
      * @return bool
      */
     abstract protected function alreadyExists();
-    /*protected function alreadyExists($rawName)
-    {
-        dd($rawName);
-        return $this->files->exists($this->getPath($this->qualifyClass($rawName)));
-    }*/
+
+    abstract protected function createdSuccessfully();
+
 
     /**
      * Get class name.
@@ -305,31 +363,5 @@ abstract class GeneratorCommand extends Command
         }
 
         return $path;
-    }
-
-    /**
-     * Get class namespace.
-     *
-     * @param \Nwidart\Modules\Module $module
-     *
-     * @return string
-     */
-    public function getClassNamespace($module)
-    {
-        $extra = str_replace($this->getClass(), '', $this->argument($this->argumentName));
-
-        $extra = str_replace('/', '\\', $extra);
-
-        $namespace = 'Modules';
-
-        $namespace .= '\\' . $module->getStudlyName();
-
-        $namespace .= '\\' . $this->getDefaultNamespace();
-
-        $namespace .= '\\' . $extra;
-
-        $namespace = str_replace('/', '\\', $namespace);
-
-        return trim($namespace, '\\');
     }
 }

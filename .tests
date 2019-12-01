@@ -1,0 +1,8 @@
+rm -rf Modules/ && php artisan rlustosa:make-controller user user
+rm -rf Modules/ && php artisan rlustosa:make-controller user user --model=user
+
+rm -rf Modules/ && php artisan rlustosa:make-model user user
+rm -rf Modules/ && php artisan rlustosa:make-model user user --model=user
+
+rm -rf Modules/ && php artisan rlustosa:make-service user user
+rm -rf Modules/ && php artisan rlustosa:make-service user user --model=user

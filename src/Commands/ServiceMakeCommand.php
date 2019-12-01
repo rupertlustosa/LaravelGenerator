@@ -26,7 +26,7 @@ class ServiceMakeCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $type = 'Model';
+    protected $type = 'Service';
 
     /**
      * Get the stub file for the generator.
@@ -66,7 +66,7 @@ class ServiceMakeCommand extends GeneratorCommand
     protected function getDefaultNamespace()
     {
 
-        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Services');
+        return $this->getDefaultServiceNamespace();
     }
 
 
@@ -127,5 +127,10 @@ class ServiceMakeCommand extends GeneratorCommand
         return [
             ['model', 'm', InputOption::VALUE_OPTIONAL, 'Generate a resource service for the given model.'],
         ];
+    }
+
+    protected function createdSuccessfully()
+    {
+        $this->info($this->type . ' created successfully.');
     }
 }

@@ -2,8 +2,6 @@
 
 namespace Rlustosa\LaravelGenerator\Commands;
 
-use Illuminate\Support\Str;
-use InvalidArgumentException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -90,7 +88,9 @@ class ControllerMakeCommand extends GeneratorCommand
         $replace['DummyControllerClass'] = $this->getControllerName();
 
         if ($this->option('model')) {
+
             $replace = $this->buildModelReplacements($replace);
+            $replace = $this->buildServiceReplacements($replace);
         }
 
         $replace["use {$controllerNamespace}\Controller;\n"] = '';
@@ -131,5 +131,10 @@ class ControllerMakeCommand extends GeneratorCommand
         return [
             ['model', 'm', InputOption::VALUE_OPTIONAL, 'Generate a resource controller for the given model.'],
         ];
+    }
+
+    protected function createdSuccessfully()
+    {
+        $this->info($this->type . ' created successfully.');
     }
 }
