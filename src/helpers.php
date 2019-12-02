@@ -43,6 +43,7 @@ if (!function_exists('rl_load_table_structure')) {
                 //'getTypeRegistry' => $column->getType()->getTypeRegistry(),
                 'length' => $column->getLength(),
                 'notnull' => $column->getNotnull(),
+                //'array' => $column->toArray(),
             ];
         }
         /*$tables = $sm->listTables();

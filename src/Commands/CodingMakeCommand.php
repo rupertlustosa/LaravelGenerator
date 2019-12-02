@@ -2,6 +2,7 @@
 
 namespace Rlustosa\LaravelGenerator\Commands;
 
+use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputArgument;
 
 class CodingMakeCommand extends GeneratorCommand
@@ -43,13 +44,44 @@ class CodingMakeCommand extends GeneratorCommand
 
             $fillable = $this->generateFillable($myModel, $structure);
             $this->info('### FILLABLE ###', true);
-            $this->info(implode(', ', array_values($fillable)), true);
+            //$this->info(implode(', ', array_values($fillable)), true);
+            echo "    protected \$fillable = [\r\n";
+            echo "        " . implode(', ', array_values($fillable)) . "\r\n";
+            echo "    ];\r\n";
+            echo "\r\n";
             $this->info('', true);
 
             $rules = $this->generateRules($myModel, $structure);
             $this->info('### RULES ###', true);
-            $this->info(implode(', ', array_values($fillable)), true);
+            //print_r($rules);
+            echo "    protected static \$rules = [\r\n";
+            foreach ($rules as $key => $rule) {
+
+                echo "        '{$key}' => '{$rule}',\r\n";
+            }
+            echo '    ];';
+            echo "\r\n";
+            echo "\r\n";
+            echo "        return [\r\n";
+            foreach ($rules as $key => $rule) {
+
+                echo "            '{$key}' => self::\$rules['{$key}'],\r\n";
+            }
+            echo '        ];';
+            //$this->info(implode(', ', array_values($fillable)), true);
             $this->info('', true);
+
+            $formHtml = $this->generateFormHtml($myModel, $structure);
+            $this->info('### FORM HTML ###', true);
+
+            foreach ($formHtml as $html) {
+
+                echo "                                <div class=\"form-group col-6\">\r\n";
+                echo $html['label'] . "\r\n";
+                echo $html['input'] . "\r\n";
+                echo "                                </div>\r\n\r\n";
+            }
+
 
         }
 
@@ -84,7 +116,7 @@ class CodingMakeCommand extends GeneratorCommand
 
     private function generateRules($model, $structure)
     {
-        dd($structure);
+        //dd($structure);
         $columns = [];
         foreach ($structure['columns'] as $column) {
 
@@ -100,38 +132,182 @@ class CodingMakeCommand extends GeneratorCommand
                 ]
             )) {
 
-                //notnull type boolean string
-                //email
-                //nullable|exists:sources,id,deleted_at,NULL
-                //required|exists:cities,id
-                //required|min:2|max:255
-                //required|image|mimes:jpeg,png,jpg,gif,svg|max:2048
-                //nullable|max:15|regex:/^\(?\d{2}\)?[\s-]?\d{4,5}-?\d{4}$/i
-                //'id' => $this->rules['id']
-
                 $nullableOrRequired = $column['notnull'] ? 'required' : 'nullable';
 
                 if ($column['name'] == $model->getKeyName()) {
 
-                    $columns[] = 'required|integer|exists:' . $model->getTable() . ',id,deleted_at,NULL';
+                    $columns[$column['name']] = 'required|integer|exists:' . $model->getTable() . ',id,deleted_at,NULL';
                 } elseif (in_array($column['name'], array_keys($structure['foreignKeys']))) {
 
                     $referenceTable = $structure['foreignKeys'][$column['name']];
 
-                    $columns[] = $nullableOrRequired . '|integer|exists:' . $referenceTable . ',id,deleted_at,NULL';
+                    $columns[$column['name']] = $nullableOrRequired . '|integer|exists:' . $referenceTable . ',id,deleted_at,NULL';
+                } elseif ($column['type'] == 'string' && $this->contains($column['name'], 'password')) {
+
+                    $columns[$column['name']] = $nullableOrRequired . '|string|min:8|confirmed';
+                } elseif ($column['type'] == 'string' && $this->contains($column['name'], 'email')) {
+
+                    $columns[$column['name']] = $nullableOrRequired . '|email|max:' . $column['length'];
+                } elseif ($column['type'] == 'string' && $this->contains($column['name'], 'image')) {
+
+                    $columns[$column['name']] = $nullableOrRequired . '|image|mimes:jpeg,png,jpg,gif,svg|max:4096';
+                } elseif ($column['type'] == 'string' && $this->contains($column['name'], 'phone')) {
+
+                    $columns[$column['name']] = $nullableOrRequired . '|max:' . $column['length'] . '|regex:/^\(?\d{2}\)?[\s-]?\d{4,5}-?\d{4}$/i';
                 } elseif ($column['type'] == 'string') {
 
-                    $columns[] = $nullableOrRequired . '|max:' . $column['length'];
+                    $columns[$column['name']] = $nullableOrRequired . '|max:' . $column['length'];
+                } elseif ($column['type'] == 'boolean') {
+
+                    $columns[$column['name']] = $nullableOrRequired . '|boolean';
+                } elseif (in_array($column['type'], ['bigint', 'integer', 'smallint'])) {
+
+                    $columns[$column['name']] = $nullableOrRequired . '|numeric';
+                } elseif ($column['type'] == 'datetime') {
+
+                    $columns[$column['name']] = $nullableOrRequired . '|date_format:d/m/Y H:i';
+                } elseif ($column['type'] == 'date') {
+
+                    $columns[$column['name']] = $nullableOrRequired . '|date_format:d/m/Y';
+                } elseif ($column['type'] == 'time') {
+
+                    $columns[$column['name']] = $nullableOrRequired . '|date_format:H:i';
+                } elseif ($column['type'] == 'text') {
+
+                    $columns[$column['name']] = $nullableOrRequired;
                 } else {
 
-                    $columns[] = $nullableOrRequired . '|' . $column['name'];
+                    $columns[$column['name']] = $nullableOrRequired . '|' . $column['name'];
                 }
-
-                // Tratar boolean datetime ou date email image ou phone
             }
         }
-        dd($columns);
+
         return $columns;
+    }
+
+    private function generateFormHtml($model, $structure)
+    {
+        $code = [];
+        foreach ($structure['columns'] as $column) {
+
+            if (!in_array($column['name'],
+                [
+                    //$model->getKeyName(),
+                    $model::CREATED_AT,
+                    $model::UPDATED_AT,
+                    $model->getDeletedAtColumn(),
+                    //'password',
+                    'remember_token',
+                    'email_verified_at',
+                ]
+            )) {
+
+                if ($column['name'] == $model->getKeyName()) {
+
+
+                } elseif (in_array($column['name'], array_keys($structure['foreignKeys']))) {
+
+                    $referenceTable = $structure['foreignKeys'][$column['name']];
+
+                    $code[$column['name']] = [
+                        'label' => $this->returnLabel($column),
+                        'input' => $this->returnDefaultInput($column, 'text', 'select2'),
+                    ];
+                } elseif ($column['type'] == 'string' && $this->contains($column['name'], 'password')) {
+
+                    $code[$column['name']] = [
+                        'label' => $this->returnLabel($column),
+                        'input' => $this->returnDefaultInput($column, 'password'),
+                    ];
+                } elseif ($column['type'] == 'string' && $this->contains($column['name'], 'email')) {
+
+                    $code[$column['name']] = [
+                        'label' => $this->returnLabel($column),
+                        'input' => $this->returnDefaultInput($column, 'email'),
+                    ];
+                } elseif ($column['type'] == 'string' && $this->contains($column['name'], 'image')) {
+
+                    $code[$column['name']] = [
+                        'label' => $this->returnLabel($column),
+                        'input' => $this->returnDefaultInput($column, 'file'),
+                    ];
+                } elseif ($column['type'] == 'string' && $this->contains($column['name'], 'phone')) {
+
+                    $code[$column['name']] = [
+                        'label' => $this->returnLabel($column),
+                        'input' => $this->returnDefaultInput($column, 'text', 'mask_phone'),
+                    ];
+                } elseif ($column['type'] == 'boolean') {
+
+                    $code[$column['name']] = [
+                        'label' => $this->returnLabel($column),
+                        'input' => $this->returnDefaultInput($column, 'number'),
+                    ];
+                } elseif (in_array($column['type'], ['bigint', 'integer', 'smallint'])) {
+
+                    $code[$column['name']] = [
+                        'label' => $this->returnLabel($column),
+                        'input' => $this->returnDefaultInput($column, 'number'),
+                    ];
+                } elseif ($column['type'] == 'datetime') {
+
+                    $code[$column['name']] = [
+                        'label' => $this->returnLabel($column),
+                        'input' => $this->returnDefaultInput($column, 'text', 'mask_datetime'),
+                    ];
+                } elseif ($column['type'] == 'date') {
+
+                    $code[$column['name']] = [
+                        'label' => $this->returnLabel($column),
+                        'input' => $this->returnDefaultInput($column, 'text', 'mask_date'),
+                    ];
+                } elseif ($column['type'] == 'time') {
+
+                    $code[$column['name']] = [
+                        'label' => $this->returnLabel($column),
+                        'input' => $this->returnDefaultInput($column, 'text', 'mask_time'),
+                    ];
+                } elseif ($column['type'] == 'text') {
+
+                    $code[$column['name']] = [
+                        'label' => $this->returnLabel($column),
+                        'input' => $this->returnDefaultInput($column, 'text', 'mask_phone'),
+                    ];
+                } else {
+
+                    $code[$column['name']] = [
+                        'label' => $this->returnLabel($column),
+                        'input' => $this->returnDefaultInput($column),
+                    ];
+                }
+
+            }
+        }
+
+        return $code;
+    }
+
+    private function returnLabel($column)
+    {
+
+        return '                                    <label for="' . $column['name'] . '">' . Str::upper($column['name']) . '</label>';
+    }
+
+    private function returnDefaultInput($column, $type = 'text', $extraClass = null)
+    {
+
+        $class = 'form-control';
+        if ($extraClass) {
+
+            $class .= ' ' . $extraClass;
+        }
+        return '                                    <input type="text" v-model="form.' . $column['name'] . '" class="' . $class . '">';
+    }
+
+    private function contains($string, $needles)
+    {
+
+        return Str::contains(strtolower($string), $needles);
     }
 
     /**
