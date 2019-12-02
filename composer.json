@@ -5,7 +5,7 @@
     "require": {
         "php": ">=7.2",
       "ext-json": "*",
-      "doctrine/dbal": "^3.0@dev"
+        "doctrine/dbal": "^2.9"
     },
     "require-dev": {
         "laravel/framework": "^6.5"
