@@ -45,6 +45,12 @@ class ModuleMakeCommand extends GeneratorCommand
         $this->info('--> make-update-request');
         $this->call('rlustosa:make-update-request', ['module' => $this->getModuleInput(), '--model' => $model]);
 
+        $this->info('--> make-resource');
+        $this->call('rlustosa:make-resource', ['module' => $this->getModuleInput(), 'name' => $this->getNameInput(), '--model' => $model]);
+
+        $this->info('--> make-collection');
+        $this->call('rlustosa:make-collection', ['module' => $this->getModuleInput(), 'name' => $this->getNameInput(), '--model' => $model]);
+
         $this->info('--> make-controller');
         $this->call('rlustosa:make-controller', ['module' => $this->getModuleInput(), 'name' => $this->getNameInput(), '--model' => $model]);
 
@@ -56,12 +62,6 @@ class ModuleMakeCommand extends GeneratorCommand
 
         $this->info('--> make-route-api');
         $this->call('rlustosa:make-route-api', ['module' => $this->getModuleInput(), 'name' => $this->getNameInput()]);
-
-        $this->info('--> make-resource');
-        $this->call('rlustosa:make-resource', ['module' => $this->getModuleInput(), 'name' => $this->getNameInput(), '--model' => $model]);
-
-        $this->info('--> make-collection');
-        $this->call('rlustosa:make-collection', ['module' => $this->getModuleInput(), 'name' => $this->getNameInput(), '--model' => $model]);
 
         $this->info('--- FIM ---');
 

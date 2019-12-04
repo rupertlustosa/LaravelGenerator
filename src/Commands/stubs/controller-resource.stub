@@ -8,6 +8,13 @@ use RootController;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use DummyFullServiceClass;
+use DummyFullStoreRequestClass;
+use DummyFullUpdateRequestClass;
+use DummyFullModelClass;
+use DummyFullResourceClass;
+use DummyFullCollectionClass;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class DummyControllerClass extends BaseModuleController
 {
@@ -26,7 +33,7 @@ class DummyControllerClass extends BaseModuleController
     }
 
     /**
-     * Paginate.
+     * Display a listing of the resource.
      *
      * @return JsonResponse
      */
@@ -34,6 +41,11 @@ class DummyControllerClass extends BaseModuleController
     {
 
         try {
+
+            if (!Auth::user()->can('viewAny', DummyModelClass::class)) {
+
+                return $this->sendUnauthorized();
+            }
 
             $limit = (int)(request('limit') ?? 20);
             $data = $this->DummyServiceVariable->paginate($limit);
@@ -48,7 +60,7 @@ class DummyControllerClass extends BaseModuleController
     }
 
     /**
-     * return all.
+     * Display a listing of the resource.
      *
      * @return JsonResponse
      */
@@ -56,6 +68,11 @@ class DummyControllerClass extends BaseModuleController
     {
 
         try {
+
+            if (!Auth::user()->can('viewAny', DummyModelClass::class)) {
+
+                return $this->sendUnauthorized();
+            }
 
             $data = $this->DummyServiceVariable->all();
 
@@ -68,41 +85,16 @@ class DummyControllerClass extends BaseModuleController
     }
 
     /**
-     * Find detail using id.
-     *
-     * @param int $id
-     * @return JsonResponse
-     */
-    public function show(int $id): JsonResponse
-    {
-
-        try {
-
-            $item = $this->DummyServiceVariable->find($id);
-            if ($item === null) {
-
-                return $this->sendNotFound();
-            }
-
-            return $this->sendResource(new DummyModelClassResource($item));
-
-        } catch (Exception $exception) {
-
-            return $this->sendError('Server Error.', $exception);
-
-        }
-    }
-
-    /**
-     * Store.
+     * Store a newly created resource in storage.
      *
      * @return JsonResponse
      */
     public function store()
     {
+
         try {
 
-            if (!\Auth::user()->can('create', DummyModelClass::class)) {
+            if (!Auth::user()->can('create', DummyModelClass::class)) {
 
                 return $this->sendUnauthorized();
             }
@@ -127,21 +119,16 @@ class DummyControllerClass extends BaseModuleController
     }
 
     /**
-     * Update.
+     * Update the specified resource in storage.
      *
+     * @param DummyModelClass $DummyModelVariable
      * @return JsonResponse
      */
-    public function update(int $id)
+    public function update(DummyModelClass $DummyModelVariable)
     {
         try {
 
-            $item = $this->DummyServiceVariable->find($id);
-            if ($item === null) {
-
-                return $this->sendNotFound();
-            }
-
-            if (!\Auth::user()->can('update', DummyModelClass::class)) {
+            if (!Auth::user()->can('update', $DummyModelVariable)) {
 
                 return $this->sendUnauthorized();
             }
@@ -154,9 +141,61 @@ class DummyControllerClass extends BaseModuleController
                 return $this->sendBadRequest('Validation Error.', $validator->errors()->toArray());
             }
 
-            $item = $this->DummyServiceVariable->update(request()->all(), $item);
+            $item = $this->DummyServiceVariable->update(request()->all(), $DummyModelVariable);
 
             return $this->sendResponse($item->toArray());
+
+        } catch (Exception $exception) {
+
+            return $this->sendError('Server Error.', $exception);
+
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param DummyModelClass $DummyModelVariable
+     * @return JsonResponse
+     */
+    public function show(DummyModelClass $DummyModelVariable): JsonResponse
+    {
+
+        try {
+
+            if (!Auth::user()->can('show', $DummyModelVariable)) {
+
+                return $this->sendUnauthorized();
+            }
+
+            return $this->sendResource(new DummyModelClassResource($DummyModelVariable));
+
+        } catch (Exception $exception) {
+
+            return $this->sendError('Server Error.', $exception);
+
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param DummyModelClass $DummyModelVariable
+     * @return JsonResponse
+     */
+    public function delete(DummyModelClass $DummyModelVariable): JsonResponse
+    {
+
+        try {
+
+            $item = $this->DummyServiceVariable->find($id);
+
+            if (!Auth::user()->can('delete', $item)) {
+
+                return $this->sendUnauthorized();
+            }
+
+            return $this->sendResource(new DummyModelClassResource($item));
 
         } catch (Exception $exception) {
 

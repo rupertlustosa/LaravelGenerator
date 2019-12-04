@@ -12,8 +12,8 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
-Route::middleware(['auth:api'])
+//auth:api
+Route::middleware(['web'])
     ->group(function ($api) {
         $api->resource('DummyModulePlural', 'DummyController')->except([
             'create', 'edit'

@@ -406,6 +406,7 @@ abstract class GeneratorCommand extends Command
         $serviceClass = $serviceNamespace . '\\' . $this->getServiceName();
 
         if (!class_exists($serviceClass)) {
+
             if ($this->confirm("A {$serviceClass} service does not exist. Do you want to generate it?", true)) {
                 $this->call('rlustosa:make-service', ['module' => $this->getModuleInput(), 'name' => $model, '--model' => $model]);
             }
@@ -416,6 +417,168 @@ abstract class GeneratorCommand extends Command
             'DummyServiceNamespace' => $serviceNamespace,
             'DummyServiceClass' => $this->getServiceName(),
             'DummyServiceVariable' => lcfirst($this->getServiceName()),
+        ]);
+    }
+
+    /**
+     * Build the service replacement values.
+     *
+     * @param array $replace
+     * @return array
+     */
+    protected function buildPolicyReplacements(array $replace)
+    {
+
+        $model = $this->option('model');
+
+        $policyNamespace = $this->getDefaultPolicyNamespace();
+        $policyClass = $policyNamespace . '\\' . $this->getPolicyName();
+
+        if (!class_exists($policyClass)) {
+
+            if ($this->confirm("A {$policyClass} policy does not exist. Do you want to generate it?", true)) {
+                $this->call('rlustosa:make-policy', ['module' => $this->getModuleInput(), 'name' => $model, '--model' => $model]);
+            }
+        }
+
+        return $replace;
+    }
+
+    /**
+     * Build the service replacement values.
+     *
+     * @param array $replace
+     * @return array
+     */
+    protected function buildValidatorRuleReplacements(array $replace)
+    {
+
+        $model = $this->option('model');
+
+        $validatorNamespace = $this->getDefaultValidatorsNamespace();
+        $validatorClass = $validatorNamespace . '\\' . $this->getValidatorRuleName();
+
+        if (!class_exists($validatorClass)) {
+
+            if ($this->confirm("A {$validatorClass} validator does not exist. Do you want to generate it?", true)) {
+                $this->call('rlustosa:make-rule', ['module' => $this->getModuleInput(), '--model' => $model]);
+            }
+        }
+
+        return $replace;
+    }
+
+    /**
+     * Build the service replacement values.
+     *
+     * @param array $replace
+     * @return array
+     */
+    protected function buildValidatorStoreRequestReplacements(array $replace)
+    {
+
+        $model = $this->option('model');
+
+        $validatorNamespace = $this->getDefaultValidatorsNamespace();
+        $validatorStoreRequestClass = $validatorNamespace . '\\' . $this->getValidatorStoreRequestName();
+
+        if (!class_exists($validatorStoreRequestClass)) {
+
+            if ($this->confirm("A {$validatorStoreRequestClass} validator store request does not exist. Do you want to generate it?", true)) {
+                $this->call('rlustosa:make-store-request', ['module' => $this->getModuleInput(), '--model' => $model]);
+            }
+        }
+
+        return array_merge($replace, [
+            'DummyFullStoreRequestClass' => $validatorStoreRequestClass,
+            'DummyValidatorNamespace' => $validatorNamespace,
+            'DummyStoreRequestClass' => $this->getValidatorStoreRequestName(),
+            'DummyStoreRequestVariable' => lcfirst($this->getValidatorStoreRequestName()),
+        ]);
+    }
+
+    /**
+     * Build the service replacement values.
+     *
+     * @param array $replace
+     * @return array
+     */
+    protected function buildValidatorUpdateRequestReplacements(array $replace)
+    {
+
+        $model = $this->option('model');
+
+        $validatorNamespace = $this->getDefaultValidatorsNamespace();
+        $validatorUpdateRequestClass = $validatorNamespace . '\\' . $this->getValidatorUpdateRequestName();
+
+        if (!class_exists($validatorUpdateRequestClass)) {
+
+            if ($this->confirm("A {$validatorUpdateRequestClass} validator update request does not exist. Do you want to generate it?", true)) {
+                $this->call('rlustosa:make-update-request', ['module' => $this->getModuleInput(), '--model' => $model]);
+            }
+        }
+
+        return array_merge($replace, [
+            'DummyFullUpdateRequestClass' => $validatorUpdateRequestClass,
+            'DummyValidatorNamespace' => $validatorNamespace,
+            'DummyUpdateRequestClass' => $this->getValidatorUpdateRequestName(),
+            'DummyUpdateRequestVariable' => lcfirst($this->getValidatorUpdateRequestName()),
+        ]);
+    }
+
+    /**
+     * Build the service replacement values.
+     *
+     * @param array $replace
+     * @return array
+     */
+    protected function buildResourceReplacements(array $replace)
+    {
+
+        $model = $this->option('model');
+
+        $resourceNamespace = $this->getDefaultResourceNamespace();
+        $resourceClass = $resourceNamespace . '\\' . $this->getResourceName();
+
+        if (!class_exists($resourceClass)) {
+
+            if ($this->confirm("A {$resourceClass} resource does not exist. Do you want to generate it?", true)) {
+                $this->call('rlustosa:make-resource', ['module' => $this->getModuleInput(), 'name' => $model, '--model' => $model]);
+            }
+        }
+
+        return array_merge($replace, [
+            'DummyResourceNamespace' => $resourceNamespace,
+            'DummyFullResourceClass' => $resourceClass,
+            'DummyResourceClass' => $this->getResourceName(),
+        ]);
+    }
+
+    /**
+     * Build the service replacement values.
+     *
+     * @param array $replace
+     * @return array
+     */
+    protected function buildCollectionReplacements(array $replace)
+    {
+
+        $model = $this->option('model');
+
+        $resourceNamespace = $this->getDefaultResourceNamespace();
+        $collectionClass = $resourceNamespace . '\\' . $this->getCollectionName();
+
+        if (!class_exists($collectionClass)) {
+
+            if ($this->confirm("A {$collectionClass} collection does not exist. Do you want to generate it?", true)) {
+                $this->call('rlustosa:make-collection', ['module' => $this->getModuleInput(), 'name' => $model, '--model' => $model]);
+            }
+        }
+
+        return array_merge($replace, [
+            'DummyCollectionNamespace' => $resourceNamespace,
+            'DummyFullCollectionClass' => $collectionClass,
+            'DummyCollectionClass' => $this->getCollectionName(),
         ]);
     }
 

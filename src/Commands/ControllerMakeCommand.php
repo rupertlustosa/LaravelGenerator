@@ -51,20 +51,12 @@ class ControllerMakeCommand extends GeneratorCommand
 
             $replace = $this->buildModelReplacements($replace);
             $replace = $this->buildServiceReplacements($replace);
-
-            $model = $this->option('model');
-
-            $policyNamespace = $this->getDefaultPolicyNamespace();
-            $policyClass = $policyNamespace . '\\' . $this->getPolicyName();
-
-            if (!class_exists($policyClass)) {
-
-                if ($this->confirm("A {$policyClass} policy does not exist. Do you want to generate it?", true)) {
-                    $this->call('rlustosa:make-policy', ['module' => $this->getModuleInput(), 'name' => $model, '--model' => $model]);
-                }
-            }
-
-            $this->call('rlustosa:make-validators', ['module' => $this->getModuleInput(), '--model' => $model]);
+            $replace = $this->buildPolicyReplacements($replace);
+            $replace = $this->buildValidatorRuleReplacements($replace);
+            $replace = $this->buildValidatorStoreRequestReplacements($replace);
+            $replace = $this->buildValidatorUpdateRequestReplacements($replace);
+            $replace = $this->buildResourceReplacements($replace);
+            $replace = $this->buildCollectionReplacements($replace);
         }
 
         $replace["use {$controllerNamespace}\Controller;\n"] = '';

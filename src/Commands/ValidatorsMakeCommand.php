@@ -25,29 +25,9 @@ class ValidatorsMakeCommand extends GeneratorCommand
     public function handle()
     {
 
-        $validatorNamespace = $this->getDefaultValidatorsNamespace();
-        $model = $this->option('model');
-
-        $validatorClass = $validatorNamespace . '\\' . $this->getValidatorRuleName();
-        if (!class_exists($validatorClass)) {
-            if ($this->confirm("A {$validatorClass} validator does not exist. Do you want to generate it?", true)) {
-                $this->call('rlustosa:make-rule', ['module' => $this->getModuleInput(), '--model' => $model]);
-            }
-        }
-
-        $validatorStoreRequestClass = $validatorNamespace . '\\' . $this->getValidatorStoreRequestName();
-        if (!class_exists($validatorStoreRequestClass)) {
-            if ($this->confirm("A {$validatorStoreRequestClass} validator store request does not exist. Do you want to generate it?", true)) {
-                $this->call('rlustosa:make-store-request', ['module' => $this->getModuleInput(), '--model' => $model]);
-            }
-        }
-
-        $validatorUpdateRequestClass = $validatorNamespace . '\\' . $this->getValidatorUpdateRequestName();
-        if (!class_exists($validatorUpdateRequestClass)) {
-            if ($this->confirm("A {$validatorUpdateRequestClass} validator update request does not exist. Do you want to generate it?", true)) {
-                $this->call('rlustosa:make-update-request', ['module' => $this->getModuleInput(), '--model' => $model]);
-            }
-        }
+        $this->buildValidatorRuleReplacements([]);
+        $this->buildValidatorStoreRequestReplacements([]);
+        $this->buildValidatorUpdateRequestReplacements([]);
     }
 
     /**
