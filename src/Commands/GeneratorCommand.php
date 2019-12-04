@@ -310,18 +310,27 @@ abstract class GeneratorCommand extends Command
      * Build the model replacement values.
      *
      * @param array $replace
+     * @param bool $createIfNotExists
      * @return array
      */
-    protected function buildModelReplacements(array $replace)
+    protected function buildModelReplacements(array $replace, $createIfNotExists = true)
     {
 
         $model = $this->option('model');
         $modelClass = $this->parseModel($model);
-//dd($modelClass == 'Modules\User\Models\User', class_exists($modelClass));
 
         if (!class_exists($modelClass)) {
-            if ($this->confirm("A {$modelClass} model does not exist XXX. Do you want to generate it?", true)) {
-                $this->call('rlustosa:make-model', ['module' => $this->getModuleInput(), 'name' => $model]);
+
+            if ($createIfNotExists) {
+
+                if ($this->confirm("A {$modelClass} model does not exist. Do you want to generate it?", true)) {
+
+                    $this->call('rlustosa:make-model', ['module' => $this->getModuleInput(), 'name' => $model]);
+                }
+            } else {
+
+                $this->warn("A {$modelClass} model does not exist. Please, create it first!", true);
+                exit;
             }
         }
 
@@ -395,7 +404,6 @@ abstract class GeneratorCommand extends Command
         $serviceNamespace = $this->getDefaultServiceNamespace();
 
         $serviceClass = $serviceNamespace . '\\' . $this->getServiceName();
-        //$serviceClass = $this->getFullyQualifiedServiceClassName($model);
 
         if (!class_exists($serviceClass)) {
             if ($this->confirm("A {$serviceClass} service does not exist. Do you want to generate it?", true)) {
@@ -422,6 +430,17 @@ abstract class GeneratorCommand extends Command
         return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Services');
     }
 
+    /**
+     * Get the default namespace for the class.
+     *
+     * @return string
+     */
+    protected function getDefaultResourceNamespace()
+    {
+
+        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Resources');
+    }
+
     /*
      * Determine if the class already exists.
      *
@@ -441,6 +460,36 @@ abstract class GeneratorCommand extends Command
         }
 
         return $service;
+    }
+
+    /**
+     * @return array|string
+     */
+    protected function getResourceName()
+    {
+
+        $resource = Str::studly($this->getNameInput());
+
+        if (Str::contains(strtolower($resource), 'resource') === false) {
+            $resource .= 'Resource';
+        }
+
+        return $resource;
+    }
+
+    /**
+     * @return array|string
+     */
+    protected function getCollectionName()
+    {
+
+        $collection = Str::studly($this->getNameInput());
+
+        if (Str::contains(strtolower($collection), 'collection') === false) {
+            $collection .= 'Collection';
+        }
+
+        return $collection;
     }
 
     //abstract protected function createdSuccessfully();

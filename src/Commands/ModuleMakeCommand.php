@@ -36,9 +36,6 @@ class ModuleMakeCommand extends GeneratorCommand
         $this->info('--> make-policy');
         $this->call('rlustosa:make-policy', ['module' => $this->getModuleInput(), 'name' => $this->getNameInput(), '--model' => $model]);
 
-        /*$this->info('--> make-validators');
-        $this->call('rlustosa:make-validators', ['module' => $this->getModuleInput(), '--model' => $model]);*/
-
         $this->info('--> make-rule');
         $this->call('rlustosa:make-rule', ['module' => $this->getModuleInput(), '--model' => $model]);
 
@@ -59,6 +56,12 @@ class ModuleMakeCommand extends GeneratorCommand
 
         $this->info('--> make-route-api');
         $this->call('rlustosa:make-route-api', ['module' => $this->getModuleInput(), 'name' => $this->getNameInput()]);
+
+        $this->info('--> make-resource');
+        $this->call('rlustosa:make-resource', ['module' => $this->getModuleInput(), 'name' => $this->getNameInput(), '--model' => $model]);
+
+        $this->info('--> make-collection');
+        $this->call('rlustosa:make-collection', ['module' => $this->getModuleInput(), 'name' => $this->getNameInput(), '--model' => $model]);
 
         $this->info('--- FIM ---');
 

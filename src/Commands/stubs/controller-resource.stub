@@ -22,7 +22,7 @@ class DummyControllerClass extends BaseModuleController
     {
 
         //$this->middleware('jwt.auth');
-        $this->service = $DummyServiceVariable;
+        $this->DummyServiceVariable = $DummyServiceVariable;
     }
 
     /**
@@ -36,16 +36,9 @@ class DummyControllerClass extends BaseModuleController
         try {
 
             $limit = (int)(request('limit') ?? 20);
-            $data = $this->service->paginate($limit);
+            $data = $this->DummyServiceVariable->paginate($limit);
 
-            return $this->sendResponse([
-                'model' => 'DummyModel',
-                'namespace' => __NAMESPACE__,
-                'class' => __CLASS__,
-                'function' => __FUNCTION__,
-                'method' => __METHOD__,
-            ]);
-            //return $this->sendPaginate(new DummyModelClassCollection($data));
+            return $this->sendPaginate(new DummyModelClassCollection($data));
 
         } catch (Exception $exception) {
 
@@ -64,16 +57,9 @@ class DummyControllerClass extends BaseModuleController
 
         try {
 
-            $data = $this->service->all();
+            $data = $this->DummyServiceVariable->all();
 
-            return $this->sendResponse([
-                'model' => 'DummyModel',
-                'namespace' => __NAMESPACE__,
-                'class' => __CLASS__,
-                'function' => __FUNCTION__,
-                'method' => __METHOD__,
-            ]);
-            //return $this->sendResource(DummyModelClassResource::collection($data));
+            return $this->sendResource(DummyModelClassResource::collection($data));
 
         } catch (Exception $exception) {
 
@@ -92,20 +78,13 @@ class DummyControllerClass extends BaseModuleController
 
         try {
 
-            $item = $this->service->find($id);
+            $item = $this->DummyServiceVariable->find($id);
             if ($item === null) {
 
                 return $this->sendNotFound();
             }
 
-            return $this->sendResponse([
-                'model' => 'DummyModel',
-                'namespace' => __NAMESPACE__,
-                'class' => __CLASS__,
-                'function' => __FUNCTION__,
-                'method' => __METHOD__,
-            ]);
-            //return $this->sendResource(new DummyModelClassResource($item));
+            return $this->sendResource(new DummyModelClassResource($item));
 
         } catch (Exception $exception) {
 
@@ -136,7 +115,7 @@ class DummyControllerClass extends BaseModuleController
                 return $this->sendBadRequest('Validation Error.', $validator->errors()->toArray());
             }
 
-            $item = $this->service->create(request()->all());
+            $item = $this->DummyServiceVariable->create(request()->all());
 
             return $this->sendResponse($item->toArray());
 
@@ -156,7 +135,7 @@ class DummyControllerClass extends BaseModuleController
     {
         try {
 
-            $item = $this->service->find($id);
+            $item = $this->DummyServiceVariable->find($id);
             if ($item === null) {
 
                 return $this->sendNotFound();
@@ -175,7 +154,7 @@ class DummyControllerClass extends BaseModuleController
                 return $this->sendBadRequest('Validation Error.', $validator->errors()->toArray());
             }
 
-            $item = $this->service->update(request()->all(), $item);
+            $item = $this->DummyServiceVariable->update(request()->all(), $item);
 
             return $this->sendResponse($item->toArray());
 

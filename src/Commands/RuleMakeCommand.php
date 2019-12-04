@@ -58,7 +58,7 @@ class RuleMakeCommand extends GeneratorCommand
         $replace['DummyRuleClass'] = $this->getValidatorRuleName();
         $replace['DummyRules'] = "'id' => 'required',";
 
-        //$replace = $this->buildModelReplacements($replace);
+        $replace = $this->buildModelReplacements($replace);
 
         $stub = $this->files->get($this->getStub());
 

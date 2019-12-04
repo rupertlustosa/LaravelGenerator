@@ -4,10 +4,12 @@ namespace Rlustosa\LaravelGenerator\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Rlustosa\LaravelGenerator\Commands\CodingMakeCommand;
+use Rlustosa\LaravelGenerator\Commands\CollectionMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\ControllerMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\ModelMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\ModuleMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\PolicyMakeCommand;
+use Rlustosa\LaravelGenerator\Commands\ResourceMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\RouteApiMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\RouteServiceProviderMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\RuleMakeCommand;
@@ -39,6 +41,8 @@ class ConsoleServiceProvider extends ServiceProvider
         RouteServiceProviderMakeCommand::class,
         RouteApiMakeCommand::class,
         CodingMakeCommand::class,
+        ResourceMakeCommand::class,
+        CollectionMakeCommand::class,
     ];
 
     /**

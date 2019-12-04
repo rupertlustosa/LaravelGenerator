@@ -56,9 +56,10 @@ class UpdateRequestMakeCommand extends GeneratorCommand
         $replace = [];
         $replace['DummyValidatorNamespace'] = $validatorNamespace;
         $replace['DummyRuleClass'] = $this->getValidatorRuleName();
+        $replace['DummyUpdateRequestClass'] = $this->getValidatorUpdateRequestName();
         $replace['DummyValidatorRuleNamespace'] = $validatorNamespace . '\\' . $this->getValidatorRuleName();
 
-        //$replace = $this->buildModelReplacements($replace);
+        $replace = $this->buildModelReplacements($replace);
 
         $stub = $this->files->get($this->getStub());
 

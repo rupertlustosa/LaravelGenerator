@@ -6,28 +6,28 @@ use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
-class ServiceMakeCommand extends GeneratorCommand
+class CollectionMakeCommand extends GeneratorCommand
 {
     /**
      * The console command name.
      *
      * @var string
      */
-    protected $name = 'rlustosa:make-service';
+    protected $name = 'rlustosa:make-collection';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Generate new service for the specified module.';
+    protected $description = 'Generate new collection for the specified module.';
 
     /**
      * The type of class being generated.
      *
      * @var string
      */
-    protected $type = 'Service';
+    protected $type = 'Collection';
 
     /**
      * Build the class with the given name.
@@ -40,22 +40,29 @@ class ServiceMakeCommand extends GeneratorCommand
     protected function buildClass()
     {
 
-        $serviceNamespace = $this->getDefaultNamespace();
+        $model = $this->option('model');
 
-        $replace = [];
-        $replace['DummyServiceNamespace'] = $serviceNamespace;
-        $replace['DummyServiceClass'] = $this->getServiceName();
+        $modelClass = $this->parseModel($model);
 
-        if ($this->option('model')) {
+        if (!class_exists($modelClass)) {
 
-            $replace = $this->buildModelReplacements($replace);
+            $this->warn("A {$modelClass} model does not exist.", true);
+            exit(1);
+        } else {
+
+            $resourceNamespace = $this->getDefaultNamespace();
+
+            $replace = [];
+            $replace['DummyResourceNamespace'] = $resourceNamespace;
+            $replace['DummyResourceClass'] = $this->getResourceName();
+            $replace['DummyCollectionClass'] = $this->getCollectionName();
+            $stub = $this->files->get($this->getStub());
+
+            return str_replace(
+                array_keys($replace), array_values($replace), $stub
+            );
         }
 
-        $stub = $this->files->get($this->getStub());
-
-        return str_replace(
-            array_keys($replace), array_values($replace), $stub
-        );
     }
 
     /**
@@ -66,7 +73,7 @@ class ServiceMakeCommand extends GeneratorCommand
     protected function getDefaultNamespace()
     {
 
-        return $this->getDefaultServiceNamespace();
+        return $this->getDefaultResourceNamespace();
     }
 
     /**
@@ -77,15 +84,30 @@ class ServiceMakeCommand extends GeneratorCommand
     protected function getStub()
     {
 
-        if ($this->option('model')) {
-
-            $stub = '/stubs/service-resource.stub';
-        } else {
-
-            $stub = '/stubs/service-generic.stub';
-        }
+        $stub = '/stubs/collection.stub';
 
         return __DIR__ . $stub;
+    }
+
+    protected function geCodeToArray($model, $structure)
+    {
+
+        $columns = [];
+        foreach (array_keys($structure['columns']) as $column) {
+
+            if (!in_array($column,
+                [
+                    $model::CREATED_AT,
+                    $model::UPDATED_AT,
+                    $model->getDeletedAtColumn(),
+                ]
+            )) {
+
+                $columns[] = "'{$column}' => \$this->{$column},";
+            }
+        }
+
+        return $columns;
     }
 
     /**
@@ -115,7 +137,7 @@ class ServiceMakeCommand extends GeneratorCommand
     public function getDestinationFilePath()
     {
 
-        return base_path($this->rootNamespace() . '/' . $this->getModuleName() . '/Services/' . $this->getServiceName() . '.php');
+        return base_path($this->rootNamespace() . '/' . $this->getModuleName() . '/Resources/' . $this->getCollectionName() . '.php');
     }
 
     /**
@@ -126,7 +148,7 @@ class ServiceMakeCommand extends GeneratorCommand
     protected function getOptions()
     {
         return [
-            ['model', 'm', InputOption::VALUE_OPTIONAL, 'Generate a resource service for the given model.'],
+            ['model', 'm', InputOption::VALUE_REQUIRED, 'Generate a resource service for the given model.'],
         ];
     }
 

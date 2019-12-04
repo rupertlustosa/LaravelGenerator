@@ -22,7 +22,7 @@ class DummyPolicyClass
     }
 
     /**
-     * Determine whether the user can view the DocDummyModelClass.
+     * Determine whether the user can view the DummyModelClass.
      *
      * @param  AuthenticatedUser  $authenticatedUser
      * @param  DummyModelClass  $DummyModelVariable
@@ -45,7 +45,7 @@ class DummyPolicyClass
     }
 
     /**
-     * Determine whether the user can update the DocDummyModelClass.
+     * Determine whether the user can update the DummyModelClass.
      *
      * @param  AuthenticatedUser  $authenticatedUser
      * @param  DummyModelClass  $DummyModelVariable
@@ -57,7 +57,7 @@ class DummyPolicyClass
     }
 
     /**
-     * Determine whether the user can delete the DocDummyModelClass.
+     * Determine whether the user can delete the DummyModelClass.
      *
      * @param  AuthenticatedUser  $authenticatedUser
      * @param  DummyModelClass  $DummyModelVariable
@@ -69,7 +69,7 @@ class DummyPolicyClass
     }
 
     /**
-     * Determine whether the user can restore the DocDummyModelClass.
+     * Determine whether the user can restore the DummyModelClass.
      *
      * @param  AuthenticatedUser  $authenticatedUser
      * @param  DummyModelClass  $DummyModelVariable
@@ -81,7 +81,7 @@ class DummyPolicyClass
     }
 
     /**
-     * Determine whether the user can permanently delete the DocDummyModelClass.
+     * Determine whether the user can permanently delete the DummyModelClass.
      *
      * @param  AuthenticatedUser  $authenticatedUser
      * @param  DummyModelClass  $DummyModelVariable

@@ -56,9 +56,10 @@ class StoreRequestMakeCommand extends GeneratorCommand
         $replace = [];
         $replace['DummyValidatorNamespace'] = $validatorNamespace;
         $replace['DummyRuleClass'] = $this->getValidatorRuleName();
+        $replace['DummyStoreRequestClass'] = $this->getValidatorStoreRequestName();
         $replace['DummyValidatorRuleNamespace'] = $validatorNamespace . '\\' . $this->getValidatorRuleName();
 
-        //$replace = $this->buildModelReplacements($replace);
+        $replace = $this->buildModelReplacements($replace);
 
         $stub = $this->files->get($this->getStub());
 

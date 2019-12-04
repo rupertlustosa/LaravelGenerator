@@ -58,6 +58,7 @@ class ControllerMakeCommand extends GeneratorCommand
             $policyClass = $policyNamespace . '\\' . $this->getPolicyName();
 
             if (!class_exists($policyClass)) {
+
                 if ($this->confirm("A {$policyClass} policy does not exist. Do you want to generate it?", true)) {
                     $this->call('rlustosa:make-policy', ['module' => $this->getModuleInput(), 'name' => $model, '--model' => $model]);
                 }
