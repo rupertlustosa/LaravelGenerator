@@ -7,8 +7,9 @@ namespace DummyControllerNamespace;
 use RootController;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use DummyFullDefaultControllerClass;
 
-class DummyControllerClass extends BaseModuleController
+class DummyControllerClass extends ApiController
 {
 
     /**
@@ -18,92 +19,14 @@ class DummyControllerClass extends BaseModuleController
     public function __construct()
     {
 
-        //$this->middleware('jwt.auth');
     }
 
     /**
-     * Paginate.
+     * Index.
      *
      * @return JsonResponse
      */
     public function index(): JsonResponse
-    {
-
-        try {
-
-            return $this->sendResponse([]);
-
-        } catch (Exception $exception) {
-
-            return $this->sendError('Server Error.', $exception);
-
-        }
-    }
-
-    /**
-     * return all.
-     *
-     * @return JsonResponse
-     */
-    public function all(): JsonResponse
-    {
-
-        try {
-
-            return $this->sendResponse([]);
-
-        } catch (Exception $exception) {
-
-            return $this->sendError('Server Error.', $exception);
-
-        }
-    }
-
-    /**
-     * Find detail using id.
-     *
-     * @param int $id
-     * @return JsonResponse
-     */
-    public function show(int $id): JsonResponse
-    {
-
-        try {
-
-            return $this->sendResponse([]);
-
-        } catch (Exception $exception) {
-
-            return $this->sendError('Server Error.', $exception);
-
-        }
-    }
-
-    /**
-     * Store.
-     *
-     * @return JsonResponse
-     */
-    public function store()
-    {
-    
-        try {
-
-            return $this->sendResponse([]);
-
-        } catch (Exception $exception) {
-
-            return $this->sendError('Server Error.', $exception);
-
-        }
-    }
-
-    /**
-     * Update.
-     *
-     * @return JsonResponse
-     */
-    public function update(int $id)
     {
 
         try {

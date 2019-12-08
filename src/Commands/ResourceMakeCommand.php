@@ -44,11 +44,11 @@ class ResourceMakeCommand extends GeneratorCommand
 
         $modelClass = $this->parseModel($model);
 
-        if (!class_exists($modelClass)) {
+        /*if (!class_exists($modelClass)) {
 
             $this->warn("A {$modelClass} model does not exist.", true);
             exit(1);
-        } else {
+        } else {*/
 
             $resourceNamespace = $this->getDefaultNamespace();
 
@@ -69,7 +69,7 @@ class ResourceMakeCommand extends GeneratorCommand
             return str_replace(
                 array_keys($replace), array_values($replace), $stub
             );
-        }
+        //}
 
     }
 

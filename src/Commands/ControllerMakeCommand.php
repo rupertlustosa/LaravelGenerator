@@ -41,11 +41,29 @@ class ControllerMakeCommand extends GeneratorCommand
     {
 
         $controllerNamespace = $this->getDefaultNamespace();
+        $defaultApiControllerClass = $this->rootNamespace() . '\Http\ApiController';
 
         $replace = [];
         $replace['DummyControllerNamespace'] = $controllerNamespace;
-        $replace['RootController'] = 'Rlustosa\LaravelGenerator\BaseModule\BaseModuleController';
+        $replace['DummyFullDefaultControllerClass'] = $defaultApiControllerClass;
         $replace['DummyControllerClass'] = $this->getControllerName();
+        $replace['DummyRootNamespaceHttp'] = app()->getNamespace() . 'Http';
+
+        if (!class_exists($defaultApiControllerClass)) {
+
+            $fullPath = base_path($this->rootNamespace() . '/Http/Controllers/ApiController.php');
+
+            $this->makeDirectory($fullPath);
+            $stubDefaultController = str_replace(
+                array_keys($replace), array_values($replace), $this->files->get(__DIR__ . '/stubs/api-controller.stub')
+            );
+
+            $this->files->put($fullPath, $this->sortImports($stubDefaultController));
+
+            //$this->files->put($fullPath, $this->files->get(__DIR__.'/stubs/api-controller.stub'));
+            //dd($fullPath);
+        }
+        //dd('FIM');
 
         if ($this->option('model')) {
 
@@ -55,8 +73,8 @@ class ControllerMakeCommand extends GeneratorCommand
             $replace = $this->buildValidatorRuleReplacements($replace);
             $replace = $this->buildValidatorStoreRequestReplacements($replace);
             $replace = $this->buildValidatorUpdateRequestReplacements($replace);
-            $replace = $this->buildResourceReplacements($replace);
-            $replace = $this->buildCollectionReplacements($replace);
+            //$replace = $this->buildResourceReplacements($replace);
+            //$replace = $this->buildCollectionReplacements($replace);
         }
 
         $replace["use {$controllerNamespace}\Controller;\n"] = '';

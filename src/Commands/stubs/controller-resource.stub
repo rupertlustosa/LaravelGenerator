@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace DummyControllerNamespace;
 
-use RootController;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use DummyFullDefaultControllerClass;
 use DummyFullServiceClass;
 use DummyFullStoreRequestClass;
 use DummyFullUpdateRequestClass;
@@ -16,8 +16,9 @@ use DummyFullCollectionClass;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 
-class DummyControllerClass extends BaseModuleController
+class DummyControllerClass extends ApiController
 {
+
     private $DummyServiceVariable;
 
     /**
