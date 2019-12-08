@@ -1,7 +1,6 @@
 {
     "name": "rlustosa/laravel-generator",
     "description": "Laravel Module management for my projects",
-    "type": "project",
     "require": {
         "php": ">=7.2",
       "ext-json": "*",
