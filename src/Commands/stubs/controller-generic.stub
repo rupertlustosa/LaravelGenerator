@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DummyControllerNamespace;
 
-use RootController;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use DummyFullDefaultControllerClass;
