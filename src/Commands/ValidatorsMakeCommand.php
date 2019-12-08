@@ -79,6 +79,14 @@ class ValidatorsMakeCommand extends GeneratorCommand
         // TODO: Implement alreadyExists() method.
     }
 
+    protected function missingDependencies()
+    {
+
+        $missing = [];
+
+        return $missing;
+    }
+
     /**
      * Get the default namespace for the class.
      *

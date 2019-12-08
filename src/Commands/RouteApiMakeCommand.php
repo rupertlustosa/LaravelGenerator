@@ -78,6 +78,14 @@ class RouteApiMakeCommand extends GeneratorCommand
         return __DIR__ . $stub;
     }
 
+    protected function missingDependencies()
+    {
+
+        $missing = [];
+
+        return $missing;
+    }
+
     /**
      * Get the console command arguments.
      *

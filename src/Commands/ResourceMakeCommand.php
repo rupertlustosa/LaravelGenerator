@@ -42,33 +42,32 @@ class ResourceMakeCommand extends GeneratorCommand
 
         $model = $this->option('model');
 
-        $modelClass = $this->parseModel($model);
-
         /*if (!class_exists($modelClass)) {
 
             $this->warn("A {$modelClass} model does not exist.", true);
             exit(1);
         } else {*/
 
-            $resourceNamespace = $this->getDefaultNamespace();
+        $resourceNamespace = $this->getDefaultNamespace();
 
-            $replace = [];
-            $replace['DummyResourceNamespace'] = $resourceNamespace;
-            $replace['DummyResourceClass'] = $this->getResourceName();
+        $replace = [];
+        $replace['DummyResourceNamespace'] = $resourceNamespace;
+        $replace['DummyResourceClass'] = $this->getResourceName();
 
-            $replace = $this->buildModelReplacements($replace);
+        $replace = $this->buildModelReplacements($replace);
 
-            $myModel = new $modelClass();
-            $table = $myModel->getTable();
-            $structure = rl_load_table_structure($table);
-            $code = $this->geCodeToArray($myModel, $structure);
+        $modelClass = $this->parseModel($model);
+        $myModel = new $modelClass();
+        $table = $myModel->getTable();
+        $structure = rl_load_table_structure($table);
+        $code = $this->geCodeToArray($myModel, $structure);
 
-            $stub = $this->files->get($this->getStub());
-            $replace['DummyResourceToArray'] = implode("\r\n            ", $code);
+        $stub = $this->files->get($this->getStub());
+        $replace['DummyResourceToArray'] = implode("\r\n            ", $code);
 
-            return str_replace(
-                array_keys($replace), array_values($replace), $stub
-            );
+        return str_replace(
+            array_keys($replace), array_values($replace), $stub
+        );
         //}
 
     }
@@ -116,6 +115,23 @@ class ResourceMakeCommand extends GeneratorCommand
         $stub = '/stubs/resource.stub';
 
         return __DIR__ . $stub;
+    }
+
+    protected function missingDependencies()
+    {
+
+        $missing = [];
+
+        $model = $this->option('model');
+        $modelClass = $this->parseModel($model);
+
+        if (!class_exists($modelClass)) {
+
+            $missing[] = 'php artisan rlustosa:make-model ' . $this->getModuleInput() . ' ' . $this->getNameInput();
+            $this->warn("A {$modelClass} model does not exist.", true);
+        }
+
+        return $missing;
     }
 
     /**

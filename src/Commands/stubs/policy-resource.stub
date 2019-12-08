@@ -3,8 +3,8 @@
 namespace DummyPolicyNamespace;
 
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Modules\User\Models\User as AuthenticatedUser;
 use DummyFullModelClass;
+use Modules\User\Models\User as AuthenticatedUser;
 
 class DummyPolicyClass
 {
@@ -13,82 +13,89 @@ class DummyPolicyClass
     /**
      * Determine whether the user can view any DocDummyPluralModel.
      *
-     * @param  AuthenticatedUser $authenticatedUser
+     * @param AuthenticatedUser $authenticatedUser
      * @return mixed
      */
     public function viewAny(AuthenticatedUser $authenticatedUser)
     {
-        //
+
+        return true;
     }
 
     /**
      * Determine whether the user can view the DummyModelClass.
      *
-     * @param  AuthenticatedUser  $authenticatedUser
-     * @param  DummyModelClass  $DummyModelVariable
+     * @param AuthenticatedUser $authenticatedUser
+     * @param DummyModelClass $DummyModelVariable
      * @return mixed
      */
     public function view(AuthenticatedUser $authenticatedUser, DummyModelClass $DummyModelVariable)
     {
-        //
+
+        return true;
     }
 
     /**
      * Determine whether the user can create DocDummyPluralModel.
      *
-     * @param  AuthenticatedUser  $authenticatedUser
+     * @param AuthenticatedUser $authenticatedUser
      * @return mixed
      */
     public function create(AuthenticatedUser $authenticatedUser)
     {
-        //
+
+        return true;
     }
 
     /**
      * Determine whether the user can update the DummyModelClass.
      *
-     * @param  AuthenticatedUser  $authenticatedUser
-     * @param  DummyModelClass  $DummyModelVariable
+     * @param AuthenticatedUser $authenticatedUser
+     * @param DummyModelClass $DummyModelVariable
      * @return mixed
      */
     public function update(AuthenticatedUser $authenticatedUser, DummyModelClass $DummyModelVariable)
     {
-        //
+
+        return true;
     }
 
     /**
      * Determine whether the user can delete the DummyModelClass.
      *
-     * @param  AuthenticatedUser  $authenticatedUser
-     * @param  DummyModelClass  $DummyModelVariable
+     * @param AuthenticatedUser $authenticatedUser
+     * @param DummyModelClass $DummyModelVariable
      * @return mixed
      */
     public function delete(AuthenticatedUser $authenticatedUser, DummyModelClass $DummyModelVariable)
     {
-        //
+
+        return true;
     }
 
     /**
      * Determine whether the user can restore the DummyModelClass.
      *
-     * @param  AuthenticatedUser  $authenticatedUser
-     * @param  DummyModelClass  $DummyModelVariable
+     * @param AuthenticatedUser $authenticatedUser
+     * @param DummyModelClass $DummyModelVariable
      * @return mixed
      */
     public function restore(AuthenticatedUser $authenticatedUser, DummyModelClass $DummyModelVariable)
     {
-        //
+
+        return true;
     }
 
     /**
      * Determine whether the user can permanently delete the DummyModelClass.
      *
-     * @param  AuthenticatedUser  $authenticatedUser
-     * @param  DummyModelClass  $DummyModelVariable
+     * @param AuthenticatedUser $authenticatedUser
+     * @param DummyModelClass $DummyModelVariable
      * @return mixed
      */
     public function forceDelete(AuthenticatedUser $authenticatedUser, DummyModelClass $DummyModelVariable)
     {
-        //
+
+        return true;
     }
 }

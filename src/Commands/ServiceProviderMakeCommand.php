@@ -40,6 +40,14 @@ class ServiceProviderMakeCommand extends GeneratorCommand
         return $this->getDefaultProvidersNamespace();
     }
 
+    protected function missingDependencies()
+    {
+
+        $missing = [];
+
+        return $missing;
+    }
+
     /**
      * Build the class with the given name.
      *

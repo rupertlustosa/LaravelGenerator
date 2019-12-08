@@ -40,29 +40,17 @@ class CollectionMakeCommand extends GeneratorCommand
     protected function buildClass()
     {
 
-        $model = $this->option('model');
+        $resourceNamespace = $this->getDefaultNamespace();
 
-        $modelClass = $this->parseModel($model);
+        $replace = [];
+        $replace['DummyResourceNamespace'] = $resourceNamespace;
+        $replace['DummyResourceClass'] = $this->getResourceName();
+        $replace['DummyCollectionClass'] = $this->getCollectionName();
+        $stub = $this->files->get($this->getStub());
 
-        /*if (!class_exists($modelClass)) {
-
-            $this->warn("A {$modelClass} model does not exist.", true);
-            exit(1);
-        } else {*/
-
-            $resourceNamespace = $this->getDefaultNamespace();
-
-            $replace = [];
-            $replace['DummyResourceNamespace'] = $resourceNamespace;
-            $replace['DummyResourceClass'] = $this->getResourceName();
-            $replace['DummyCollectionClass'] = $this->getCollectionName();
-            $stub = $this->files->get($this->getStub());
-
-            return str_replace(
-                array_keys($replace), array_values($replace), $stub
-            );
-        //}
-
+        return str_replace(
+            array_keys($replace), array_values($replace), $stub
+        );
     }
 
     /**
@@ -87,6 +75,32 @@ class CollectionMakeCommand extends GeneratorCommand
         $stub = '/stubs/collection.stub';
 
         return __DIR__ . $stub;
+    }
+
+    protected function missingDependencies()
+    {
+
+        $missing = [];
+
+        $model = $this->option('model');
+        $modelClass = $this->parseModel($model);
+
+        if (!class_exists($modelClass)) {
+
+            $missing[] = 'php artisan rlustosa:make-model ' . $this->getModuleInput() . ' ' . $this->getNameInput();
+            $this->warn("A {$modelClass} model does not exist.", true);
+        }
+
+        $resourceNamespace = $this->getDefaultResourceNamespace();
+        $resourceClass = $resourceNamespace . '\\' . $this->getResourceName();
+
+        if (!class_exists($resourceClass)) {
+
+            $missing[] = 'php artisan rlustosa:make-resource ' . $this->getModuleInput() . ' ' . $this->getNameInput() . ' --model=' . $model;
+            $this->warn("A {$resourceClass} resource does not exist.", true);
+        }
+
+        return $missing;
     }
 
     protected function geCodeToArray($model, $structure)

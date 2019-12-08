@@ -42,6 +42,7 @@ abstract class GeneratorCommand extends Command
     public function handle()
     {
 
+        $missingDependencies = $this->missingDependencies();
         $path = str_replace('\\', '/', $this->getDestinationFilePath());
         //dd($path, $this->getDestinationFilePath());
         // First we will check to see if the class already exists. If it does, we don't want
@@ -56,16 +57,26 @@ abstract class GeneratorCommand extends Command
             return false;
         }
 
-        // Next, we will generate the path to the location where this class' file should get
-        // written. Then, we will build the class and make the proper replacements on the
-        // stub files so that it gets the correctly formatted namespace and class name.
-        $this->makeDirectory($path);
+        if (!$missingDependencies) {
 
-        $this->files->put($path, $this->sortImports($this->buildClass()));
+            // Next, we will generate the path to the location where this class' file should get
+            // written. Then, we will build the class and make the proper replacements on the
+            // stub files so that it gets the correctly formatted namespace and class name.
+            $this->makeDirectory($path);
 
-        //$this->createdSuccessfully();
-        $this->info($this->type . ' created successfully.');
+            $this->files->put($path, $this->sortImports($this->buildClass()));
+
+            //$this->createdSuccessfully();
+            $this->info($this->type . ' created successfully.');
+        } else {
+
+            $this->error($path . ' não pode ser criado devido a ausência das dependências acima. Para corrigir execute os comandos:');
+            $this->info(implode(' && ', $missingDependencies));
+        }
+
     }
+
+    abstract protected function missingDependencies();
 
     /**
      * Get the destination file path.
@@ -203,66 +214,6 @@ abstract class GeneratorCommand extends Command
     /**
      * @return array|string
      */
-    protected function getPolicyName()
-    {
-
-        $policy = Str::studly($this->getNameInput());
-
-        if (Str::contains(strtolower($policy), 'policy') === false) {
-            $policy .= 'Policy';
-        }
-
-        return $policy;
-    }
-
-    /**
-     * @return array|string
-     */
-    protected function getValidatorRuleName()
-    {
-
-        $validator = Str::studly($this->option('model'));
-
-        if (Str::contains(strtolower($validator), 'rule') === false) {
-            $validator .= 'Rule';
-        }
-
-        return $validator;
-    }
-
-    /**
-     * @return array|string
-     */
-    protected function getValidatorStoreRequestName()
-    {
-
-        $validator = Str::studly($this->option('model'));
-
-        if (Str::contains(strtolower($validator), 'storerequest') === false) {
-            $validator .= 'StoreRequest';
-        }
-
-        return $validator;
-    }
-
-    /**
-     * @return array|string
-     */
-    protected function getValidatorUpdateRequestName()
-    {
-
-        $validator = Str::studly($this->option('model'));
-
-        if (Str::contains(strtolower($validator), 'updaterequest') === false) {
-            $validator .= 'UpdateRequest';
-        }
-
-        return $validator;
-    }
-
-    /**
-     * @return array|string
-     */
     protected function getServiceProviderName()
     {
 
@@ -318,7 +269,7 @@ abstract class GeneratorCommand extends Command
 
         $model = $this->option('model');
         $modelClass = $this->parseModel($model);
-
+        //dd('buildModelReplacements');
         if (!class_exists($modelClass)) {
 
             if ($createIfNotExists) {
@@ -421,6 +372,32 @@ abstract class GeneratorCommand extends Command
     }
 
     /**
+     * Get the default namespace for the class.
+     *
+     * @return string
+     */
+    protected function getDefaultServiceNamespace()
+    {
+
+        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Services');
+    }
+
+    /**
+     * @return array|string
+     */
+    protected function getServiceName()
+    {
+
+        $service = Str::studly($this->getNameInput());
+
+        if (Str::contains(strtolower($service), 'service') === false) {
+            $service .= 'Service';
+        }
+
+        return $service;
+    }
+
+    /**
      * Build the service replacement values.
      *
      * @param array $replace
@@ -445,6 +422,32 @@ abstract class GeneratorCommand extends Command
     }
 
     /**
+     * Get the default namespace for the class.
+     *
+     * @return string
+     */
+    protected function getDefaultPolicyNamespace()
+    {
+
+        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Policies');
+    }
+
+    /**
+     * @return array|string
+     */
+    protected function getPolicyName()
+    {
+
+        $policy = Str::studly($this->getNameInput());
+
+        if (Str::contains(strtolower($policy), 'policy') === false) {
+            $policy .= 'Policy';
+        }
+
+        return $policy;
+    }
+
+    /**
      * Build the service replacement values.
      *
      * @param array $replace
@@ -461,11 +464,44 @@ abstract class GeneratorCommand extends Command
         if (!class_exists($validatorClass)) {
 
             if ($this->confirm("A {$validatorClass} validator does not exist. Do you want to generate it?", true)) {
-                $this->call('rlustosa:make-rule', ['module' => $this->getModuleInput(), '--model' => $model]);
+                $this->call('rlustosa:make-rule', ['module' => $this->getModuleInput(), 'name' => $model, '--model' => $model]);
             }
         }
 
         return $replace;
+    }
+
+    /**
+     * Get the default namespace for the class.
+     *
+     * @return string
+     */
+    protected function getDefaultValidatorsNamespace()
+    {
+
+        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Validators');
+    }
+
+    /**
+     * @return array|string
+     */
+    protected function getValidatorRuleName()
+    {
+
+        /*$validator = Str::studly($this->option('model'));
+
+        if (Str::contains(strtolower($validator), 'rule') === false) {
+            $validator .= 'Rule';
+        }
+
+        return $validator;*/
+        $validatorRule = Str::studly($this->getNameInput());
+
+        if (Str::contains(strtolower($validatorRule), 'rule') === false) {
+            $validatorRule .= 'Rule';
+        }
+
+        return $validatorRule;
     }
 
     /**
@@ -485,7 +521,7 @@ abstract class GeneratorCommand extends Command
         if (!class_exists($validatorStoreRequestClass)) {
 
             if ($this->confirm("A {$validatorStoreRequestClass} validator store request does not exist. Do you want to generate it?", true)) {
-                $this->call('rlustosa:make-store-request', ['module' => $this->getModuleInput(), '--model' => $model]);
+                $this->call('rlustosa:make-store-request', ['module' => $this->getModuleInput(), 'name' => $model, '--model' => $model]);
             }
         }
 
@@ -495,6 +531,21 @@ abstract class GeneratorCommand extends Command
             'DummyStoreRequestClass' => $this->getValidatorStoreRequestName(),
             'DummyStoreRequestVariable' => lcfirst($this->getValidatorStoreRequestName()),
         ]);
+    }
+
+    /**
+     * @return array|string
+     */
+    protected function getValidatorStoreRequestName()
+    {
+
+        $validator = Str::studly($this->option('model'));
+
+        if (Str::contains(strtolower($validator), 'storerequest') === false) {
+            $validator .= 'StoreRequest';
+        }
+
+        return $validator;
     }
 
     /**
@@ -514,7 +565,7 @@ abstract class GeneratorCommand extends Command
         if (!class_exists($validatorUpdateRequestClass)) {
 
             if ($this->confirm("A {$validatorUpdateRequestClass} validator update request does not exist. Do you want to generate it?", true)) {
-                $this->call('rlustosa:make-update-request', ['module' => $this->getModuleInput(), '--model' => $model]);
+                $this->call('rlustosa:make-update-request', ['module' => $this->getModuleInput(), 'name' => $model, '--model' => $model]);
             }
         }
 
@@ -525,6 +576,27 @@ abstract class GeneratorCommand extends Command
             'DummyUpdateRequestVariable' => lcfirst($this->getValidatorUpdateRequestName()),
         ]);
     }
+
+    /**
+     * @return array|string
+     */
+    protected function getValidatorUpdateRequestName()
+    {
+
+        $validator = Str::studly($this->option('model'));
+
+        if (Str::contains(strtolower($validator), 'updaterequest') === false) {
+            $validator .= 'UpdateRequest';
+        }
+
+        return $validator;
+    }
+
+    /*
+     * Determine if the class already exists.
+     *
+     * @return bool
+     */
 
     /**
      * Build the service replacement values.
@@ -555,6 +627,34 @@ abstract class GeneratorCommand extends Command
     }
 
     /**
+     * Get the default namespace for the class.
+     *
+     * @return string
+     */
+    protected function getDefaultResourceNamespace()
+    {
+
+        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Resources');
+    }
+
+    /**
+     * @return array|string
+     */
+    protected function getResourceName()
+    {
+
+        $resource = Str::studly($this->getNameInput());
+
+        if (Str::contains(strtolower($resource), 'resource') === false) {
+            $resource .= 'Resource';
+        }
+
+        return $resource;
+    }
+
+    //abstract protected function createdSuccessfully();
+
+    /**
      * Build the service replacement values.
      *
      * @param array $replace
@@ -583,64 +683,6 @@ abstract class GeneratorCommand extends Command
     }
 
     /**
-     * Get the default namespace for the class.
-     *
-     * @return string
-     */
-    protected function getDefaultServiceNamespace()
-    {
-
-        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Services');
-    }
-
-    /**
-     * Get the default namespace for the class.
-     *
-     * @return string
-     */
-    protected function getDefaultResourceNamespace()
-    {
-
-        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Resources');
-    }
-
-    /*
-     * Determine if the class already exists.
-     *
-     * @return bool
-     */
-
-    /**
-     * @return array|string
-     */
-    protected function getServiceName()
-    {
-
-        $service = Str::studly($this->getNameInput());
-
-        if (Str::contains(strtolower($service), 'service') === false) {
-            $service .= 'Service';
-        }
-
-        return $service;
-    }
-
-    /**
-     * @return array|string
-     */
-    protected function getResourceName()
-    {
-
-        $resource = Str::studly($this->getNameInput());
-
-        if (Str::contains(strtolower($resource), 'resource') === false) {
-            $resource .= 'Resource';
-        }
-
-        return $resource;
-    }
-
-    /**
      * @return array|string
      */
     protected function getCollectionName()
@@ -654,8 +696,6 @@ abstract class GeneratorCommand extends Command
 
         return $collection;
     }
-
-    //abstract protected function createdSuccessfully();
 
     /**
      * Get the default namespace for the class.
@@ -675,28 +715,6 @@ abstract class GeneratorCommand extends Command
         $model = trim(str_replace('/', '\\', $model), '\\');
 
         return trim($this->getDefaultServiceNamespace() . '\\' . $model);
-    }
-
-    /**
-     * Get the default namespace for the class.
-     *
-     * @return string
-     */
-    protected function getDefaultPolicyNamespace()
-    {
-
-        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Policies');
-    }
-
-    /**
-     * Get the default namespace for the class.
-     *
-     * @return string
-     */
-    protected function getDefaultValidatorsNamespace()
-    {
-
-        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Validators');
     }
 
     /**

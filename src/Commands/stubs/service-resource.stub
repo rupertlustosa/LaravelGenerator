@@ -46,22 +46,19 @@ class DummyServiceClass
     public function find(int $id): ?DummyModelClass
     {
 
-        //return Cache::remember('DummyModelClass_find_' . $id, config('cache.cache_time'), function () use ($id) {
         return DummyModelClass::find($id);
-        //});
     }
 
     public function create(array $data): DummyModelClass
     {
 
-        return DB::transaction(function () use ($data) {
+        $DummyModelVariable = new DummyModelClass();
+        $DummyModelVariable->fill($data);
+        $DummyModelVariable->save();
 
-            $DummyModelVariable = new DummyModelClass();
-            $DummyModelVariable->fill($data);
-            $DummyModelVariable->save();
-
-            return $DummyModelVariable;
-        });
+        return $DummyModelVariable;
+        //return DB::transaction(function () use ($data) {
+        //});
     }
 
     public function update(array $data, DummyModelClass $DummyModelVariable): DummyModelClass
@@ -75,19 +72,15 @@ class DummyServiceClass
 
     public function delete(DummyModelClass $DummyModelVariable): ?bool
     {
-        //$DummyModelVariable->user_eraser_id = \Auth::id();
-        //$DummyModelVariable->save();
 
         return $DummyModelVariable->delete();
     }
 
     public function lists(): array
     {
-        //return Cache::remember('DummyModelClass_lists', config('cache.cache_time'), function () {
 
         return DummyModelClass::orderBy('name')
             ->pluck('name', 'id')
             ->toArray();
-        //});
     }
 }

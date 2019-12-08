@@ -89,3 +89,16 @@ if (!function_exists('rl_load_table_structure')) {
         return $mapping;
     }
 }
+
+if (!function_exists('rl_root_namespace')) {
+
+    /**
+     * Get the root namespace for the class.
+     *
+     * @return string
+     */
+    function rl_root_namespace()
+    {
+        return app()->getNamespace();
+    }
+}

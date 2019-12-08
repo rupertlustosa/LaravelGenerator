@@ -88,6 +88,23 @@ class PolicyMakeCommand extends GeneratorCommand
         return __DIR__ . $stub;
     }
 
+    protected function missingDependencies()
+    {
+
+        $missing = [];
+
+        $model = $this->option('model');
+        $modelClass = $this->parseModel($model);
+
+        if (!class_exists($modelClass)) {
+
+            $missing[] = 'php artisan rlustosa:make-model ' . $this->getModuleInput() . ' ' . $this->getNameInput();
+            $this->warn("A {$modelClass} model does not exist.", true);
+        }
+
+        return $missing;
+    }
+
     /**
      * Get the console command arguments.
      *

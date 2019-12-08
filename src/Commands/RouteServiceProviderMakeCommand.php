@@ -93,6 +93,14 @@ class RouteServiceProviderMakeCommand extends GeneratorCommand
         ];
     }
 
+    protected function missingDependencies()
+    {
+
+        $missing = [];
+
+        return $missing;
+    }
+
     protected function alreadyExists()
     {
 

@@ -37,13 +37,13 @@ class ModuleMakeCommand extends GeneratorCommand
         $this->call('rlustosa:make-policy', ['module' => $this->getModuleInput(), 'name' => $this->getNameInput(), '--model' => $model]);
 
         $this->info('--> make-rule');
-        $this->call('rlustosa:make-rule', ['module' => $this->getModuleInput(), '--model' => $model]);
+        $this->call('rlustosa:make-rule', ['module' => $this->getModuleInput(), 'name' => $this->getNameInput(), '--model' => $model]);
 
         $this->info('--> make-store-request');
-        $this->call('rlustosa:make-store-request', ['module' => $this->getModuleInput(), '--model' => $model]);
+        $this->call('rlustosa:make-store-request', ['module' => $this->getModuleInput(), 'name' => $this->getNameInput(), '--model' => $model]);
 
         $this->info('--> make-update-request');
-        $this->call('rlustosa:make-update-request', ['module' => $this->getModuleInput(), '--model' => $model]);
+        $this->call('rlustosa:make-update-request', ['module' => $this->getModuleInput(), 'name' => $this->getNameInput(), '--model' => $model]);
 
         $this->info('--> make-resource');
         $this->call('rlustosa:make-resource', ['module' => $this->getModuleInput(), 'name' => $this->getNameInput(), '--model' => $model]);
@@ -51,8 +51,8 @@ class ModuleMakeCommand extends GeneratorCommand
         $this->info('--> make-collection');
         $this->call('rlustosa:make-collection', ['module' => $this->getModuleInput(), 'name' => $this->getNameInput(), '--model' => $model]);
 
-        $this->info('--> make-controller');
-        $this->call('rlustosa:make-controller', ['module' => $this->getModuleInput(), 'name' => $this->getNameInput(), '--model' => $model]);
+        $this->info('--> make-controller-rest');
+        $this->call('rlustosa:make-controller-rest', ['module' => $this->getModuleInput(), 'name' => $this->getNameInput(), '--model' => $model]);
 
         $this->info('--> make-service-provider');
         $this->call('rlustosa:make-service-provider', ['module' => $this->getModuleInput(), 'name' => $this->getNameInput()]);
@@ -65,6 +65,14 @@ class ModuleMakeCommand extends GeneratorCommand
 
         $this->info('--- FIM ---');
 
+    }
+
+    protected function missingDependencies()
+    {
+
+        $missing = [];
+
+        return $missing;
     }
 
     /**

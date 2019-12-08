@@ -46,7 +46,7 @@ class CodingMakeCommand extends GeneratorCommand
             $this->info('### FILLABLE ###', true);
             //$this->info(implode(', ', array_values($fillable)), true);
             echo "    protected \$fillable = [\r\n";
-            echo "        " . implode(', ', array_values($fillable)) . "\r\n";
+            echo "        '" . implode("', '", array_values($fillable)) . "'\r\n";
             echo "    ];\r\n";
             echo "\r\n";
             $this->info('', true);
@@ -86,6 +86,14 @@ class CodingMakeCommand extends GeneratorCommand
         }
 
         dd('FIM');
+    }
+
+    protected function missingDependencies()
+    {
+
+        $missing = [];
+
+        return $missing;
     }
 
     private function generateFillable($model, $structure)
@@ -183,6 +191,12 @@ class CodingMakeCommand extends GeneratorCommand
         }
 
         return $columns;
+    }
+
+    private function contains($string, $needles)
+    {
+
+        return Str::contains(strtolower($string), $needles);
     }
 
     private function generateFormHtml($model, $structure)
@@ -302,12 +316,6 @@ class CodingMakeCommand extends GeneratorCommand
             $class .= ' ' . $extraClass;
         }
         return '                                    <input type="text" v-model="form.' . $column['name'] . '" class="' . $class . '">';
-    }
-
-    private function contains($string, $needles)
-    {
-
-        return Str::contains(strtolower($string), $needles);
     }
 
     /**

@@ -56,7 +56,7 @@ class RuleMakeCommand extends GeneratorCommand
         $replace = [];
         $replace['DummyValidatorNamespace'] = $validatorNamespace;
         $replace['DummyRuleClass'] = $this->getValidatorRuleName();
-        $replace['DummyRules'] = "'id' => 'required',";
+        $replace['DummyRules'] = "";
 
         $replace = $this->buildModelReplacements($replace);
 
@@ -89,6 +89,7 @@ class RuleMakeCommand extends GeneratorCommand
     {
         return [
             ['module', InputArgument::REQUIRED, 'The name of module will be used.'],
+            ['name', InputArgument::REQUIRED, 'The name of the rule class.'],
         ];
     }
 
@@ -107,6 +108,26 @@ class RuleMakeCommand extends GeneratorCommand
     {
 
         return base_path($this->rootNamespace() . '/' . $this->getModuleName() . '/Validators/' . $this->getValidatorRuleName() . '.php');
+    }
+
+    protected function missingDependencies()
+    {
+
+        $missing = [];
+
+        $model = $this->option('model');
+        $modelClass = $this->parseModel($model);
+        //dd($this->arguments(), $this->options());
+        $modelNamespace = $this->getDefaultModelNamespace();
+        $modelClass = $modelNamespace . '\\' . $this->getModelName();
+
+        if (!class_exists($modelClass)) {
+
+            $missing[] = 'php artisan rlustosa:make-model ' . $this->getModuleInput() . ' ' . $this->getNameInput();
+            $this->warn("A {$modelClass} model does not exist.", true);
+        }
+
+        return $missing;
     }
 
     /**

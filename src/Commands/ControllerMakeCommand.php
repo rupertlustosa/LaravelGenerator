@@ -4,7 +4,6 @@ namespace Rlustosa\LaravelGenerator\Commands;
 
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 
 class ControllerMakeCommand extends GeneratorCommand
 {
@@ -59,25 +58,7 @@ class ControllerMakeCommand extends GeneratorCommand
             );
 
             $this->files->put($fullPath, $this->sortImports($stubDefaultController));
-
-            //$this->files->put($fullPath, $this->files->get(__DIR__.'/stubs/api-controller.stub'));
-            //dd($fullPath);
         }
-        //dd('FIM');
-
-        if ($this->option('model')) {
-
-            $replace = $this->buildModelReplacements($replace);
-            $replace = $this->buildServiceReplacements($replace);
-            $replace = $this->buildPolicyReplacements($replace);
-            $replace = $this->buildValidatorRuleReplacements($replace);
-            $replace = $this->buildValidatorStoreRequestReplacements($replace);
-            $replace = $this->buildValidatorUpdateRequestReplacements($replace);
-            //$replace = $this->buildResourceReplacements($replace);
-            //$replace = $this->buildCollectionReplacements($replace);
-        }
-
-        $replace["use {$controllerNamespace}\Controller;\n"] = '';
 
         $stub = $this->files->get($this->getStub());
 
@@ -105,15 +86,17 @@ class ControllerMakeCommand extends GeneratorCommand
     protected function getStub()
     {
 
-        if ($this->option('model')) {
-
-            $stub = '/stubs/controller-resource.stub';
-        } else {
-
-            $stub = '/stubs/controller-generic.stub';
-        }
+        $stub = '/stubs/controller-generic.stub';
 
         return __DIR__ . $stub;
+    }
+
+    protected function missingDependencies()
+    {
+
+        $missing = [];
+
+        return $missing;
     }
 
     /**
@@ -153,9 +136,7 @@ class ControllerMakeCommand extends GeneratorCommand
      */
     protected function getOptions()
     {
-        return [
-            ['model', 'm', InputOption::VALUE_OPTIONAL, 'Generate a resource controller for the given model.'],
-        ];
+        return [];
     }
 
     protected function createdSuccessfully()

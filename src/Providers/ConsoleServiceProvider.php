@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Rlustosa\LaravelGenerator\Commands\CodingMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\CollectionMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\ControllerMakeCommand;
+use Rlustosa\LaravelGenerator\Commands\ControllerRestMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\ModelMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\ModuleMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\PolicyMakeCommand;
@@ -30,6 +31,7 @@ class ConsoleServiceProvider extends ServiceProvider
     protected $commands = [
         ModuleMakeCommand::class,
         ControllerMakeCommand::class,
+        ControllerRestMakeCommand::class,
         ModelMakeCommand::class,
         ServiceMakeCommand::class,
         PolicyMakeCommand::class,
