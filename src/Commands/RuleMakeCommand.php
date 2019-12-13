@@ -2,8 +2,6 @@
 
 namespace Rlustosa\LaravelGenerator\Commands;
 
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
 class RuleMakeCommand extends GeneratorCommand
@@ -20,7 +18,7 @@ class RuleMakeCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $description = 'Generate a rule for the specified model.';
+    protected $description = 'Create a new rule class for the specified module.';
 
     /**
      * The type of class being generated.
@@ -30,41 +28,15 @@ class RuleMakeCommand extends GeneratorCommand
     protected $type = 'Rule';
 
     /**
-     * Get the default namespace for the class.
+     * Execute the console command.
      *
-     * @return string
+     * @return void
      */
-    protected function getDefaultNamespace()
+    public function handle()
     {
-
-        return $this->getDefaultValidatorsNamespace();
-    }
-
-    /**
-     * Build the class with the given name.
-     *
-     * Remove the base controller import if we are already in base namespace.
-     *
-     * @return string
-     * @throws FileNotFoundException
-     */
-    protected function buildClass()
-    {
-
-        $validatorNamespace = $this->getDefaultValidatorsNamespace();
-
-        $replace = [];
-        $replace['DummyValidatorNamespace'] = $validatorNamespace;
-        $replace['DummyRuleClass'] = $this->getValidatorRuleName();
-        $replace['DummyRules'] = "";
-
-        $replace = $this->buildModelReplacements($replace);
-
-        $stub = $this->files->get($this->getStub());
-
-        return str_replace(
-            array_keys($replace), array_values($replace), $stub
-        );
+        if (parent::handle() === false && !$this->option('force')) {
+            return false;
+        }
     }
 
     /**
@@ -75,59 +47,43 @@ class RuleMakeCommand extends GeneratorCommand
     protected function getStub()
     {
 
-        $stub = '/stubs/rule-generic.stub';
+        if (!empty($this->option('model'))) {
+
+            /*$classExists = $this->classExists('Model', $this->option('model'));
+
+            if (!$classExists) {
+
+                $this->createModel();
+            }
+            else {
+                 $this->warn('COMO A CLASSE EXISTE, VERIFICAR SE A TABELA EXISTE PARA CRIAR O CÓDIGO CENTRAL');
+            }
+
+            $this->createResource();*/
+
+            $stub = '/stubs/collection.model.stub';
+        } else {
+
+            $stub = '/stubs/rule.plain.stub';
+        }
 
         return __DIR__ . $stub;
     }
 
     /**
-     * Get the console command arguments.
+     * Create a model.
      *
-     * @return array
+     * @return void
      */
-    protected function getArguments()
-    {
-        return [
-            ['module', InputArgument::REQUIRED, 'The name of module will be used.'],
-            ['name', InputArgument::REQUIRED, 'The name of the rule class.'],
-        ];
-    }
-
-    protected function alreadyExists()
+    protected function createModel()
     {
 
-        return $this->files->exists($this->getDestinationFilePath());
-    }
+        $modelName = $this->qualifyClass($this->option('model'));
 
-    /**
-     * Get controller name.
-     *
-     * @return string
-     */
-    public function getDestinationFilePath()
-    {
-
-        return base_path($this->rootNamespace() . '/' . $this->getModuleName() . '/Validators/' . $this->getValidatorRuleName() . '.php');
-    }
-
-    protected function missingDependencies()
-    {
-
-        $missing = [];
-
-        $model = $this->option('model');
-        $modelClass = $this->parseModel($model);
-        //dd($this->arguments(), $this->options());
-        $modelNamespace = $this->getDefaultModelNamespace();
-        $modelClass = $modelNamespace . '\\' . $this->getModelName();
-
-        if (!class_exists($modelClass)) {
-
-            $missing[] = 'php artisan rlustosa:make-model ' . $this->getModuleInput() . ' ' . $this->getNameInput();
-            $this->warn("A {$modelClass} model does not exist.", true);
-        }
-
-        return $missing;
+        $this->call('rlustosa:make-model', [
+            'module' => $this->getModuleInput(),
+            'name' => $modelName,
+        ]);
     }
 
     /**
@@ -138,7 +94,9 @@ class RuleMakeCommand extends GeneratorCommand
     protected function getOptions()
     {
         return [
-            ['model', 'm', InputOption::VALUE_REQUIRED, 'Generate a resource policy for the given model.'],
+            ['model', null, InputOption::VALUE_OPTIONAL, 'Indicates if the generated resource should be a resource "resource"'],
+            ['resource', 'r', InputOption::VALUE_NONE, 'Indicates if the generated rule should be a resource "rule"'],
+            ['force', null, InputOption::VALUE_NONE, 'Create the class even if the model already exists'],
         ];
     }
 }
