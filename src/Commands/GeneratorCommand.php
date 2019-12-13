@@ -2,10 +2,12 @@
 
 namespace Rlustosa\LaravelGenerator\Commands;
 
+use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
-use InvalidArgumentException;
+use Symfony\Component\Console\Input\InputArgument;
 
 abstract class GeneratorCommand extends Command
 {
@@ -38,54 +40,201 @@ abstract class GeneratorCommand extends Command
 
     /**
      * Execute the console command.
+     *
+     * @return bool|null
+     * @throws FileNotFoundException
      */
     public function handle()
     {
+        $name = $this->qualifyClass($this->getNameInput());
 
-        $missingDependencies = $this->missingDependencies();
-        $path = str_replace('\\', '/', $this->getDestinationFilePath());
-        //dd($path, $this->getDestinationFilePath());
+        $path = $this->getPath($name);
+        //dd($name, $path);
         // First we will check to see if the class already exists. If it does, we don't want
         // to create the class and overwrite the user's code. So, we will bail out so the
         // code is untouched. Otherwise, we will continue generating this class' files.
-        if (
-            (!$this->hasOption('force') || !$this->option('force')) &&
-            $this->alreadyExists()
-        ) {
+        if ((!$this->hasOption('force') ||
+                !$this->option('force')) &&
+            $this->alreadyExists($this->getNameInput())) {
             $this->error($this->type . ' already exists!');
 
             return false;
         }
 
-        if (!$missingDependencies) {
+        // Next, we will generate the path to the location where this class' file should get
+        // written. Then, we will build the class and make the proper replacements on the
+        // stub files so that it gets the correctly formatted namespace and class name.
+        $this->makeDirectory($path);
 
-            // Next, we will generate the path to the location where this class' file should get
-            // written. Then, we will build the class and make the proper replacements on the
-            // stub files so that it gets the correctly formatted namespace and class name.
-            $this->makeDirectory($path);
+        $this->files->put($path, $this->sortImports($this->buildClass($name)));
 
-            $this->files->put($path, $this->sortImports($this->buildClass()));
-
-            //$this->createdSuccessfully();
-            $this->info($this->type . ' created successfully.');
-        } else {
-
-            $this->error($path . ' não pode ser criado devido a ausência das dependências acima. Para corrigir execute os comandos:');
-            $this->info(implode(' && ', $missingDependencies));
-        }
-
+        $this->info($this->type . ' created successfully.');
     }
 
-    abstract protected function missingDependencies();
+    /**
+     * Parse the class name and format according to the root namespace.
+     *
+     * @param string $name
+     * @return string
+     */
+    protected function qualifyClass($name)
+    {
+        $name = ltrim($name, '\\/');
+        $name = Str::studly($name);
+        return $name;
+    }
 
     /**
-     * Get the destination file path.
+     * Get the desired class name from the input.
      *
      * @return string
      */
-    abstract protected function getDestinationFilePath();
+    protected function getNameInput()
+    {
+        return trim($this->argument('name'));
+    }
 
-    abstract protected function alreadyExists();
+    /**
+     * Get the destination class path.
+     *
+     * @param string $name
+     * @return string
+     */
+    protected function getPath($name)
+    {
+        $namespace = null;
+        $class = null;
+
+        $data = $this->getDefaultForCommand();
+
+        foreach ($data as $key => $value) {
+
+            if (Str::contains($key, 'Namespace')) {
+
+                $namespace = $value;
+            } elseif (Str::contains($key, 'Class')) {
+
+                $class = $value;
+            }
+        }
+        //$name = Str::replaceFirst($this->rootNamespace(), '', $name);
+        $fullClassNamespaced = $namespace . '\\' . $class;
+        //dd($data, $namespace, $name, $fullClassNamespaced);
+
+        return base_path() . '/' . str_replace('\\', '/', $fullClassNamespaced) . '.php';
+        //return $this->laravel['path'].'/'.str_replace('\\', '/', $name).'.php';
+    }
+
+    protected function getDefaultForCommand()
+    {
+
+        if (array_key_exists(Str::camel($this->type), $this->getDefaultsForClasses())) {
+            return $this->getDefaultsForClasses()[Str::camel($this->type)];
+        } else {
+            new Exception('Invalid param $type ' . $this->type);
+        }
+
+        return [];
+    }
+
+    protected function getDefaultsForClasses($class = null)
+    {
+
+        $data = [
+            'controller' => [
+                'DummyControllerNamespace' => 'Modules\ModuleName\Http\Controllers',
+                'DummyControllerClass' => 'ClassNameController',
+            ],
+            'model' => [
+                'DummyModelNamespace' => 'Modules\ModuleName\Models',
+                'DummyModelClass' => 'ClassName',
+                'DummyModelFullNamed' => 'Modules\ModuleName\Models\ClassName',
+                'DummyModelVariable' => 'ModelVariable',
+            ],
+            'policy' => [
+                'DummyPolicyNamespace' => 'Modules\ModuleName\Policies',
+                'DummyPolicyClass' => 'ClassNamePolicy',
+                'DummyPolicyFullNamed' => 'Modules\ModuleName\Policies\ClassNamePolicy',
+            ],
+            'provider' => [
+                'DummyProviderNamespace' => 'Modules\ModuleName\Providers',
+                'DummyServiceProviderClass' => 'ModuleNameServiceProvider',
+                'DummyRouteServiceProviderClass' => 'RouteServiceProvider',
+            ],
+            'collection' => [
+                'DummyResourceNamespace' => 'Modules\ModuleName\Resources',
+                'DummyCollectionClass' => 'ClassNameCollection',
+                'DummyCollectionFullNamed' => 'Modules\ModuleName\Resources\ClassNameCollection',
+            ],
+            'resource' => [
+                'DummyResourceNamespace' => 'Modules\ModuleName\Resources',
+                'DummyResourceClass' => 'ClassNameResource',
+                'DummyResourceFullNamed' => 'Modules\ModuleName\Resources\ClassNameResource',
+            ],
+            'service' => [
+                'DummyServiceNamespace' => 'Modules\ModuleName\Services',
+                'DummyServiceClass' => 'ClassNameService',
+                'DummyServiceFullNamed' => 'Modules\ModuleName\Services\ClassNameService',
+            ],
+            'rule' => [
+                'DummyValidatorsNamespace' => 'Modules\ModuleName\Validators',
+                'DummyRuleClass' => 'ClassNameRule',
+                'DummyRuleFullNamed' => 'Modules\ModuleName\Validators\ClassNameRule',
+            ],
+            'storeRequest' => [
+                'DummyValidatorsNamespace' => 'Modules\ModuleName\Validators',
+                'DummyStoreRequestClass' => 'ClassNameStoreRequest',
+                'DummyStoreRequestFullNamed' => 'ClassNameStoreRequest',
+            ],
+            'updateRequest' => [
+                'DummyValidatorsNamespace' => 'Modules\ModuleName\Validators',
+                'DummyUpdateRequestClass' => 'ClassNameUpdateRequest',
+                'DummyUpdateRequestFullNamed' => 'Modules\ModuleName\Validators\ClassNameUpdateRequest',
+            ],
+            'others' => [
+                'DummyDefaultApiControllerNamespace' => 'Modules\Http\ApiController',
+            ],
+        ];
+
+        $classBase = $class ?? $this->getNameInput();
+        $replace = [];
+        $replace['ModuleName'] = $this->qualifyClass($this->getModuleInput());
+        $replace['ClassName'] = $this->qualifyClass($classBase);
+        $replace['ModelVariable'] = Str::camel($this->qualifyClass($classBase));
+        //dd(Str::snake($this->qualifyClass($classBase)));
+        foreach ($data as $key => $values) {
+
+            foreach ($values as $internalKey => $value) {
+
+                $data[$key][$internalKey] = str_replace(
+                    array_keys($replace), array_values($replace), $value
+                );
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Get the desired module name from the input.
+     *
+     * @return string
+     */
+    protected function getModuleInput()
+    {
+        return trim($this->argument('module'));
+    }
+
+    /**
+     * Determine if the class already exists.
+     *
+     * @param string $rawName
+     * @return bool
+     */
+    protected function alreadyExists($rawName)
+    {
+        return $this->files->exists($this->getPath($this->qualifyClass($rawName)));
+    }
 
     /**
      * Build the directory for the class if necessary.
@@ -122,13 +271,16 @@ abstract class GeneratorCommand extends Command
     }
 
     /**
-     * Get class name.
+     * Build the class with the given name.
      *
      * @return string
+     * @throws FileNotFoundException
      */
-    public function getClass()
+    protected function buildClass()
     {
-        return class_basename($this->argument($this->argumentName));
+        $stub = $this->files->get($this->getStub());
+
+        return $this->replaceClass($stub);
     }
 
     /**
@@ -139,26 +291,72 @@ abstract class GeneratorCommand extends Command
     abstract protected function getStub();
 
     /**
-     * Parse the class name and format according to the root namespace.
+     * Replace the class name for the given stub.
+     *
+     * @param string $stub
+     * @return string
+     */
+    protected function replaceClass($stub)
+    {
+
+        $replaces = [];
+
+        foreach ($this->getDefaultsForClasses() as $key => $values) {
+
+            foreach ($values as $internalKey => $value) {
+
+                $replaces[$internalKey] = $value;
+            }
+        }
+
+        return str_replace(array_keys($replaces), array_values($replaces), $stub);
+    }
+
+    protected function classExists($type, $name)
+    {
+
+        $x = null;
+
+        if (array_key_exists(Str::lower($type), $this->getDefaultsForClasses())) {
+
+            $mapping = $this->getDefaultsForClasses($name)[Str::lower($type)];
+            $classString = 'Dummy' . Str::studly($type) . 'FullNamed';
+
+            return class_exists($mapping[$classString]);
+        } else {
+
+            new Exception('Invalid param $type ' . $type);
+        }
+        dd($name, $type, $x, $class);
+    }
+
+    /**
+     * Replace the namespace for the given stub.
+     *
+     * @param string $stub
+     * @param string $name
+     * @return $this
+     */
+    protected function replaceNamespace(&$stub, $name)
+    {
+        $stub = str_replace(
+            ['DummyNamespace', 'DummyRootNamespace', 'NamespacedDummyUserModel'],
+            [$this->getNamespace($name), $this->rootNamespace(), $this->userProviderModel()],
+            $stub
+        );
+
+        return $this;
+    }
+
+    /**
+     * Get the full namespace for a given class, without the class name.
      *
      * @param string $name
      * @return string
      */
-    protected function qualifyClass($name)
+    protected function getNamespace($name)
     {
-        $name = ltrim($name, '\\/');
-
-        $rootNamespace = $this->rootNamespace();
-
-        if (Str::startsWith($name, $rootNamespace)) {
-            return $name;
-        }
-
-        $name = str_replace('/', '\\', $name);
-
-        return $this->qualifyClass(
-            $this->getDefaultNamespace(trim($rootNamespace, '\\')) . '\\' . $name
-        );
+        return trim(implode('\\', array_slice(explode('\\', $name), 0, -1)), '\\');
     }
 
     /**
@@ -168,563 +366,54 @@ abstract class GeneratorCommand extends Command
      */
     protected function rootNamespace()
     {
-        return 'Modules';
+        return $this->laravel->getNamespace();
+    }
+
+    /**
+     * Get the model for the default guard's user provider.
+     *
+     * @return string|null
+     */
+    protected function userProviderModel()
+    {
+        $guard = config('auth.defaults.guard');
+
+        $provider = config("auth.guards.{$guard}.provider");
+
+        return config("auth.providers.{$provider}.model");
     }
 
     /**
      * Get the default namespace for the class.
      *
+     * @param string $rootNamespace
      * @return string
      */
-    abstract protected function getDefaultNamespace();
-
-    /**
-     * @return array|string
-     */
-    protected function getModelName()
+    protected function getDefaultNamespace($rootNamespace)
     {
-
-        return Str::studly($this->getNameInput());
+        return $rootNamespace;
     }
 
     /**
-     * Get the desired class name from the input.
+     * Get the root namespace for the class.
      *
      * @return string
      */
-    protected function getNameInput()
+    protected function rootModuleNamespace()
     {
-        return trim($this->argument('name'));
+        return 'Modules\\';
     }
 
     /**
-     * @return array|string
-     */
-    protected function getControllerName()
-    {
-        $controller = Str::studly($this->getNameInput());
-
-        if (Str::contains(strtolower($controller), 'controller') === false) {
-            $controller .= 'Controller';
-        }
-
-        return $controller;
-    }
-
-    /**
-     * @return array|string
-     */
-    protected function getServiceProviderName()
-    {
-
-        return Str::studly($this->getModuleName()) . 'ServiceProvider';
-    }
-
-    /**
-     * @return array|string
-     */
-    protected function getModuleName()
-    {
-        return Str::studly($this->getModuleInput());
-    }
-
-    /**
-     * Get the desired class name from the input.
+     * Get the console command arguments.
      *
-     * @return string
-     */
-    protected function getModuleInput()
-    {
-        return trim($this->argument('module'));
-    }
-
-    /**
-     * @return array|string
-     */
-    protected function getRouteServiceProviderName()
-    {
-
-        //return Str::studly($this->getModuleName()).'RouteServiceProvider';
-        return 'RouteServiceProvider';
-    }
-
-    /**
-     * @return array|string
-     */
-    protected function getRouteApiName()
-    {
-
-        return 'api';
-    }
-
-    /**
-     * Build the model replacement values.
-     *
-     * @param array $replace
-     * @param bool $createIfNotExists
      * @return array
      */
-    protected function buildModelReplacements(array $replace, $createIfNotExists = true)
+    protected function getArguments()
     {
-
-        $model = $this->option('model');
-        $modelClass = $this->parseModel($model);
-        //dd('buildModelReplacements');
-        if (!class_exists($modelClass)) {
-
-            if ($createIfNotExists) {
-
-                if ($this->confirm("A {$modelClass} model does not exist. Do you want to generate it?", true)) {
-
-                    $this->call('rlustosa:make-model', ['module' => $this->getModuleInput(), 'name' => $model]);
-                }
-            } else {
-
-                $this->warn("A {$modelClass} model does not exist. Please, create it first!", true);
-                exit;
-            }
-        }
-
-        return array_merge($replace, [
-            'DummyFullModelClass' => $modelClass,
-            'DummyModelClass' => class_basename($modelClass),
-            'DummyModelVariable' => lcfirst(class_basename($modelClass)),
-        ]);
-    }
-
-    /**
-     * Get the fully-qualified model class name.
-     *
-     * @param string $model
-     * @return string
-     *
-     * @throws InvalidArgumentException
-     */
-    protected function parseModel($model)
-    {
-
-        $model = Str::studly($model);
-
-        if (preg_match('([^A-Za-z0-9_/\\\\])', $model)) {
-            throw new InvalidArgumentException('Model name contains invalid characters.');
-        }
-
-        $model = trim(str_replace('/', '\\', $model), '\\');
-
-
-        if (!Str::startsWith($model, $this->getDefaultModelNamespace())) {
-            $model = $this->getDefaultModelNamespace() . '\\' . $model;
-        }
-
-        return $model;
-    }
-
-    /**
-     * Get the default namespace for the model class.
-     *
-     * @return string
-     */
-    protected function getDefaultModelNamespace()
-    {
-
-        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Models');
-    }
-
-    /**
-     * Get the default namespace for the model class.
-     *
-     * @return string
-     */
-    protected function getDefaultControllerNamespace()
-    {
-
-        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Http\Controllers');
-    }
-
-    /**
-     * Build the service replacement values.
-     *
-     * @param array $replace
-     * @return array
-     */
-    protected function buildServiceReplacements(array $replace)
-    {
-
-        $model = $this->option('model');
-
-        $serviceNamespace = $this->getDefaultServiceNamespace();
-
-        $serviceClass = $serviceNamespace . '\\' . $this->getServiceName();
-
-        if (!class_exists($serviceClass)) {
-
-            if ($this->confirm("A {$serviceClass} service does not exist. Do you want to generate it?", true)) {
-                $this->call('rlustosa:make-service', ['module' => $this->getModuleInput(), 'name' => $model, '--model' => $model]);
-            }
-        }
-
-        return array_merge($replace, [
-            'DummyFullServiceClass' => $serviceClass,
-            'DummyServiceNamespace' => $serviceNamespace,
-            'DummyServiceClass' => $this->getServiceName(),
-            'DummyServiceVariable' => lcfirst($this->getServiceName()),
-        ]);
-    }
-
-    /**
-     * Get the default namespace for the class.
-     *
-     * @return string
-     */
-    protected function getDefaultServiceNamespace()
-    {
-
-        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Services');
-    }
-
-    /**
-     * @return array|string
-     */
-    protected function getServiceName()
-    {
-
-        $service = Str::studly($this->getNameInput());
-
-        if (Str::contains(strtolower($service), 'service') === false) {
-            $service .= 'Service';
-        }
-
-        return $service;
-    }
-
-    /**
-     * Build the service replacement values.
-     *
-     * @param array $replace
-     * @return array
-     */
-    protected function buildPolicyReplacements(array $replace)
-    {
-
-        $model = $this->option('model');
-
-        $policyNamespace = $this->getDefaultPolicyNamespace();
-        $policyClass = $policyNamespace . '\\' . $this->getPolicyName();
-
-        if (!class_exists($policyClass)) {
-
-            if ($this->confirm("A {$policyClass} policy does not exist. Do you want to generate it?", true)) {
-                $this->call('rlustosa:make-policy', ['module' => $this->getModuleInput(), 'name' => $model, '--model' => $model]);
-            }
-        }
-
-        return $replace;
-    }
-
-    /**
-     * Get the default namespace for the class.
-     *
-     * @return string
-     */
-    protected function getDefaultPolicyNamespace()
-    {
-
-        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Policies');
-    }
-
-    /**
-     * @return array|string
-     */
-    protected function getPolicyName()
-    {
-
-        $policy = Str::studly($this->getNameInput());
-
-        if (Str::contains(strtolower($policy), 'policy') === false) {
-            $policy .= 'Policy';
-        }
-
-        return $policy;
-    }
-
-    /**
-     * Build the service replacement values.
-     *
-     * @param array $replace
-     * @return array
-     */
-    protected function buildValidatorRuleReplacements(array $replace)
-    {
-
-        $model = $this->option('model');
-
-        $validatorNamespace = $this->getDefaultValidatorsNamespace();
-        $validatorClass = $validatorNamespace . '\\' . $this->getValidatorRuleName();
-
-        if (!class_exists($validatorClass)) {
-
-            if ($this->confirm("A {$validatorClass} validator does not exist. Do you want to generate it?", true)) {
-                $this->call('rlustosa:make-rule', ['module' => $this->getModuleInput(), 'name' => $model, '--model' => $model]);
-            }
-        }
-
-        return $replace;
-    }
-
-    /**
-     * Get the default namespace for the class.
-     *
-     * @return string
-     */
-    protected function getDefaultValidatorsNamespace()
-    {
-
-        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Validators');
-    }
-
-    /**
-     * @return array|string
-     */
-    protected function getValidatorRuleName()
-    {
-
-        /*$validator = Str::studly($this->option('model'));
-
-        if (Str::contains(strtolower($validator), 'rule') === false) {
-            $validator .= 'Rule';
-        }
-
-        return $validator;*/
-        $validatorRule = Str::studly($this->getNameInput());
-
-        if (Str::contains(strtolower($validatorRule), 'rule') === false) {
-            $validatorRule .= 'Rule';
-        }
-
-        return $validatorRule;
-    }
-
-    /**
-     * Build the service replacement values.
-     *
-     * @param array $replace
-     * @return array
-     */
-    protected function buildValidatorStoreRequestReplacements(array $replace)
-    {
-
-        $model = $this->option('model');
-
-        $validatorNamespace = $this->getDefaultValidatorsNamespace();
-        $validatorStoreRequestClass = $validatorNamespace . '\\' . $this->getValidatorStoreRequestName();
-
-        if (!class_exists($validatorStoreRequestClass)) {
-
-            if ($this->confirm("A {$validatorStoreRequestClass} validator store request does not exist. Do you want to generate it?", true)) {
-                $this->call('rlustosa:make-store-request', ['module' => $this->getModuleInput(), 'name' => $model, '--model' => $model]);
-            }
-        }
-
-        return array_merge($replace, [
-            'DummyFullStoreRequestClass' => $validatorStoreRequestClass,
-            'DummyValidatorNamespace' => $validatorNamespace,
-            'DummyStoreRequestClass' => $this->getValidatorStoreRequestName(),
-            'DummyStoreRequestVariable' => lcfirst($this->getValidatorStoreRequestName()),
-        ]);
-    }
-
-    /**
-     * @return array|string
-     */
-    protected function getValidatorStoreRequestName()
-    {
-
-        $validator = Str::studly($this->option('model'));
-
-        if (Str::contains(strtolower($validator), 'storerequest') === false) {
-            $validator .= 'StoreRequest';
-        }
-
-        return $validator;
-    }
-
-    /**
-     * Build the service replacement values.
-     *
-     * @param array $replace
-     * @return array
-     */
-    protected function buildValidatorUpdateRequestReplacements(array $replace)
-    {
-
-        $model = $this->option('model');
-
-        $validatorNamespace = $this->getDefaultValidatorsNamespace();
-        $validatorUpdateRequestClass = $validatorNamespace . '\\' . $this->getValidatorUpdateRequestName();
-
-        if (!class_exists($validatorUpdateRequestClass)) {
-
-            if ($this->confirm("A {$validatorUpdateRequestClass} validator update request does not exist. Do you want to generate it?", true)) {
-                $this->call('rlustosa:make-update-request', ['module' => $this->getModuleInput(), 'name' => $model, '--model' => $model]);
-            }
-        }
-
-        return array_merge($replace, [
-            'DummyFullUpdateRequestClass' => $validatorUpdateRequestClass,
-            'DummyValidatorNamespace' => $validatorNamespace,
-            'DummyUpdateRequestClass' => $this->getValidatorUpdateRequestName(),
-            'DummyUpdateRequestVariable' => lcfirst($this->getValidatorUpdateRequestName()),
-        ]);
-    }
-
-    /**
-     * @return array|string
-     */
-    protected function getValidatorUpdateRequestName()
-    {
-
-        $validator = Str::studly($this->option('model'));
-
-        if (Str::contains(strtolower($validator), 'updaterequest') === false) {
-            $validator .= 'UpdateRequest';
-        }
-
-        return $validator;
-    }
-
-    /*
-     * Determine if the class already exists.
-     *
-     * @return bool
-     */
-
-    /**
-     * Build the service replacement values.
-     *
-     * @param array $replace
-     * @return array
-     */
-    protected function buildResourceReplacements(array $replace)
-    {
-
-        $model = $this->option('model');
-
-        $resourceNamespace = $this->getDefaultResourceNamespace();
-        $resourceClass = $resourceNamespace . '\\' . $this->getResourceName();
-
-        if (!class_exists($resourceClass)) {
-
-            if ($this->confirm("A {$resourceClass} resource does not exist. Do you want to generate it?", true)) {
-                $this->call('rlustosa:make-resource', ['module' => $this->getModuleInput(), 'name' => $model, '--model' => $model]);
-            }
-        }
-
-        return array_merge($replace, [
-            'DummyResourceNamespace' => $resourceNamespace,
-            'DummyFullResourceClass' => $resourceClass,
-            'DummyResourceClass' => $this->getResourceName(),
-        ]);
-    }
-
-    /**
-     * Get the default namespace for the class.
-     *
-     * @return string
-     */
-    protected function getDefaultResourceNamespace()
-    {
-
-        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Resources');
-    }
-
-    /**
-     * @return array|string
-     */
-    protected function getResourceName()
-    {
-
-        $resource = Str::studly($this->getNameInput());
-
-        if (Str::contains(strtolower($resource), 'resource') === false) {
-            $resource .= 'Resource';
-        }
-
-        return $resource;
-    }
-
-    //abstract protected function createdSuccessfully();
-
-    /**
-     * Build the service replacement values.
-     *
-     * @param array $replace
-     * @return array
-     */
-    protected function buildCollectionReplacements(array $replace)
-    {
-
-        $model = $this->option('model');
-
-        $resourceNamespace = $this->getDefaultResourceNamespace();
-        $collectionClass = $resourceNamespace . '\\' . $this->getCollectionName();
-
-        if (!class_exists($collectionClass)) {
-
-            if ($this->confirm("A {$collectionClass} collection does not exist. Do you want to generate it?", true)) {
-                $this->call('rlustosa:make-collection', ['module' => $this->getModuleInput(), 'name' => $model, '--model' => $model]);
-            }
-        }
-
-        return array_merge($replace, [
-            'DummyCollectionNamespace' => $resourceNamespace,
-            'DummyFullCollectionClass' => $collectionClass,
-            'DummyCollectionClass' => $this->getCollectionName(),
-        ]);
-    }
-
-    /**
-     * @return array|string
-     */
-    protected function getCollectionName()
-    {
-
-        $collection = Str::studly($this->getNameInput());
-
-        if (Str::contains(strtolower($collection), 'collection') === false) {
-            $collection .= 'Collection';
-        }
-
-        return $collection;
-    }
-
-    /**
-     * Get the default namespace for the class.
-     *
-     * @param string $model
-     * @return string
-     */
-    protected function getFullyQualifiedServiceClassName($model)
-    {
-
-        $model = Str::studly($model);
-
-        if (preg_match('([^A-Za-z0-9_/\\\\])', $model)) {
-            throw new InvalidArgumentException('Model name contains invalid characters.');
-        }
-
-        $model = trim(str_replace('/', '\\', $model), '\\');
-
-        return trim($this->getDefaultServiceNamespace() . '\\' . $model);
-    }
-
-    /**
-     * Get the default namespace for the class.
-     *
-     * @return string
-     */
-    protected function getDefaultProvidersNamespace()
-    {
-
-        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Providers');
+        return [
+            ['module', InputArgument::REQUIRED, 'The name of the module'],
+            ['name', InputArgument::REQUIRED, 'The name of the class'],
+        ];
     }
 }
