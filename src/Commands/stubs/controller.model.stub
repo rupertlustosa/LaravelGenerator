@@ -6,13 +6,13 @@ namespace DummyControllerNamespace;
 
 use Exception;
 use Illuminate\Http\JsonResponse;
-use DummyFullDefaultControllerClass;
-use DummyFullServiceClass;
-use DummyFullStoreRequestClass;
-use DummyFullUpdateRequestClass;
-use DummyFullModelClass;
-use DummyFullResourceClass;
-use DummyFullCollectionClass;
+use DummyDefaultApiControllerNamespace;
+use DummyServiceFullNamed;
+use DummyStoreRequestFullNamed;
+use DummyUpdateRequestFullNamed;
+use DummyModelFullNamed;
+use DummyResourceFullNamed;
+use DummyCollectionFullNamed;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 

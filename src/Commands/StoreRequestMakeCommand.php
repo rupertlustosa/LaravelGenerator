@@ -2,8 +2,6 @@
 
 namespace Rlustosa\LaravelGenerator\Commands;
 
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
 class StoreRequestMakeCommand extends GeneratorCommand
@@ -20,7 +18,7 @@ class StoreRequestMakeCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $description = 'Generate a store request for the specified model.';
+    protected $description = 'Create a new StoreRequest class for the specified module.';
 
     /**
      * The type of class being generated.
@@ -30,42 +28,15 @@ class StoreRequestMakeCommand extends GeneratorCommand
     protected $type = 'StoreRequest';
 
     /**
-     * Get the default namespace for the class.
+     * Execute the console command.
      *
-     * @return string
+     * @return void
      */
-    protected function getDefaultNamespace()
+    public function handle()
     {
-
-        return $this->getDefaultValidatorsNamespace();
-    }
-
-    /**
-     * Build the class with the given name.
-     *
-     * Remove the base controller import if we are already in base namespace.
-     *
-     * @return string
-     * @throws FileNotFoundException
-     */
-    protected function buildClass()
-    {
-
-        $validatorNamespace = $this->getDefaultValidatorsNamespace();
-
-        $replace = [];
-        $replace['DummyValidatorNamespace'] = $validatorNamespace;
-        $replace['DummyRuleClass'] = $this->getValidatorRuleName();
-        $replace['DummyStoreRequestClass'] = $this->getValidatorStoreRequestName();
-        $replace['DummyValidatorRuleNamespace'] = $validatorNamespace . '\\' . $this->getValidatorRuleName();
-
-        $replace = $this->buildModelReplacements($replace);
-
-        $stub = $this->files->get($this->getStub());
-
-        return str_replace(
-            array_keys($replace), array_values($replace), $stub
-        );
+        if (parent::handle() === false && !$this->option('force')) {
+            return false;
+        }
     }
 
     /**
@@ -76,65 +47,31 @@ class StoreRequestMakeCommand extends GeneratorCommand
     protected function getStub()
     {
 
-        $stub = '/stubs/store-request.stub';
+        if ($this->option('resource')) {
 
+            $this->createRule();
+            $stub = '/stubs/store-request.model.stub';
+        } else {
+
+            $stub = '/stubs/store-request.plain.stub';
+        }
         return __DIR__ . $stub;
     }
 
-    protected function missingDependencies()
-    {
-
-        $missing = [];
-
-        $model = $this->option('model');
-        $modelClass = $this->parseModel($model);
-
-        if (!class_exists($modelClass)) {
-
-            $missing[] = 'php artisan rlustosa:make-model ' . $this->getModuleInput() . ' ' . $this->getNameInput();
-            $this->warn("A {$modelClass} model does not exist.", true);
-        }
-
-        $ruleNamespace = $this->getDefaultValidatorsNamespace();
-        $ruleClass = $ruleNamespace . '\\' . $this->getValidatorRuleName();
-
-        if (!class_exists($ruleClass)) {
-
-            $missing[] = 'php artisan rlustosa:make-rule ' . $this->getModuleInput() . ' ' . $this->getNameInput() . ' --model=' . $model;
-            $this->warn("A {$ruleClass} resource does not exist.", true);
-        }
-
-        return $missing;
-    }
-
     /**
-     * Get the console command arguments.
+     * Create a model.
      *
-     * @return array
+     * @return void
      */
-    protected function getArguments()
-    {
-        return [
-            ['module', InputArgument::REQUIRED, 'The name of module will be used.'],
-            ['name', InputArgument::REQUIRED, 'The name of the rule class.'],
-        ];
-    }
-
-    protected function alreadyExists()
+    protected function createRule()
     {
 
-        return $this->files->exists($this->getDestinationFilePath());
-    }
+        $modelName = $this->qualifyClass($this->getNameInput());
 
-    /**
-     * Get controller name.
-     *
-     * @return string
-     */
-    public function getDestinationFilePath()
-    {
-
-        return base_path($this->rootNamespace() . '/' . $this->getModuleName() . '/Validators/' . $this->getValidatorStoreRequestName() . '.php');
+        $this->call('rlustosa:make-rule', [
+            'module' => $this->getModuleInput(),
+            'name' => $modelName,
+        ]);
     }
 
     /**
@@ -145,7 +82,8 @@ class StoreRequestMakeCommand extends GeneratorCommand
     protected function getOptions()
     {
         return [
-            ['model', 'm', InputOption::VALUE_REQUIRED, 'Generate a resource policy for the given model.'],
+            ['resource', 'r', InputOption::VALUE_NONE, 'Indicates if the generated rule should be a resource "rule"'],
+            ['force', null, InputOption::VALUE_NONE, 'Create the class even if the model already exists'],
         ];
     }
 }

@@ -5,7 +5,7 @@ namespace DummyProviderNamespace;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
-class DummyRouteProviderClass extends ServiceProvider
+class DummyRouteServiceProviderClass extends ServiceProvider
 {
     /**
      * The module namespace to assume when generating URLs to actions.

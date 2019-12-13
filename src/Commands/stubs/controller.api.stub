@@ -6,7 +6,7 @@ namespace DummyControllerNamespace;
 
 use Exception;
 use Illuminate\Http\JsonResponse;
-use DummyFullDefaultControllerClass;
+use DummyDefaultApiControllerNamespace;
 
 class DummyControllerClass extends ApiController
 {

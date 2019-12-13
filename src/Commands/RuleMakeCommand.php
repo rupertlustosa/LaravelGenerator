@@ -47,26 +47,12 @@ class RuleMakeCommand extends GeneratorCommand
     protected function getStub()
     {
 
-        if (!empty($this->option('model'))) {
+        if ($this->option('resource')) {
 
-            /*$classExists = $this->classExists('Model', $this->option('model'));
-
-            if (!$classExists) {
-
-                $this->createModel();
-            }
-            else {
-                 $this->warn('COMO A CLASSE EXISTE, VERIFICAR SE A TABELA EXISTE PARA CRIAR O CÓDIGO CENTRAL');
-            }
-
-            $this->createResource();*/
-
-            $stub = '/stubs/collection.model.stub';
-        } else {
-
-            $stub = '/stubs/rule.plain.stub';
+            //$this->createModel();
+            $this->createStoreUpdate();
         }
-
+        $stub = '/stubs/rule.plain.stub';
         return __DIR__ . $stub;
     }
 
@@ -78,9 +64,30 @@ class RuleMakeCommand extends GeneratorCommand
     protected function createModel()
     {
 
-        $modelName = $this->qualifyClass($this->option('model'));
+        $modelName = $this->qualifyClass($this->getNameInput());
 
         $this->call('rlustosa:make-model', [
+            'module' => $this->getModuleInput(),
+            'name' => $modelName,
+        ]);
+    }
+
+    /**
+     * Create a StoreRequest and UpdateRequest.
+     *
+     * @return void
+     */
+    protected function createStoreUpdate()
+    {
+
+        $modelName = $this->qualifyClass($this->getNameInput());
+
+        $this->call('rlustosa:make-store-request', [
+            'module' => $this->getModuleInput(),
+            'name' => $modelName,
+        ]);
+
+        $this->call('rlustosa:make-update-request', [
             'module' => $this->getModuleInput(),
             'name' => $modelName,
         ]);
@@ -94,7 +101,7 @@ class RuleMakeCommand extends GeneratorCommand
     protected function getOptions()
     {
         return [
-            ['model', null, InputOption::VALUE_OPTIONAL, 'Indicates if the generated resource should be a resource "resource"'],
+            //['model', null, InputOption::VALUE_OPTIONAL, 'Indicates if the generated resource should be a resource "resource"'],
             ['resource', 'r', InputOption::VALUE_NONE, 'Indicates if the generated rule should be a resource "rule"'],
             ['force', null, InputOption::VALUE_NONE, 'Create the class even if the model already exists'],
         ];

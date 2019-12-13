@@ -1,0 +1,12 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DummyControllerNamespace;
+
+use DummyDefaultApiControllerNamespace;
+
+class DummyControllerClass extends ApiController
+{
+    //
+}

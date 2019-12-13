@@ -2,8 +2,6 @@
 
 namespace Rlustosa\LaravelGenerator\Commands;
 
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
 class ServiceMakeCommand extends GeneratorCommand
@@ -20,7 +18,7 @@ class ServiceMakeCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $description = 'Generate new service for the specified module.';
+    protected $description = 'Create a new service class for the specified module.';
 
     /**
      * The type of class being generated.
@@ -30,43 +28,15 @@ class ServiceMakeCommand extends GeneratorCommand
     protected $type = 'Service';
 
     /**
-     * Build the class with the given name.
+     * Execute the console command.
      *
-     * Remove the base controller import if we are already in base namespace.
-     *
-     * @return string
-     * @throws FileNotFoundException
+     * @return void
      */
-    protected function buildClass()
+    public function handle()
     {
-
-        $serviceNamespace = $this->getDefaultNamespace();
-
-        $replace = [];
-        $replace['DummyServiceNamespace'] = $serviceNamespace;
-        $replace['DummyServiceClass'] = $this->getServiceName();
-
-        if ($this->option('model')) {
-
-            $replace = $this->buildModelReplacements($replace);
+        if (parent::handle() === false && !$this->option('force')) {
+            return false;
         }
-
-        $stub = $this->files->get($this->getStub());
-
-        return str_replace(
-            array_keys($replace), array_values($replace), $stub
-        );
-    }
-
-    /**
-     * Get the default namespace for the class.
-     *
-     * @return string
-     */
-    protected function getDefaultNamespace()
-    {
-
-        return $this->getDefaultServiceNamespace();
     }
 
     /**
@@ -79,60 +49,13 @@ class ServiceMakeCommand extends GeneratorCommand
 
         if ($this->option('model')) {
 
-            $stub = '/stubs/service-resource.stub';
+            $stub = '/stubs/service.model.stub';
         } else {
 
-            $stub = '/stubs/service-generic.stub';
+            $stub = '/stubs/service.plain.stub';
         }
 
         return __DIR__ . $stub;
-    }
-
-    protected function missingDependencies()
-    {
-
-        $missing = [];
-
-        $model = $this->option('model');
-        $modelClass = $this->parseModel($model);
-
-        if (!class_exists($modelClass)) {
-
-            $missing[] = 'php artisan rlustosa:make-model ' . $this->getModuleInput() . ' ' . $this->getNameInput();
-            $this->warn("A {$modelClass} model does not exist.", true);
-        }
-
-        return $missing;
-    }
-
-    /**
-     * Get the console command arguments.
-     *
-     * @return array
-     */
-    protected function getArguments()
-    {
-        return [
-            ['module', InputArgument::REQUIRED, 'The name of module will be used.'],
-            ['name', InputArgument::REQUIRED, 'The name of the service class.'],
-        ];
-    }
-
-    protected function alreadyExists()
-    {
-
-        return $this->files->exists($this->getDestinationFilePath());
-    }
-
-    /**
-     * Get controller name.
-     *
-     * @return string
-     */
-    public function getDestinationFilePath()
-    {
-
-        return base_path($this->rootNamespace() . '/' . $this->getModuleName() . '/Services/' . $this->getServiceName() . '.php');
     }
 
     /**
@@ -143,12 +66,9 @@ class ServiceMakeCommand extends GeneratorCommand
     protected function getOptions()
     {
         return [
-            ['model', 'm', InputOption::VALUE_OPTIONAL, 'Generate a resource service for the given model.'],
+            //['resource', 'r', InputOption::VALUE_NONE, 'Indicates if the generated service should be a resource service'],
+            ['model', 'm', InputOption::VALUE_OPTIONAL, 'Indicates if the generated service should be a resource service'],
+            ['force', null, InputOption::VALUE_NONE, 'Create the class even if the model already exists'],
         ];
-    }
-
-    protected function createdSuccessfully()
-    {
-        $this->info($this->type . ' created successfully.');
     }
 }

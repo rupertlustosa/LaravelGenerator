@@ -1,0 +1,24 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DummyControllerNamespace;
+
+use Exception;
+use Illuminate\Http\JsonResponse;
+use DummyDefaultApiControllerNamespace;
+use Illuminate\Http\Request;
+
+class DummyControllerClass extends ApiController
+{
+    /**
+     * Handle the incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function __invoke(Request $request)
+    {
+        //
+    }
+}

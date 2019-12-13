@@ -2,8 +2,7 @@
 
 namespace Rlustosa\LaravelGenerator\Commands;
 
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Symfony\Component\Console\Input\InputArgument;
+use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputOption;
 
 class ModelMakeCommand extends GeneratorCommand
@@ -20,7 +19,7 @@ class ModelMakeCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $description = 'Generate new model for the specified module.';
+    protected $description = 'Create a new Eloquent model class for the specified module.';
 
     /**
      * The type of class being generated.
@@ -30,38 +29,67 @@ class ModelMakeCommand extends GeneratorCommand
     protected $type = 'Model';
 
     /**
-     * Build the class with the given name.
+     * Execute the console command.
      *
-     * Remove the base controller import if we are already in base namespace.
-     *
-     * @return string
-     * @throws FileNotFoundException
+     * @return void
      */
-    protected function buildClass()
+    public function handle()
     {
+        if (parent::handle() === false && !$this->option('force')) {
+            return false;
+        }
 
-        $modelNamespace = $this->getDefaultNamespace();
+        if ($this->option('all')) {
+            $this->input->setOption('migration', true);
+            $this->input->setOption('controller', true);
+            $this->input->setOption('resource', true);
+        }
 
-        $replace = [];
-        $replace['DummyModelNamespace'] = $modelNamespace;
-        $replace['DummyModelClass'] = $this->getModelName();
+        if ($this->option('migration')) {
+            $this->createMigration();
+        }
 
-        $stub = $this->files->get($this->getStub());
-
-        return str_replace(
-            array_keys($replace), array_values($replace), $stub
-        );
+        if ($this->option('controller') || $this->option('resource')) {
+            $this->createController();
+        }
     }
 
     /**
-     * Get the default namespace for the class.
+     * Create a migration file for the model.
      *
-     * @return string
+     * @return void
      */
-    protected function getDefaultNamespace()
+    protected function createMigration()
     {
+        $table = Str::snake(Str::pluralStudly(class_basename($this->argument('name'))));
 
-        return trim($this->rootNamespace() . '\\' . $this->getModuleName() . '\Models');
+        if ($this->option('pivot')) {
+            $table = Str::singular($table);
+        }
+
+        $this->call('make:migration', [
+            'name' => "create_{$table}_table",
+            '--create' => $table,
+        ]);
+    }
+
+    /**
+     * Create a controller for the model.
+     *
+     * @return void
+     */
+    protected function createController()
+    {
+        //$controller = Str::studly(class_basename($this->argument('name')));
+
+        $modelName = $this->qualifyClass($this->getNameInput());
+
+        $this->call('rlustosa:make-controller', [
+            'module' => $this->getModuleInput(),
+            'name' => $this->getNameInput(),
+            '--model' => $this->option('resource') ? $modelName : null,
+            '--force' => $this->option('force') ? true : null,
+        ]);
     }
 
     /**
@@ -72,47 +100,7 @@ class ModelMakeCommand extends GeneratorCommand
     protected function getStub()
     {
 
-        $stub = '/stubs/model.stub';
-
-        return __DIR__ . $stub;
-    }
-
-    protected function missingDependencies()
-    {
-
-        $missing = [];
-
-        return $missing;
-    }
-
-    /**
-     * Get the console command arguments.
-     *
-     * @return array
-     */
-    protected function getArguments()
-    {
-        return [
-            ['module', InputArgument::REQUIRED, 'The name of module will be used.'],
-            ['name', InputArgument::REQUIRED, 'The name of the controller class.'],
-        ];
-    }
-
-    protected function alreadyExists()
-    {
-
-        return $this->files->exists($this->getDestinationFilePath());
-    }
-
-    /**
-     * Get controller name.
-     *
-     * @return string
-     */
-    public function getDestinationFilePath()
-    {
-
-        return base_path($this->rootNamespace() . '/' . $this->getModuleName() . '/Models/' . $this->getModelName() . '.php');
+        return __DIR__ . '/stubs/model.stub';
     }
 
     /**
@@ -123,12 +111,13 @@ class ModelMakeCommand extends GeneratorCommand
     protected function getOptions()
     {
         return [
-            ['migration', 'm', InputOption::VALUE_NONE, 'Flag to create associated migrations', null],
-        ];
-    }
+            ['all', 'a', InputOption::VALUE_NONE, 'Generate a migration and resource controller for the model'],
 
-    protected function createdSuccessfully()
-    {
-        $this->info($this->type . ' created successfully.');
+            ['controller', 'c', InputOption::VALUE_NONE, 'Create a new controller for the model'],
+            ['resource', 'r', InputOption::VALUE_NONE, 'Indicates if the generated controller should be a resource controller'],
+            ['migration', 'm', InputOption::VALUE_NONE, 'Create a new migration file for the model'],
+
+            ['force', null, InputOption::VALUE_NONE, 'Create the class even if the model already exists'],
+        ];
     }
 }

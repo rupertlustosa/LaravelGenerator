@@ -52,6 +52,11 @@ You'll find installation instructions and full documentation on ###########.
 
 - [Rupert Brasil Lustosa](https://github.com/rupertlustosa)
 
+## BUGS
+
+- php artisan rlustosa:make-collection user userType --force --model User && chmod 777 -R ./ (Aponta para Modules\User\Resources\UserTypeResource e deveriaser Modules\User\Resources\UserResource visto que estamos passando o nome do Mode = User) 
+
+
 ## TODO
 
 - Gerar views html

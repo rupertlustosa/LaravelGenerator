@@ -2,8 +2,6 @@
 
 namespace Rlustosa\LaravelGenerator\Commands;
 
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
 class PolicyMakeCommand extends GeneratorCommand
@@ -20,7 +18,7 @@ class PolicyMakeCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $description = 'Generate new policy for the specified module.';
+    protected $description = 'Create a new policy class for the specified module.';
 
     /**
      * The type of class being generated.
@@ -30,43 +28,15 @@ class PolicyMakeCommand extends GeneratorCommand
     protected $type = 'Policy';
 
     /**
-     * Build the class with the given name.
+     * Execute the console command.
      *
-     * Remove the base controller import if we are already in base namespace.
-     *
-     * @return string
-     * @throws FileNotFoundException
+     * @return void
      */
-    protected function buildClass()
+    public function handle()
     {
-
-        $policyNamespace = $this->getDefaultNamespace();
-
-        $replace = [];
-        $replace['DummyPolicyNamespace'] = $policyNamespace;
-        $replace['DummyPolicyClass'] = $this->getPolicyName();
-
-        if ($this->option('model')) {
-
-            $replace = $this->buildModelReplacements($replace);
+        if (parent::handle() === false && !$this->option('force')) {
+            return false;
         }
-
-        $stub = $this->files->get($this->getStub());
-
-        return str_replace(
-            array_keys($replace), array_values($replace), $stub
-        );
-    }
-
-    /**
-     * Get the default namespace for the class.
-     *
-     * @return string
-     */
-    protected function getDefaultNamespace()
-    {
-
-        return $this->getDefaultPolicyNamespace();
     }
 
     /**
@@ -79,60 +49,13 @@ class PolicyMakeCommand extends GeneratorCommand
 
         if ($this->option('model')) {
 
-            $stub = '/stubs/policy-resource.stub';
+            $stub = '/stubs/policy.model.stub';
         } else {
 
-            $stub = '/stubs/policy-generic.stub';
+            $stub = '/stubs/policy.plain.stub';
         }
 
         return __DIR__ . $stub;
-    }
-
-    protected function missingDependencies()
-    {
-
-        $missing = [];
-
-        $model = $this->option('model');
-        $modelClass = $this->parseModel($model);
-
-        if (!class_exists($modelClass)) {
-
-            $missing[] = 'php artisan rlustosa:make-model ' . $this->getModuleInput() . ' ' . $this->getNameInput();
-            $this->warn("A {$modelClass} model does not exist.", true);
-        }
-
-        return $missing;
-    }
-
-    /**
-     * Get the console command arguments.
-     *
-     * @return array
-     */
-    protected function getArguments()
-    {
-        return [
-            ['module', InputArgument::REQUIRED, 'The name of module will be used.'],
-            ['name', InputArgument::REQUIRED, 'The name of the policy class.'],
-        ];
-    }
-
-    protected function alreadyExists()
-    {
-
-        return $this->files->exists($this->getDestinationFilePath());
-    }
-
-    /**
-     * Get controller name.
-     *
-     * @return string
-     */
-    public function getDestinationFilePath()
-    {
-
-        return base_path($this->rootNamespace() . '/' . $this->getModuleName() . '/Policies/' . $this->getPolicyName() . '.php');
     }
 
     /**
@@ -143,7 +66,8 @@ class PolicyMakeCommand extends GeneratorCommand
     protected function getOptions()
     {
         return [
-            ['model', 'm', InputOption::VALUE_OPTIONAL, 'Generate a resource policy for the given model.'],
+            ['force', null, InputOption::VALUE_NONE, 'Create the class even if the policy already exists'],
+            ['model', 'm', InputOption::VALUE_NONE, 'Indicates if the generated policy should be a resource policy'],
         ];
     }
 }

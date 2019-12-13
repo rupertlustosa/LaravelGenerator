@@ -2,8 +2,6 @@
 
 namespace Rlustosa\LaravelGenerator\Commands;
 
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
 class CollectionMakeCommand extends GeneratorCommand
@@ -20,7 +18,7 @@ class CollectionMakeCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $description = 'Generate new collection for the specified module.';
+    protected $description = 'Create a new collection class for the specified module.';
 
     /**
      * The type of class being generated.
@@ -30,38 +28,15 @@ class CollectionMakeCommand extends GeneratorCommand
     protected $type = 'Collection';
 
     /**
-     * Build the class with the given name.
+     * Execute the console command.
      *
-     * Remove the base controller import if we are already in base namespace.
-     *
-     * @return string
-     * @throws FileNotFoundException
+     * @return void
      */
-    protected function buildClass()
+    public function handle()
     {
-
-        $resourceNamespace = $this->getDefaultNamespace();
-
-        $replace = [];
-        $replace['DummyResourceNamespace'] = $resourceNamespace;
-        $replace['DummyResourceClass'] = $this->getResourceName();
-        $replace['DummyCollectionClass'] = $this->getCollectionName();
-        $stub = $this->files->get($this->getStub());
-
-        return str_replace(
-            array_keys($replace), array_values($replace), $stub
-        );
-    }
-
-    /**
-     * Get the default namespace for the class.
-     *
-     * @return string
-     */
-    protected function getDefaultNamespace()
-    {
-
-        return $this->getDefaultResourceNamespace();
+        if (parent::handle() === false && !$this->option('force')) {
+            return false;
+        }
     }
 
     /**
@@ -72,86 +47,58 @@ class CollectionMakeCommand extends GeneratorCommand
     protected function getStub()
     {
 
-        $stub = '/stubs/collection.stub';
+        if (!empty($this->option('model'))) {
+
+            $classExists = $this->classExists('Model', $this->option('model'));
+
+            if (!$classExists) {
+
+                $this->createModel();
+            } else {
+                $this->warn('COMO A CLASSE EXISTE, VERIFICAR SE A TABELA EXISTE PARA CRIAR O CÓDIGO CENTRAL');
+            }
+
+            $this->createResource();
+
+            $stub = '/stubs/collection.model.stub';
+        } else {
+
+            $stub = '/stubs/collection.plain.stub';
+        }
 
         return __DIR__ . $stub;
     }
 
-    protected function missingDependencies()
+    /**
+     * Create a model.
+     *
+     * @return void
+     */
+    protected function createModel()
     {
 
-        $missing = [];
+        $modelName = $this->qualifyClass($this->option('model'));
 
-        $model = $this->option('model');
-        $modelClass = $this->parseModel($model);
-
-        if (!class_exists($modelClass)) {
-
-            $missing[] = 'php artisan rlustosa:make-model ' . $this->getModuleInput() . ' ' . $this->getNameInput();
-            $this->warn("A {$modelClass} model does not exist.", true);
-        }
-
-        $resourceNamespace = $this->getDefaultResourceNamespace();
-        $resourceClass = $resourceNamespace . '\\' . $this->getResourceName();
-
-        if (!class_exists($resourceClass)) {
-
-            $missing[] = 'php artisan rlustosa:make-resource ' . $this->getModuleInput() . ' ' . $this->getNameInput() . ' --model=' . $model;
-            $this->warn("A {$resourceClass} resource does not exist.", true);
-        }
-
-        return $missing;
-    }
-
-    protected function geCodeToArray($model, $structure)
-    {
-
-        $columns = [];
-        foreach (array_keys($structure['columns']) as $column) {
-
-            if (!in_array($column,
-                [
-                    $model::CREATED_AT,
-                    $model::UPDATED_AT,
-                    $model->getDeletedAtColumn(),
-                ]
-            )) {
-
-                $columns[] = "'{$column}' => \$this->{$column},";
-            }
-        }
-
-        return $columns;
+        $this->call('rlustosa:make-model', [
+            'module' => $this->getModuleInput(),
+            'name' => $modelName,
+        ]);
     }
 
     /**
-     * Get the console command arguments.
+     * Create a resource for the collection.
      *
-     * @return array
+     * @return void
      */
-    protected function getArguments()
-    {
-        return [
-            ['module', InputArgument::REQUIRED, 'The name of module will be used.'],
-            ['name', InputArgument::REQUIRED, 'The name of the service class.'],
-        ];
-    }
-
-    protected function alreadyExists()
+    protected function createResource()
     {
 
-        return $this->files->exists($this->getDestinationFilePath());
-    }
+        $modelName = $this->qualifyClass($this->option('model'));
 
-    /**
-     * Get controller name.
-     *
-     * @return string
-     */
-    public function getDestinationFilePath()
-    {
-
-        return base_path($this->rootNamespace() . '/' . $this->getModuleName() . '/Resources/' . $this->getCollectionName() . '.php');
+        $this->call('rlustosa:make-resource', [
+            'module' => $this->getModuleInput(),
+            'name' => $modelName,
+        ]);
     }
 
     /**
@@ -162,12 +109,8 @@ class CollectionMakeCommand extends GeneratorCommand
     protected function getOptions()
     {
         return [
-            ['model', 'm', InputOption::VALUE_REQUIRED, 'Generate a resource service for the given model.'],
+            ['model', null, InputOption::VALUE_OPTIONAL, 'Indicates if the generated resource should be a resource "resource"'],
+            ['force', null, InputOption::VALUE_NONE, 'Create the class even if the model already exists'],
         ];
-    }
-
-    protected function createdSuccessfully()
-    {
-        $this->info($this->type . ' created successfully.');
     }
 }

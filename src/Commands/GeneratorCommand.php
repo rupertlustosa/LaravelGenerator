@@ -97,11 +97,11 @@ abstract class GeneratorCommand extends Command
     /**
      * Get the destination class path.
      *
-     * @param string $name
      * @return string
      */
-    protected function getPath($name)
+    protected function getPath()
     {
+
         $namespace = null;
         $class = null;
 
@@ -117,12 +117,15 @@ abstract class GeneratorCommand extends Command
                 $class = $value;
             }
         }
-        //$name = Str::replaceFirst($this->rootNamespace(), '', $name);
+
+        if (empty($class)) {
+
+            throw new Exception('Invalid mapping to Namespace:' . $this->type);
+        }
+
         $fullClassNamespaced = $namespace . '\\' . $class;
-        //dd($data, $namespace, $name, $fullClassNamespaced);
 
         return base_path() . '/' . str_replace('\\', '/', $fullClassNamespaced) . '.php';
-        //return $this->laravel['path'].'/'.str_replace('\\', '/', $name).'.php';
     }
 
     protected function getDefaultForCommand()
@@ -131,7 +134,7 @@ abstract class GeneratorCommand extends Command
         if (array_key_exists(Str::camel($this->type), $this->getDefaultsForClasses())) {
             return $this->getDefaultsForClasses()[Str::camel($this->type)];
         } else {
-            new Exception('Invalid param $type ' . $this->type);
+            throw new Exception('Invalid param $type ' . $this->type);
         }
 
         return [];
@@ -156,7 +159,7 @@ abstract class GeneratorCommand extends Command
                 'DummyPolicyClass' => 'ClassNamePolicy',
                 'DummyPolicyFullNamed' => 'Modules\ModuleName\Policies\ClassNamePolicy',
             ],
-            'provider' => [
+            'scaffold' => [
                 'DummyProviderNamespace' => 'Modules\ModuleName\Providers',
                 'DummyServiceProviderClass' => 'ModuleNameServiceProvider',
                 'DummyRouteServiceProviderClass' => 'RouteServiceProvider',
@@ -312,6 +315,22 @@ abstract class GeneratorCommand extends Command
         return str_replace(array_keys($replaces), array_values($replaces), $stub);
     }
 
+    protected function getRouteApiPath()
+    {
+
+        return base_path() . '/' . str_replace('\\', '/', $this->rootModuleNamespace()) . $this->qualifyClass($this->getModuleInput()) . '/routes/api.php';
+    }
+
+    /**
+     * Get the root namespace for the class.
+     *
+     * @return string
+     */
+    protected function rootModuleNamespace()
+    {
+        return 'Modules\\';
+    }
+
     protected function classExists($type, $name)
     {
 
@@ -325,7 +344,7 @@ abstract class GeneratorCommand extends Command
             return class_exists($mapping[$classString]);
         } else {
 
-            new Exception('Invalid param $type ' . $type);
+            throw new Exception('Invalid param $type ' . $type);
         }
         dd($name, $type, $x, $class);
     }
@@ -392,16 +411,6 @@ abstract class GeneratorCommand extends Command
     protected function getDefaultNamespace($rootNamespace)
     {
         return $rootNamespace;
-    }
-
-    /**
-     * Get the root namespace for the class.
-     *
-     * @return string
-     */
-    protected function rootModuleNamespace()
-    {
-        return 'Modules\\';
     }
 
     /**

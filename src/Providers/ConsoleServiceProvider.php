@@ -3,22 +3,16 @@
 namespace Rlustosa\LaravelGenerator\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Rlustosa\LaravelGenerator\Commands\CodingMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\CollectionMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\ControllerMakeCommand;
-use Rlustosa\LaravelGenerator\Commands\ControllerRestMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\ModelMakeCommand;
-use Rlustosa\LaravelGenerator\Commands\ModuleMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\PolicyMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\ResourceMakeCommand;
-use Rlustosa\LaravelGenerator\Commands\RouteApiMakeCommand;
-use Rlustosa\LaravelGenerator\Commands\RouteServiceProviderMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\RuleMakeCommand;
+use Rlustosa\LaravelGenerator\Commands\ScaffoldModuleMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\ServiceMakeCommand;
-use Rlustosa\LaravelGenerator\Commands\ServiceProviderMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\StoreRequestMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\UpdateRequestMakeCommand;
-use Rlustosa\LaravelGenerator\Commands\ValidatorsMakeCommand;
 
 class ConsoleServiceProvider extends ServiceProvider
 {
@@ -29,22 +23,22 @@ class ConsoleServiceProvider extends ServiceProvider
      * @var array
      */
     protected $commands = [
-        ModuleMakeCommand::class,
-        ControllerMakeCommand::class,
-        ControllerRestMakeCommand::class,
         ModelMakeCommand::class,
-        ServiceMakeCommand::class,
+        ControllerMakeCommand::class,
         PolicyMakeCommand::class,
-        ValidatorsMakeCommand::class,
+        ServiceMakeCommand::class,
+        ResourceMakeCommand::class,
+        CollectionMakeCommand::class,
         RuleMakeCommand::class,
         StoreRequestMakeCommand::class,
         UpdateRequestMakeCommand::class,
+        ScaffoldModuleMakeCommand::class,
+        /*ModuleMakeCommand::class,
+
         ServiceProviderMakeCommand::class,
         RouteServiceProviderMakeCommand::class,
         RouteApiMakeCommand::class,
-        CodingMakeCommand::class,
-        ResourceMakeCommand::class,
-        CollectionMakeCommand::class,
+        CodingMakeCommand::class,*/
     ];
 
     /**

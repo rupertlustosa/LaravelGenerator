@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DummyValidatorNamespace;
+namespace DummyValidatorsNamespace;
 
 class DummyRuleClass
 {
@@ -12,7 +12,7 @@ class DummyRuleClass
      *
      * @var array
      */
-	protected static $rules = [DummyRules];
+	protected static $rules = [];
 
     /**
      * Return default rules
