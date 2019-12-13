@@ -40,8 +40,6 @@ class ScaffoldModuleMakeCommand extends GeneratorCommand
             return false;
         }*/
 
-        $name = $this->qualifyClass($this->getNameInput());
-
         $data = $this->getDefaultForCommand();
 
         $namespace = $data['DummyProviderNamespace'];
@@ -62,7 +60,7 @@ class ScaffoldModuleMakeCommand extends GeneratorCommand
         /////////////////////
         $pathRouteApi = $this->getRouteApiPath();
         $stubRouteApi = $this->files->get(__DIR__ . '/stubs/route-api.stub');
-        //dd($pathRouteApi);
+
         $this->makeDirectory($pathRouteApi);
 
         preg_match('/(.+?)\}\)(.+?)/', $stubRouteApi, $match);
@@ -71,7 +69,6 @@ class ScaffoldModuleMakeCommand extends GeneratorCommand
 
         $replaces[$endTag] = $this->getRoute($endTag);
         $replaces['DummyModulePlural'] = Str::snake(Str::pluralStudly($this->getNameInput()));
-        //$stubRouteApi = str_replace($match[0], $this->getRoute() . "\r\n" . $match[0], $stubRouteApi);
 
         $stubRouteApi = str_replace(array_keys($replaces), array_values($replaces), $stubRouteApi);
 
