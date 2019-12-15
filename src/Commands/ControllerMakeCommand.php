@@ -37,6 +37,80 @@ class ControllerMakeCommand extends GeneratorCommand
         if (parent::handle() === false && !$this->option('force')) {
             return false;
         }
+
+        if ($this->option('model')) {
+
+            $this->createService();
+            $this->createPolicy();
+            $this->createResource();
+            $this->createCollection();
+            $this->createRule();
+        }
+    }
+
+    protected function createService()
+    {
+
+        $modelName = $this->qualifyClass($this->getNameInput());
+
+        $this->call('rlustosa:make-service', [
+            'module' => $this->getModuleInput(),
+            'name' => $this->getNameInput(),
+            '--model' => $this->option('model') ? $modelName : null,
+            '--force' => $this->option('force') ? true : null,
+        ]);
+    }
+
+    protected function createPolicy()
+    {
+
+        $modelName = $this->qualifyClass($this->getNameInput());
+
+        $this->call('rlustosa:make-policy', [
+            'module' => $this->getModuleInput(),
+            'name' => $this->getNameInput(),
+            '--model' => $this->option('model') ? $modelName : null,
+            '--force' => $this->option('force') ? true : null,
+        ]);
+    }
+
+    protected function createResource()
+    {
+
+        $modelName = $this->qualifyClass($this->getNameInput());
+
+        $this->call('rlustosa:make-resource', [
+            'module' => $this->getModuleInput(),
+            'name' => $this->getNameInput(),
+            '--model' => $this->option('model') ? $modelName : null,
+            '--force' => $this->option('force') ? true : null,
+        ]);
+    }
+
+    protected function createCollection()
+    {
+
+        $modelName = $this->qualifyClass($this->getNameInput());
+
+        $this->call('rlustosa:make-collection', [
+            'module' => $this->getModuleInput(),
+            'name' => $this->getNameInput(),
+            '--model' => $this->option('model') ? $modelName : null,
+            '--force' => $this->option('force') ? true : null,
+        ]);
+    }
+
+    protected function createRule()
+    {
+
+        $modelName = $this->qualifyClass($this->getNameInput());
+
+        $this->call('rlustosa:make-rule', [
+            'module' => $this->getModuleInput(),
+            'name' => $this->getNameInput(),
+            '--resource' => $this->option('model') ? $modelName : null,
+            '--force' => $this->option('force') ? true : null,
+        ]);
     }
 
     /**
@@ -62,7 +136,7 @@ class ControllerMakeCommand extends GeneratorCommand
         } elseif ($this->option('api') && !is_null($stub) && !$this->option('invokable')) {
             $stub = str_replace('.stub', '.api.stub', $stub);
         }
-//dd($stub);
+
         $stub = $stub ?? '/stubs/controller.plain.stub';
 
         return __DIR__ . $stub;

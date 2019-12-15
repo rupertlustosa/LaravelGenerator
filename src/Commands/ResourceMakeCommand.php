@@ -55,7 +55,7 @@ class ResourceMakeCommand extends GeneratorCommand
 
                 $this->createModel();
             } else {
-                $this->warn('COMO A CLASSE EXISTE, VERIFICAR SE A TABELA EXISTE PARA CRIAR O CÓDIGO CENTRAL');
+                //$this->warn('COMO A CLASSE EXISTE, VERIFICAR SE A TABELA EXISTE PARA CRIAR O CÓDIGO CENTRAL');
             }
             $stub = '/stubs/resource.model.stub';
         } else {

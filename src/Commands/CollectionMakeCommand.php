@@ -54,11 +54,14 @@ class CollectionMakeCommand extends GeneratorCommand
             if (!$classExists) {
 
                 $this->createModel();
-            } else {
-                $this->warn('COMO A CLASSE EXISTE, VERIFICAR SE A TABELA EXISTE PARA CRIAR O CÓDIGO CENTRAL');
             }
 
-            $this->createResource();
+            $classExists = $this->classExists('Resource', $this->option('model'));
+
+            if (!$classExists) {
+
+                $this->createResource();
+            }
 
             $stub = '/stubs/collection.model.stub';
         } else {

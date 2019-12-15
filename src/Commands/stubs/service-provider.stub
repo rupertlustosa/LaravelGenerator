@@ -16,7 +16,7 @@ class DummyServiceProviderClass extends ServiceProvider
     {
 
         $this->registerTranslations();
-        //$this->registerConfig();
+        $this->registerConfig();
         $this->registerViews();
         $this->registerFactories();
         $this->loadMigrationsFrom(base_path() . '/Modules/DummyModule/Database/Migrations');

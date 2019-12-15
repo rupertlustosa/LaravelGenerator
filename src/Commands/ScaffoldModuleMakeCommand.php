@@ -3,6 +3,7 @@
 namespace Rlustosa\LaravelGenerator\Commands;
 
 use Illuminate\Support\Str;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
 class ScaffoldModuleMakeCommand extends GeneratorCommand
@@ -28,63 +29,183 @@ class ScaffoldModuleMakeCommand extends GeneratorCommand
      */
     protected $type = 'Scaffold';
 
+    protected $mapping = [
+        'DummyProviderNamespace' => 'Modules\ModuleName\Providers',
+        'DummyServiceProviderClass' => 'ModuleNameServiceProvider',
+        'DummyRouteServiceProviderClass' => 'RouteServiceProvider',
+        'DummyModuleLowerCase' => 'ConfigNameFileName',
+        'DummyModule' => 'ModuleName',
+    ];
+
     /**
      * Execute the console command.
      *
-     * @return void
      */
     public function handle()
     {
-        //dd(__CLASS__);
-        /*if (parent::handle() === false && !$this->option('force')) {
+
+        $this->createServiceProvider();
+        $this->createRouteServiceProvider();
+        $this->createRouteApi();
+        $this->createApiController();
+        $this->createConfig();
+    }
+
+    /**
+     * Create a ServiceProvider.
+     *
+     * @return void
+     */
+    protected function createServiceProvider()
+    {
+
+        $mapping = $this->translateMapping();
+
+        $namespace = $mapping['DummyProviderNamespace'];
+        $path = base_path() . '/' . str_replace('\\', '/', $namespace . '\\' . $mapping['DummyServiceProviderClass']) . '.php';
+
+        if ((!$this->hasOption('force') ||
+                !$this->option('force')) &&
+            $this->files->exists($path)
+        ) {
+
+            $this->error('ServiceProvider to Module' . $this->qualifyClass($this->getModuleInput()) . ' already exists!');
+
             return false;
-        }*/
+        }
 
-        $data = $this->getDefaultForCommand();
-
-        $namespace = $data['DummyProviderNamespace'];
-        $pathServiceProvider = base_path() . '/' . str_replace('\\', '/', $namespace . '\\' . $data['DummyServiceProviderClass']) . '.php';
-        $pathRouteServiceProvider = base_path() . '/' . str_replace('\\', '/', $namespace . '\\' . $data['DummyRouteServiceProviderClass']) . '.php';
-
-        $stubServiceProvider = $this->files->get(__DIR__ . '/stubs/service-provider.stub');
-        $stubRouteServiceProvider = $this->files->get(__DIR__ . '/stubs/route-service-provider.stub');
-
-        $this->makeDirectory($pathServiceProvider);
-
-        $this->files->put($pathServiceProvider, $this->replaceClass($stubServiceProvider));
+        $this->makeDirectory($path);
+        $stub = $this->files->get(__DIR__ . '/stubs/service-provider.stub');
+        $replaces = $mapping->toArray();
+        $this->files->put($path, str_replace(array_keys($replaces), array_values($replaces), $stub));
         $this->info('ServiceProvider created successfully.');
+    }
 
-        $this->files->put($pathRouteServiceProvider, $this->replaceClass($stubRouteServiceProvider));
+    protected function translateMapping()
+    {
+
+        $replaces = [];
+        $replaces['ModuleName'] = $this->qualifyClass($this->getModuleInput());
+        $replaces['ConfigNameFileName'] = Str::lower($replaces['ModuleName']);
+        $controller = $this->getDefaultsForClasses($replaces['ModuleName'])['controller'];
+        //dd($replaces);
+        $mapping = collect($this->mapping + $controller);
+        //dd($mapping);
+
+        return $mapping->map(function ($i) use ($replaces) {
+//dd($i);
+            return str_replace(array_keys($replaces), array_values($replaces), $i);
+        });
+    }
+
+    /**
+     * Create a ServiceProvider.
+     *
+     * @return void
+     */
+    protected function createRouteServiceProvider()
+    {
+
+        $mapping = $this->translateMapping();
+
+        $namespace = $mapping['DummyProviderNamespace'];
+        $path = base_path() . '/' . str_replace('\\', '/', $namespace . '\\' . $mapping['DummyRouteServiceProviderClass']) . '.php';
+
+        if ((!$this->hasOption('force') ||
+                !$this->option('force')) &&
+            $this->files->exists($path)
+        ) {
+
+            $this->error('RouteServiceProvider to Module' . $this->qualifyClass($this->getModuleInput()) . ' already exists!');
+
+            return false;
+        }
+
+        $this->makeDirectory($path);
+        $stub = $this->files->get(__DIR__ . '/stubs/route-service-provider.stub');
+        $replaces = $mapping->toArray();
+        $this->files->put($path, str_replace(array_keys($replaces), array_values($replaces), $stub));
         $this->info('RouteServiceProvider created successfully.');
+    }
 
-        /////////////////////
+    /**
+     * Create a RouteApi.
+     *
+     * @return void
+     */
+    protected function createRouteApi()
+    {
+
         $pathRouteApi = $this->getRouteApiPath();
-        $stubRouteApi = $this->files->get(__DIR__ . '/stubs/route-api.stub');
+
+        if ((!$this->hasOption('force') ||
+                !$this->option('force')) &&
+            $this->files->exists($pathRouteApi)
+        ) {
+
+            $this->error('Api Route to Module' . $this->qualifyClass($this->getModuleInput()) . ' already exists!');
+
+            return false;
+        }
 
         $this->makeDirectory($pathRouteApi);
-
-        preg_match('/(.+?)\}\)(.+?)/', $stubRouteApi, $match);
-
-        $endTag = $match[0];
-
-        $replaces[$endTag] = $this->getRoute($endTag);
-        $replaces['DummyModulePlural'] = Str::snake(Str::pluralStudly($this->getNameInput()));
-
-        $stubRouteApi = str_replace(array_keys($replaces), array_values($replaces), $stubRouteApi);
-
-        $this->files->put($pathRouteApi, $this->replaceClass($stubRouteApi));
+        $stubRouteApi = $this->files->get(__DIR__ . '/stubs/route-api.stub');
+        $this->files->put($pathRouteApi, $stubRouteApi);
         $this->info('Api route created successfully.');
     }
 
-    protected function getRoute($endTag)
+    /**
+     * Create a ApiController.
+     *
+     * @return void
+     */
+    protected function createApiController()
     {
 
-        return "
-        \$api->resource('DummyModulePlural', 'DummyControllerClass')->except([
-            'create', 'edit'
-        ]);
-        
-    " . trim($endTag);
+        $path = $this->getApiControllerPath();
+
+        if ((!$this->hasOption('force') ||
+                !$this->option('force')) &&
+            $this->files->exists($path)
+        ) {
+
+            $this->error('ApiController already exists!');
+
+            return false;
+        }
+
+        $this->makeDirectory($path);
+        $stub = $this->files->get(__DIR__ . '/stubs/api-controller.stub');
+        $replaces = [];
+        $replaces['DummyRootNamespaceHttp'] = app()->getNamespace() . 'Http';
+        $this->files->put($path, str_replace(array_keys($replaces), array_values($replaces), $stub));
+        $this->info('ApiController created successfully.');
+    }
+
+
+    protected function createConfig()
+    {
+
+        $mapping = $this->translateMapping();
+
+        //$moduleLowerCase = $mapping['DummyModuleLowerCase'];
+
+        $path = $this->getConfigPath() . '/config.php';
+
+        if ((!$this->hasOption('force') ||
+                !$this->option('force')) &&
+            $this->files->exists($path)
+        ) {
+
+            $this->error('Config already exists!');
+
+            return false;
+        }
+
+        $this->makeDirectory($path);
+        $stub = $this->files->get(__DIR__ . '/stubs/config.stub');
+        $this->files->put($path, $stub);
+        $this->info('Config created successfully.');
     }
 
     /**
@@ -95,31 +216,6 @@ class ScaffoldModuleMakeCommand extends GeneratorCommand
     protected function getStub()
     {
 
-        if ($this->option('resource')) {
-
-            $this->createRule();
-            $stub = '/stubs/update-request.model.stub';
-        } else {
-
-            $stub = '/stubs/update-request.plain.stub';
-        }
-        return __DIR__ . $stub;
-    }
-
-    /**
-     * Create a model.
-     *
-     * @return void
-     */
-    protected function createRule()
-    {
-
-        $modelName = $this->qualifyClass($this->getNameInput());
-
-        $this->call('rlustosa:make-rule', [
-            'module' => $this->getModuleInput(),
-            'name' => $modelName,
-        ]);
     }
 
     /**
@@ -132,6 +228,19 @@ class ScaffoldModuleMakeCommand extends GeneratorCommand
         return [
             ['resource', 'r', InputOption::VALUE_NONE, 'Indicates if the generated rule should be a resource "rule"'],
             ['force', null, InputOption::VALUE_NONE, 'Create the class even if the model already exists'],
+        ];
+    }
+
+    /**
+     * Get the console command arguments.
+     *
+     * @return array
+     */
+    protected function getArguments()
+    {
+
+        return [
+            ['module', InputArgument::REQUIRED, 'The name of the module'],
         ];
     }
 }

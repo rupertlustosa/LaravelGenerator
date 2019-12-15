@@ -189,7 +189,7 @@ class DummyControllerClass extends ApiController
 
         try {
 
-            $item = $this->DummyServiceVariable->find($id);
+            $item = $this->DummyServiceVariable->find($DummyModelVariable);
 
             if (!Auth::user()->can('delete', $item)) {
 

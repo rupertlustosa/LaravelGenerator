@@ -46,6 +46,7 @@ abstract class GeneratorCommand extends Command
      */
     public function handle()
     {
+
         $name = $this->qualifyClass($this->getNameInput());
 
         $path = $this->getPath($name);
@@ -177,6 +178,7 @@ abstract class GeneratorCommand extends Command
             'service' => [
                 'DummyServiceNamespace' => 'Modules\ModuleName\Services',
                 'DummyServiceClass' => 'ClassNameService',
+                'DummyServiceVariable' => 'ServiceVariableService',
                 'DummyServiceFullNamed' => 'Modules\ModuleName\Services\ClassNameService',
             ],
             'rule' => [
@@ -187,7 +189,7 @@ abstract class GeneratorCommand extends Command
             'storeRequest' => [
                 'DummyValidatorsNamespace' => 'Modules\ModuleName\Validators',
                 'DummyStoreRequestClass' => 'ClassNameStoreRequest',
-                'DummyStoreRequestFullNamed' => 'ClassNameStoreRequest',
+                'DummyStoreRequestFullNamed' => 'Modules\ModuleName\Validators\ClassNameStoreRequest',
             ],
             'updateRequest' => [
                 'DummyValidatorsNamespace' => 'Modules\ModuleName\Validators',
@@ -195,7 +197,7 @@ abstract class GeneratorCommand extends Command
                 'DummyUpdateRequestFullNamed' => 'Modules\ModuleName\Validators\ClassNameUpdateRequest',
             ],
             'others' => [
-                'DummyDefaultApiControllerNamespace' => 'Modules\Http\ApiController',
+                'DummyDefaultApiControllerNamespace' => 'Modules\Http\Controllers\ApiController',
             ],
         ];
 
@@ -204,6 +206,7 @@ abstract class GeneratorCommand extends Command
         $replace['ModuleName'] = $this->qualifyClass($this->getModuleInput());
         $replace['ClassName'] = $this->qualifyClass($classBase);
         $replace['ModelVariable'] = Str::camel($this->qualifyClass($classBase));
+        $replace['ServiceVariable'] = Str::camel($this->qualifyClass($classBase));
         //dd(Str::snake($this->qualifyClass($classBase)));
         foreach ($data as $key => $values) {
 
@@ -231,8 +234,9 @@ abstract class GeneratorCommand extends Command
     /**
      * Determine if the class already exists.
      *
-     * @param string $rawName
+     * @param $rawName
      * @return bool
+     * @throws Exception
      */
     protected function alreadyExists($rawName)
     {
@@ -331,6 +335,54 @@ abstract class GeneratorCommand extends Command
         return 'Modules\\';
     }
 
+    protected function getMigrationsPath()
+    {
+
+        return base_path() . '/' . str_replace('\\', '/', $this->rootModuleNamespace()) . $this->qualifyClass($this->getModuleInput()) . '/Database/Migrations';
+    }
+
+    protected function getConfigPath()
+    {
+
+        return base_path() . '/' . str_replace('\\', '/', $this->rootModuleNamespace()) . $this->qualifyClass($this->getModuleInput()) . '/Config';
+    }
+
+    protected function getViewsPath()
+    {
+
+        return base_path() . '/' . str_replace('\\', '/', $this->rootModuleNamespace()) . $this->qualifyClass($this->getModuleInput()) . '/Resources/views';
+    }
+
+    protected function getJsPath()
+    {
+
+        return base_path() . '/' . str_replace('\\', '/', $this->rootModuleNamespace()) . $this->qualifyClass($this->getModuleInput()) . '/Resources/js';
+    }
+
+    protected function getTranslationsPath()
+    {
+
+        return base_path() . '/' . str_replace('\\', '/', $this->rootModuleNamespace()) . $this->qualifyClass($this->getModuleInput()) . '/Resources/lang';
+    }
+
+    protected function getFactoriesPath()
+    {
+
+        return base_path() . '/' . str_replace('\\', '/', $this->rootModuleNamespace()) . $this->qualifyClass($this->getModuleInput()) . '/Database/Factories';
+    }
+
+    protected function getSeedsPath()
+    {
+
+        return base_path() . '/' . str_replace('\\', '/', $this->rootModuleNamespace()) . $this->qualifyClass($this->getModuleInput()) . '/Database/Seeds';
+    }
+
+    protected function getApiControllerPath()
+    {
+
+        return base_path() . '/' . str_replace('\\', '/', $this->rootModuleNamespace()) . 'Http/Controllers/ApiController.php';
+    }
+
     protected function classExists($type, $name)
     {
 
@@ -341,12 +393,28 @@ abstract class GeneratorCommand extends Command
             $mapping = $this->getDefaultsForClasses($name)[Str::lower($type)];
             $classString = 'Dummy' . Str::studly($type) . 'FullNamed';
 
+            /*if ($type == 'Resource') {
+
+
+                dd($this->getDefaultsForClasses($name), $name, Str::lower($type), $mapping[$classString]);
+            }*/
             return class_exists($mapping[$classString]);
         } else {
 
             throw new Exception('Invalid param $type ' . $type);
         }
         dd($name, $type, $x, $class);
+    }
+
+    protected function getRoute($endTag)
+    {
+
+        return "
+        \$api->resource('DummyModulePlural', 'DummyControllerClass')->except([
+            'create', 'edit'
+        ]);
+        
+    " . trim($endTag);
     }
 
     /**
