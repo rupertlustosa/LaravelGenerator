@@ -406,14 +406,13 @@ abstract class GeneratorCommand extends Command
         dd($name, $type, $x, $class);
     }
 
-    protected function getRoute($endTag)
+    protected function getCodeRoute($endTag)
     {
 
         return "
         \$api->resource('DummyModulePlural', 'DummyControllerClass')->except([
             'create', 'edit'
         ]);
-        
     " . trim($endTag);
     }
 

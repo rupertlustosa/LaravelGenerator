@@ -2,6 +2,7 @@
 
 namespace Rlustosa\LaravelGenerator\Commands;
 
+use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputOption;
 
 class ControllerMakeCommand extends GeneratorCommand
@@ -46,6 +47,7 @@ class ControllerMakeCommand extends GeneratorCommand
             $this->createCollection();
             $this->createRule();
         }
+        $this->createApiRoute();
     }
 
     protected function createService()
@@ -111,6 +113,46 @@ class ControllerMakeCommand extends GeneratorCommand
             '--resource' => $this->option('model') ? $modelName : null,
             '--force' => $this->option('force') ? true : null,
         ]);
+    }
+
+    protected function createApiRoute()
+    {
+
+        $pathRouteApi = $this->getRouteApiPath();
+
+        if ($this->files->exists($pathRouteApi)) {
+
+            $originalFile = $pathRouteApi;
+            $originalFileContent = $this->files->get($originalFile);
+
+            $replaces = $this->getDefaultForCommand();
+            $replaces['DummyModulePlural'] = Str::snake(Str::pluralStudly($this->getNameInput()));
+
+            $findMe = '$api->resource(\'' . $replaces['DummyModulePlural'] . '\', \'' . $replaces['DummyControllerClass'] . '\')';
+            if (strpos($originalFileContent, $findMe)) {
+
+                $this->info('Route already exists');
+                return true;
+            }
+
+            preg_match('/(.+?)\}\)(.+?)/', $originalFileContent, $match);
+            $endTag = $match[0];
+
+            $newApiCode = str_replace(array_keys($replaces), array_values($replaces), $this->getCodeRoute($endTag));
+            //dd($newApiCode);
+
+            // Backup route file
+            $this->files->put(str_replace('.php', date('_Ymd-His') . '.php', $pathRouteApi), $originalFileContent);
+
+            // Update a route file
+            $stubRouteApi = str_replace($endTag, $newApiCode, $originalFileContent);
+            //dd($replaces, $stubRouteApi);
+            $this->files->put($pathRouteApi, $stubRouteApi);
+
+            $this->info('Api Route to Module ' . $this->qualifyClass($this->getModuleInput()) . ' backup was performed!');
+
+            return false;
+        }
     }
 
     /**
