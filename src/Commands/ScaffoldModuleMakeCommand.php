@@ -54,7 +54,6 @@ class ScaffoldModuleMakeCommand extends GeneratorCommand
     /**
      * Create a ServiceProvider.
      *
-     * @return void
      */
     protected function createServiceProvider()
     {

@@ -61,10 +61,8 @@ You'll find installation instructions and full documentation on ###########.
 
 - Gerar views html
 - Gerar views com os componentes .Vue
+- Gerar arquivo de rotas
 - Gerar as rules no arquivo de Rule
-- Resolver problema de autoload no comando "rlustosa:make-controller-rest"
-- Ao gerar um novo controlador para um módulo, inserir a nova rota  
-- implementar missingDependencies() para ele se adequar aos parâmetros opcionais
 
 ## About Rupert Brasil Lustosa
 

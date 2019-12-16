@@ -67,9 +67,11 @@ class ModelMakeCommand extends GeneratorCommand
             $table = Str::singular($table);
         }
 
-        $this->call('make:migration', [
-            'name' => "create_{$table}_table",
-            '--create' => $table,
+        $this->call('rlustosa:make-migration', [
+            'module' => $this->getModuleInput(),
+            '--table' => $table,
+            '--create' => true,
+            '--update' => false,
         ]);
     }
 
@@ -116,6 +118,7 @@ class ModelMakeCommand extends GeneratorCommand
             ['controller', 'c', InputOption::VALUE_NONE, 'Create a new controller for the model'],
             ['resource', 'r', InputOption::VALUE_NONE, 'Indicates if the generated controller should be a resource controller'],
             ['migration', 'm', InputOption::VALUE_NONE, 'Create a new migration file for the model'],
+            ['pivot', 'p', InputOption::VALUE_NONE, 'Indicates if the generated model should be a custom intermediate table model'],
 
             ['force', null, InputOption::VALUE_NONE, 'Create the class even if the model already exists'],
         ];

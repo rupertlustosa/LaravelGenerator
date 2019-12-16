@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Composer;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputArgument;
 
@@ -19,6 +20,13 @@ abstract class GeneratorCommand extends Command
     protected $files;
 
     /**
+     * The Composer instance.
+     *
+     * @var Composer
+     */
+    protected $composer;
+
+    /**
      * The type of class being generated.
      *
      * @var string
@@ -29,13 +37,14 @@ abstract class GeneratorCommand extends Command
      * Create a new controller creator command instance.
      *
      * @param Filesystem $files
-     * @return void
+     * @param Composer $composer
      */
-    public function __construct(Filesystem $files)
+    public function __construct(Filesystem $files, Composer $composer)
     {
         parent::__construct();
 
         $this->files = $files;
+        $this->composer = $composer;
     }
 
     /**
