@@ -1,8 +1,41 @@
-rm -rf Modules/ && php artisan rlustosa:make-controller user user
-rm -rf Modules/ && php artisan rlustosa:make-controller user user --model=user
+rm -rf Modules/ && php artisan rlustosa:make-controller user user && chmod 777 -R ./
+rm -rf Modules/ && php artisan rlustosa:make-controller user user --model=user && chmod 777 -R ./
 
-rm -rf Modules/ && php artisan rlustosa:make-model user user
-rm -rf Modules/ && php artisan rlustosa:make-model user user --model=user
+rm -rf Modules/ && php artisan rlustosa:make-model user user && chmod 777 -R ./
+rm -rf Modules/ && php artisan rlustosa:make-model user user --model=user && chmod 777 -R ./
 
-rm -rf Modules/ && php artisan rlustosa:make-service user user
-rm -rf Modules/ && php artisan rlustosa:make-service user user --model=user
+rm -rf Modules/ && php artisan rlustosa:make-service user user && chmod 777 -R ./
+rm -rf Modules/ && php artisan rlustosa:make-service user user --model=user && chmod 777 -R ./
+
+
+
+rlustosa:make-coding
+rlustosa:make-collection
+rlustosa:make-controller
+rlustosa:make-model
+rlustosa:make-module
+rlustosa:make-policy
+rlustosa:make-resource
+rlustosa:make-route-api
+rlustosa:make-route-service-provider
+rlustosa:make-rule
+rlustosa:make-service
+rlustosa:make-service-provider
+rlustosa:make-store-request
+rlustosa:make-update-request
+rlustosa:make-validators
+
+
+
+collection chama um resource
+
+
+
+preg_match('/(.+?)\}\)(.+?)/', $stubRouteApi, $match);
+
+        $endTag = $match[0];
+
+        $replaces[$endTag] = $this->getRoute($endTag);
+        $replaces['DummyModulePlural'] = Str::snake(Str::pluralStudly($this->getNameInput()));
+
+        $stubRouteApi = str_replace(array_keys($replaces), array_values($replaces), $stubRouteApi);

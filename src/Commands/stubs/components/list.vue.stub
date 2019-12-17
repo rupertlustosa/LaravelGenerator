@@ -1,0 +1,117 @@
+<template>
+    <div>
+        <user-nav-bar-component></user-nav-bar-component>
+
+        <div class="wrapper wrapper-content  animated fadeInRight">
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox">
+                        <div class="ibox-content">
+
+                            <div class="ibox-content m-b-sm border-bottom">
+                                <div class="row">
+DummySearch
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <a class="btn btn-white btn-xs float-right" href="javascript:">
+                                            Pesquisar
+                                        </a>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-hover issue-tracker">
+                                    <thead>
+                                    <tr>
+DummyHead
+                                        <th class="text-right">
+                                            Ações
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr v-for="item in items">
+DummyBody
+                                        <td class="text-right">
+                                            <button class="btn btn-white btn-xs"> Editar</button>
+                                            <button class="btn btn-white btn-xs"> Remover</button>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <paginate-component
+                                :page-count="10"
+                                :page-range="3"
+                                :margin-pages="2"
+                                :click-handler="getData"
+                                :prev-text="'Prev'"
+                                :next-text="'Next'"
+                                :container-class="'pagination'"
+                                :page-class="'page-item'">
+                            </paginate-component>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    import UserNavBarComponent from "./UserNavBarComponent";
+
+    export default {
+        name: "UserListComponent",
+        components: {UserNavBarComponent},
+        data() {
+            return {
+                items: [],
+                form: {}
+            }
+        },
+        methods: {
+
+            getData(pageNum = 1) {
+
+                this.$loading(true);
+
+                axios.get("/api/users?page=" + pageNum)
+                    .then((response) => {
+
+                        let data = response.data.data;
+                        this.items = [...data];
+                    })
+                    .catch(error => {
+
+                        if (_.has(error, 'response.data.errors')) {
+
+
+                        } else {
+
+                            this.alertText = '[' + error.response.status + '] Não foi possível realizar essa operação!';
+                        }
+
+                        console.log(error.response.status);
+                        console.log(error.response.data);
+                    })
+                    .then(() => {
+
+                        this.$loading(false);
+                    });
+            }
+        },
+        mounted() {
+            this.getData();
+        }
+    }
+</script>
+
+<style scoped>
+
+</style>

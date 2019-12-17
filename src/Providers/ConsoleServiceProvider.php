@@ -3,6 +3,7 @@
 namespace Rlustosa\LaravelGenerator\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Rlustosa\LaravelGenerator\Commands\CodeMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\CollectionMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\ControllerMakeCommand;
 use Rlustosa\LaravelGenerator\Commands\MigrationMakeCommand;
@@ -37,6 +38,7 @@ class ConsoleServiceProvider extends ServiceProvider
         ScaffoldModuleMakeCommand::class,
         ModuleMakeCommand::class,
         MigrationMakeCommand::class,
+        CodeMakeCommand::class,
     ];
 
     /**
