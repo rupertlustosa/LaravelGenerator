@@ -4,6 +4,8 @@
 namespace Rlustosa\LaravelGenerator\Html;
 
 
+use Illuminate\Support\Collection;
+
 class HtmlView
 {
 
@@ -25,26 +27,40 @@ class HtmlView
     public function generateHtmlSearch($field)
     {
 
-        //dd($field);
         return '
                                     <div class="col-sm-4">
                                         <div class="form-group">
-                                            <label class="col-form-label">' . $field['label'] . '</label>
+                                            <label class="col-form-label">' . $field->label . '</label>
                                             <input type="text" value="" class="form-control"
-                                                    v-model="form.' . $field['field'] . '" placeholder="' . $field['label'] . '">
+                                                    v-model="form.' . $field->id . '" placeholder="c">
                                         </div>
                                     </div>
         ';
     }
 
-    public function generateListHtml($mapping, $column)
+    public function generateTableListTh(Collection $fields)
     {
-        $th = $mapping->label;
-        $td = '{{ item.' . $mapping->id . ' }}';
 
-        return [
-            'label' => $th,
-            'field' => $mapping->id,
-        ];
+        return '                                        <th>' . implode(' / ', $fields->pluck('label')->toArray()) . '</th>';
+    }
+
+    public function generateTableListTd(Collection $fields)
+    {
+
+
+        if ($fields->count() == 1) {
+
+            $field = $fields->first();
+            return '                                        <td>{{ item.' . $field->id . ' }}</td>';
+        } else {
+
+            $html = [];
+            foreach ($fields as $field) {
+
+                $html[] = '<strong>' . $field->label . ':</strong> {{ item.' . $field->id . ' }}';
+            }
+            return '                                        <td>' . implode('<br>', $html) . '</td>';
+        }
+        //
     }
 }

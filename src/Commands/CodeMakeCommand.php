@@ -53,6 +53,7 @@ class CodeMakeCommand extends GeneratorCommand
 
     private $ignoreInListing = [];
     private $ignoreInForm = [];
+    private $ignoreInFill = [];
 
     /**
      * Execute the console command.
@@ -168,6 +169,9 @@ class CodeMakeCommand extends GeneratorCommand
                 'email_verified_at',
                 'remember_token',
                 'password',
+                'user_creator_id',
+                'user_updater_id',
+                'user_eraser_id',
             ];
 
             $this->ignoreInForm = [
@@ -177,6 +181,22 @@ class CodeMakeCommand extends GeneratorCommand
                 $myModel->getDeletedAtColumn(),
                 'email_verified_at',
                 'remember_token',
+                'user_creator_id',
+                'user_updater_id',
+                'user_eraser_id',
+            ];
+
+            $this->ignoreInFill = [
+                $myModel->getKeyName(),
+                $myModel::CREATED_AT,
+                $myModel::UPDATED_AT,
+                $myModel->getDeletedAtColumn(),
+                'email_verified_at',
+                'remember_token',
+                'password',
+                'user_creator_id',
+                'user_updater_id',
+                'user_eraser_id',
             ];
 
         } catch (Exception $exception) {
@@ -205,6 +225,9 @@ class CodeMakeCommand extends GeneratorCommand
         $index = 0;
         $inListing = [];
         $inForm = [];
+        $inSearch = [];
+        $fill = [];
+        $names = [];
 
         foreach ($this->columns as $column) {
 
@@ -213,24 +236,33 @@ class CodeMakeCommand extends GeneratorCommand
 
             if (!in_array($columnName, $this->ignoreInListing)) {
 
-                $inListing[] = [
+                $inListing[] = $columnName;
+            }
+
+            if (!in_array($columnName, $this->ignoreInForm)) {
+
+                $inForm[] = $columnName;
+            }
+
+            if (!in_array($columnName, array_merge($this->ignoreInListing, $this->ignoreInForm))) {
+
+                $names[] = [
                     'id' => $columnName,
                     'label' => $label,
                 ];
             }
 
-            if (!in_array($columnName, $this->ignoreInForm)) {
 
-                $inForm[] = [
-                    [
-                        'id' => $columnName,
-                        'label' => $label,
-                    ]
-                ];
+            if (!in_array($columnName, $this->ignoreInFill)) {
+
+                $fill[] = $columnName;
             }
         }
 
         $stub = null;
+        $stub['names'] = $names;
+        $stub['fill'] = $fill;
+        $stub['search'] = $inListing;
         $stub['listing'] = $inListing;
         $stub['form'] = $inForm;
 
@@ -244,23 +276,36 @@ class CodeMakeCommand extends GeneratorCommand
         $htmlView = new HtmlView();
 
         $mapping = json_decode($this->files->get($this->skeletonPath));
-        $mappingList = $mapping->listing;
-        $fields = [];
+        $mappingNames = collect($mapping->names);
+        /*$mappingList = $mapping->listing;
+        $mappingSearch = $mapping->search;*/
 
-        foreach ($mappingList as $item) {
+        //dd($mappingNames->where('id', 'name'));
 
-            $fields[] = $htmlView->generateListHtml($item, $this->columns[$item->id]);
-        }
+        /*$html = $mappingNames->map(function ($field) use ($htmlView, $mapping) {
 
-        $html = collect($fields)->map(function ($field) use ($htmlView) {
-
-            $htmlTh = '                                        <th>' . $field['label'] . '</th>';
-            $htmlTd = '                                        <td>{{ item.' . $field['field'] . ' }}</td>';
+            $listing = in_array($field->id, $mapping->listing);
+            $search = in_array($field->id, $mapping->search);
 
             return [
-                'search' => $htmlView->generateHtmlSearch($field),
-                'head' => $htmlTh,
-                'body' => $htmlTd,
+                'search' => $search ? $htmlView->generateHtmlSearch($field) : null,
+                'head' => $listing ? $htmlView->generateTableListTh($field) : null,
+                'body' => $listing ? $htmlView->generateTableListTd($field) : null,
+            ];
+        });*/
+        $dummySearch = collect($mapping->search)->map(function ($field) use ($htmlView, $mappingNames) {
+
+            $field = $mappingNames->where('id', $field)->first();
+            return $htmlView->generateHtmlSearch($field);
+        });
+
+        $headBody = collect($mapping->listing)->map(function ($field) use ($htmlView, $mappingNames) {
+
+            $fields = $mappingNames->whereIn('id', is_array($field) ? $field : (array)$field);
+
+            return [
+                'head' => $htmlView->generateTableListTh($fields),
+                'body' => $htmlView->generateTableListTd($fields),
             ];
         });
 
@@ -268,10 +313,9 @@ class CodeMakeCommand extends GeneratorCommand
         $this->makeDirectory($path);
         $stub = $this->files->get(__DIR__ . '/stubs/components/list.vue.stub');
 
-        $replaces['DummyHead'] = implode("\r\n", $html->pluck('head')->toArray());
-        $replaces['DummyBody'] = implode("\r\n", $html->pluck('body')->toArray());
-        $replaces['DummySearch'] = implode("", $html->pluck('search')->toArray());
-        //dd($replaces);
+        $replaces['DummyHead'] = implode("\r\n", $headBody->pluck('head')->toArray());
+        $replaces['DummyBody'] = implode("\r\n", $headBody->pluck('body')->toArray());
+        $replaces['DummySearch'] = implode("", $dummySearch->toArray());
 
         $this->files->put($path, str_replace(array_keys($replaces), array_values($replaces), $stub));
         $this->info('VueList created successfully.');
