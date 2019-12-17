@@ -1,6 +1,6 @@
 <template>
     <div>
-        <user-nav-bar-component></user-nav-bar-component>
+        <DummyModelVariable-nav-bar-component></DummyModelVariable-nav-bar-component>
 
         <div class="wrapper wrapper-content  animated fadeInRight">
 
@@ -64,11 +64,11 @@ DummyBody
 </template>
 
 <script>
-    import UserNavBarComponent from "./UserNavBarComponent";
+    import DummyModelClassNavBarComponent from "./DummyModelClassNavBarComponent";
 
     export default {
-        name: "UserListComponent",
-        components: {UserNavBarComponent},
+        name: "DummyModelClassListComponent",
+        components: {DummyModelClassNavBarComponent},
         data() {
             return {
                 items: [],
@@ -81,7 +81,7 @@ DummyBody
 
                 this.$loading(true);
 
-                axios.get("/api/users?page=" + pageNum)
+                axios.get("/api/DummyModulePlural?page=" + pageNum)
                     .then((response) => {
 
                         let data = response.data.data;

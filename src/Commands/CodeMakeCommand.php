@@ -277,22 +277,7 @@ class CodeMakeCommand extends GeneratorCommand
 
         $mapping = json_decode($this->files->get($this->skeletonPath));
         $mappingNames = collect($mapping->names);
-        /*$mappingList = $mapping->listing;
-        $mappingSearch = $mapping->search;*/
 
-        //dd($mappingNames->where('id', 'name'));
-
-        /*$html = $mappingNames->map(function ($field) use ($htmlView, $mapping) {
-
-            $listing = in_array($field->id, $mapping->listing);
-            $search = in_array($field->id, $mapping->search);
-
-            return [
-                'search' => $search ? $htmlView->generateHtmlSearch($field) : null,
-                'head' => $listing ? $htmlView->generateTableListTh($field) : null,
-                'body' => $listing ? $htmlView->generateTableListTd($field) : null,
-            ];
-        });*/
         $dummySearch = collect($mapping->search)->map(function ($field) use ($htmlView, $mappingNames) {
 
             $field = $mappingNames->where('id', $field)->first();
@@ -313,9 +298,11 @@ class CodeMakeCommand extends GeneratorCommand
         $this->makeDirectory($path);
         $stub = $this->files->get(__DIR__ . '/stubs/components/list.vue.stub');
 
+        $replaces = $this->getDefaultsForClasses($this->argument('model'))['model'];
         $replaces['DummyHead'] = implode("\r\n", $headBody->pluck('head')->toArray());
         $replaces['DummyBody'] = implode("\r\n", $headBody->pluck('body')->toArray());
         $replaces['DummySearch'] = implode("", $dummySearch->toArray());
+        $replaces['DummyModulePlural'] = Str::snake(Str::pluralStudly($this->argument('model')));
 
         $this->files->put($path, str_replace(array_keys($replaces), array_values($replaces), $stub));
         $this->info('VueList created successfully.');
