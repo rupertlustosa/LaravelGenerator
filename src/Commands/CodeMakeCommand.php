@@ -95,6 +95,7 @@ class CodeMakeCommand extends GeneratorCommand
                 return false;
             }
 
+            $this->createVueBar();
             $this->createVueList();
             $this->createVueForm();
             $this->createVueRoute();
@@ -294,11 +295,11 @@ class CodeMakeCommand extends GeneratorCommand
             ];
         });
 
-        $path = $this->componentsPath . '/' . 'UserListComponent.vue';
+        $replaces = $this->getDefaultsForClasses($this->argument('model'))['model'];
+        $path = $this->componentsPath . '/' . $replaces['DummyModelClass'] . 'ListComponent.vue';
         $this->makeDirectory($path);
         $stub = $this->files->get(__DIR__ . '/stubs/components/list.vue.stub');
 
-        $replaces = $this->getDefaultsForClasses($this->argument('model'))['model'];
         $replaces['DummyHead'] = implode("\r\n", $headBody->pluck('head')->toArray());
         $replaces['DummyBody'] = implode("\r\n", $headBody->pluck('body')->toArray());
         $replaces['DummySearch'] = implode("", $dummySearch->toArray());
@@ -318,6 +319,20 @@ class CodeMakeCommand extends GeneratorCommand
     {
 
         $this->info('VueRoute created successfully.');
+    }
+
+    protected function createVueBar()
+    {
+
+        $replaces = $this->getDefaultsForClasses($this->argument('model'))['model'];
+        $path = $this->componentsPath . '/' . $replaces['DummyModelClass'] . 'NavBarComponent.vue';
+        $this->makeDirectory($path);
+        $stub = $this->files->get(__DIR__ . '/stubs/components/navbar.vue.stub');
+
+        $replaces['DummyModulePlural'] = Str::snake(Str::pluralStudly($this->argument('model')));
+
+        $this->files->put($path, str_replace(array_keys($replaces), array_values($replaces), $stub));
+        $this->info('VueBar created successfully.');
     }
 
     /**

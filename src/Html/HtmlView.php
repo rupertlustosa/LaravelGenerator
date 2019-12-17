@@ -32,7 +32,7 @@ class HtmlView
                                         <div class="form-group">
                                             <label class="col-form-label">' . $field->label . '</label>
                                             <input type="text" value="" class="form-control"
-                                                    v-model="form.' . $field->id . '" placeholder="c">
+                                                    v-model="form.' . $field->id . '" placeholder="' . $field->label . '">
                                         </div>
                                     </div>
         ';
