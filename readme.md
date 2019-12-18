@@ -60,9 +60,14 @@ You'll find installation instructions and full documentation on ###########.
 ## TODO
 
 - Gerar views html
-- Gerar views com os componentes .Vue
-- Gerar arquivo de rotas
-- Gerar as rules no arquivo de Rule
+- Atualizar arquivo de rotas do Laravel (Atualmente está sendo sobrescrito)
+- Gerar código de Validação para: StoreRequest, UpdateRequest e Rule
+
+## COMANDOS ÚTEIS
+
+- ***php artisan rlustosa:make-module product product --force && chmod 777 -R ./*** Gerar Módulo completo
+- ***php artisan rlustosa:make-code product product -s --force && chmod 777 -R ./*** Gerar Scaffold de código
+- ***php artisan rlustosa:make-code product product -c --force && chmod 777 -R ./ && npm run watch*** Gerar os ".Vue" funcionais
 
 ## About Rupert Brasil Lustosa
 

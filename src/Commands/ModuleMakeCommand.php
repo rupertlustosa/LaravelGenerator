@@ -71,6 +71,7 @@ class ModuleMakeCommand extends GeneratorCommand
             'name' => $this->getNameInput(),
             //'--model' => $this->option('resource') ? $modelName : null,
             '--force' => $this->option('force') ? true : null,
+            '--migration' => true,
             '--resource' => true,
         ]);
     }

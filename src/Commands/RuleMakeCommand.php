@@ -85,11 +85,13 @@ class RuleMakeCommand extends GeneratorCommand
         $this->call('rlustosa:make-store-request', [
             'module' => $this->getModuleInput(),
             'name' => $modelName,
+            '--force' => $this->option('force') ? true : null,
         ]);
 
         $this->call('rlustosa:make-update-request', [
             'module' => $this->getModuleInput(),
             'name' => $modelName,
+            '--force' => $this->option('force') ? true : null,
         ]);
     }
 

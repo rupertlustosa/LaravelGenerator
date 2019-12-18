@@ -63,7 +63,6 @@ class CodeMakeCommand extends GeneratorCommand
     {
 
         $this->viewsPath = $this->getViewsPath();
-        $this->skeletonPath = $this->viewsPath . '/.skeleton.json';
         $this->jsPath = $this->viewsPath . '/js';
         $this->componentsPath = $this->viewsPath . '/components';
         $this->componentsSharedPath = $this->viewsPath . '/components/shared';
@@ -75,6 +74,8 @@ class CodeMakeCommand extends GeneratorCommand
             $this->error('A table "' . $this->table . '" not exists in database!');
             return false;
         }
+
+        $this->skeletonPath = $this->viewsPath . '/.skeleton.' . $this->table . '.json';
 
         if (!$this->option('skeleton') && !$this->option('code')) {
 
