@@ -71,6 +71,7 @@ class UpdateRequestMakeCommand extends GeneratorCommand
         $this->call('rlustosa:make-rule', [
             'module' => $this->getModuleInput(),
             'name' => $modelName,
+            '--force' => $this->option('force') ? true : null,
         ]);
     }
 

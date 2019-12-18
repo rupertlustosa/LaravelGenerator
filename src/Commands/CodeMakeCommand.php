@@ -50,6 +50,7 @@ class CodeMakeCommand extends GeneratorCommand
     private $tableForeignKeys;
     private $columns;
     private $table;
+    private $myModel;
 
     private $ignoreInListing = [];
     private $ignoreInForm = [];
@@ -100,6 +101,7 @@ class CodeMakeCommand extends GeneratorCommand
             $this->createVueList();
             $this->createVueForm();
             $this->createVueRoute();
+            $this->updateRules();
         }
 
     }
@@ -141,8 +143,8 @@ class CodeMakeCommand extends GeneratorCommand
             return false;
         }
 
-        $myModel = new $modelClass();
-        $this->table = $myModel->getTable();
+        $this->myModel = new $modelClass();
+        $this->table = $this->myModel->getTable();
 
         try {
 
@@ -164,10 +166,10 @@ class CodeMakeCommand extends GeneratorCommand
             }*/
 
             $this->ignoreInListing = [
-                $myModel->getKeyName(),
-                $myModel::CREATED_AT,
-                $myModel::UPDATED_AT,
-                $myModel->getDeletedAtColumn(),
+                $this->myModel->getKeyName(),
+                $this->myModel::CREATED_AT,
+                $this->myModel::UPDATED_AT,
+                $this->myModel->getDeletedAtColumn(),
                 'email_verified_at',
                 'remember_token',
                 'password',
@@ -177,10 +179,10 @@ class CodeMakeCommand extends GeneratorCommand
             ];
 
             $this->ignoreInForm = [
-                $myModel->getKeyName(),
-                $myModel::CREATED_AT,
-                $myModel::UPDATED_AT,
-                $myModel->getDeletedAtColumn(),
+                $this->myModel->getKeyName(),
+                $this->myModel::CREATED_AT,
+                $this->myModel::UPDATED_AT,
+                $this->myModel->getDeletedAtColumn(),
                 'email_verified_at',
                 'remember_token',
                 'user_creator_id',
@@ -189,10 +191,10 @@ class CodeMakeCommand extends GeneratorCommand
             ];
 
             $this->ignoreInFill = [
-                $myModel->getKeyName(),
-                $myModel::CREATED_AT,
-                $myModel::UPDATED_AT,
-                $myModel->getDeletedAtColumn(),
+                $this->myModel->getKeyName(),
+                $this->myModel::CREATED_AT,
+                $this->myModel::UPDATED_AT,
+                $this->myModel->getDeletedAtColumn(),
                 'email_verified_at',
                 'remember_token',
                 'password',
@@ -230,6 +232,7 @@ class CodeMakeCommand extends GeneratorCommand
         $inSearch = [];
         $fill = [];
         $names = [];
+        $inRules = [];
 
         foreach ($this->columns as $column) {
 
@@ -261,15 +264,105 @@ class CodeMakeCommand extends GeneratorCommand
             }
         }
 
+        $inRules = $this->generateRules($this->myModel);
+
         $stub = null;
         $stub['names'] = $names;
         $stub['fill'] = $fill;
+        $stub['rules'] = $inRules;
         $stub['search'] = $inListing;
         $stub['listing'] = $inListing;
         $stub['form'] = $inForm;
 
         $this->files->put($path, json_encode($stub, JSON_PRETTY_PRINT));
         $this->info('Skeleton created successfully.');
+    }
+
+    private function generateRules($model)
+    {
+
+        $table = $model->getTable();
+        $structure = rl_load_table_structure($table);
+
+        $columns = [];
+        foreach ($structure['columns'] as $column) {
+
+            if (!in_array($column['name'],
+                [
+                    $model::CREATED_AT,
+                    $model::UPDATED_AT,
+                    $model->getDeletedAtColumn(),
+                    'remember_token',
+                    'email_verified_at',
+                ]
+            )) {
+
+                $nullableOrRequired = $column['notnull'] ? 'required' : 'nullable';
+
+                if ($column['name'] == $model->getKeyName()) {
+
+                    $columns[$column['name']] = 'required|integer|exists:' . $model->getTable() . ',id,deleted_at,NULL';
+                } elseif (in_array($column['name'], array_keys($structure['foreignKeys']))) {
+
+                    $referenceTable = $structure['foreignKeys'][$column['name']];
+
+                    $columns[$column['name']] = $nullableOrRequired . '|integer|exists:' . $referenceTable . ',id,deleted_at,NULL';
+                } elseif ($column['type'] == 'string' && $this->contains($column['name'], 'password')) {
+
+                    $columns[$column['name']] = $nullableOrRequired . '|string|min:8|confirmed';
+                } elseif ($column['type'] == 'string' && $this->contains($column['name'], 'email')) {
+
+                    $columns[$column['name']] = $nullableOrRequired . '|email|max:' . $column['length'];
+                } elseif ($column['type'] == 'string' && $this->contains($column['name'], 'image')) {
+
+                    $columns[$column['name']] = $nullableOrRequired . '|image|mimes:jpeg,png,jpg,gif,svg|max:4096';
+                } elseif ($column['type'] == 'string' && $this->contains($column['name'], 'phone')) {
+
+                    $columns[$column['name']] = $nullableOrRequired . '|max:' . $column['length'] . '|regex:/^\(?\d{2}\)?[\s-]?\d{4,5}-?\d{4}$/i';
+                } elseif ($column['type'] == 'string') {
+
+                    $columns[$column['name']] = $nullableOrRequired . '|max:' . $column['length'];
+                } elseif ($column['type'] == 'boolean') {
+
+                    $columns[$column['name']] = $nullableOrRequired . '|boolean';
+                } elseif (in_array($column['type'], ['bigint', 'integer', 'smallint'])) {
+
+                    $columns[$column['name']] = $nullableOrRequired . '|numeric';
+                } elseif ($column['type'] == 'datetime') {
+
+                    $columns[$column['name']] = $nullableOrRequired . '|date_format:d/m/Y H:i';
+                } elseif ($column['type'] == 'date') {
+
+                    $columns[$column['name']] = $nullableOrRequired . '|date_format:d/m/Y';
+                } elseif ($column['type'] == 'time') {
+
+                    $columns[$column['name']] = $nullableOrRequired . '|date_format:H:i';
+                } elseif ($column['type'] == 'text') {
+
+                    $columns[$column['name']] = $nullableOrRequired;
+                } else {
+
+                    $columns[$column['name']] = $nullableOrRequired;
+                }
+            }
+        }
+
+        $data = [];
+        $rules = [];
+
+        foreach ($columns as $key => $rule) {
+
+            $rules['definition'][] = "'{$key}' => '{$rule}',";
+            $rules['this'][] = "'{$key}' => self::\$rules['{$key}'],";
+        }
+
+        return $rules;
+    }
+
+    private function contains($string, $needles)
+    {
+
+        return Str::contains(strtolower($string), $needles);
     }
 
     protected function createVueBar()
@@ -364,6 +457,51 @@ class CodeMakeCommand extends GeneratorCommand
 
         $this->files->put($path, str_replace(array_keys($replaces), array_values($replaces), $stub));
         $this->info('VueRoute created successfully.');
+    }
+
+    protected function updateRules()
+    {
+
+        $ruleReplaces = $this->getDefaultsForClasses($this->argument('model'))['rule'];
+        $storeRequestReplaces = $this->getDefaultsForClasses($this->argument('model'))['storeRequest'];
+        $updateRequestReplaces = $this->getDefaultsForClasses($this->argument('model'))['updateRequest'];
+
+        $pathRule = $this->getPathFromNamespace($ruleReplaces['DummyRuleFullNamed']);
+        $pathStoreRequest = $this->getPathFromNamespace($storeRequestReplaces['DummyStoreRequestFullNamed']);
+        $pathUpdateRequest = $this->getPathFromNamespace($updateRequestReplaces['DummyUpdateRequestFullNamed']);
+
+        $mapping = json_decode($this->files->get($this->skeletonPath));
+        $mappingRules = collect($mapping->rules);
+
+        $definition = $mappingRules['definition'];
+        $thisRules = $mappingRules['this'];
+        //dd($definition, $thisRules);
+
+        if (!$this->files->exists($pathRule)) {
+
+            $this->error($pathRule . ' missing!');
+
+            return false;
+        } else {
+
+            $stubRule = $this->files->get($pathRule);
+            $replaces['DummyRules'] = implode("\r\n	    ", $definition);
+            $replaces['DummyStaticRules'] = implode("\r\n            ", $thisRules);
+            $this->files->put($pathRule, str_replace(array_keys($replaces), array_values($replaces), $stubRule));
+        }
+
+        /*
+
+        //$replaces['DummyModulePlural'] = Str::snake(Str::pluralStudly($this->argument('model')));
+
+        */
+        $this->info('Rules successfully.');
+    }
+
+    private function getPathFromNamespace($fullClassNamespaced)
+    {
+
+        return base_path() . '/' . str_replace('\\', '/', $fullClassNamespaced) . '.php';
     }
 
     /**

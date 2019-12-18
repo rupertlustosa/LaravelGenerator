@@ -12,7 +12,9 @@ class DummyRuleClass
      *
      * @var array
      */
-	protected static $rules = [DummyRules];
+	protected static $rules = [
+	    //DummyRules
+    ];
 
     /**
      * Return default rules
@@ -22,7 +24,9 @@ class DummyRuleClass
     public static function rules()
     {
 
-        return [];
+        return [
+            //DummyStaticRules
+        ];
     }
 
     /**

@@ -49,10 +49,11 @@ class RuleMakeCommand extends GeneratorCommand
 
         if ($this->option('resource')) {
 
-            //$this->createModel();
+            $stub = '/stubs/rule.model.stub';
             $this->createStoreUpdate();
+        } else {
+            $stub = '/stubs/rule.plain.stub';
         }
-        $stub = '/stubs/rule.plain.stub';
         return __DIR__ . $stub;
     }
 
@@ -85,12 +86,14 @@ class RuleMakeCommand extends GeneratorCommand
         $this->call('rlustosa:make-store-request', [
             'module' => $this->getModuleInput(),
             'name' => $modelName,
+            '--resource' => $this->option('resource') ? true : null,
             '--force' => $this->option('force') ? true : null,
         ]);
 
         $this->call('rlustosa:make-update-request', [
             'module' => $this->getModuleInput(),
             'name' => $modelName,
+            '--resource' => $this->option('resource') ? true : null,
             '--force' => $this->option('force') ? true : null,
         ]);
     }
