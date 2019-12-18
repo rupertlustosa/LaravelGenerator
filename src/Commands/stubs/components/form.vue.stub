@@ -69,7 +69,7 @@ DummyHtml
 
                 axios.post(route, this.form)
                     .then(response => {
-                        this.$router.push({name: 'DummyModulePlural'});
+                        this.$router.push({name: 'DummyModulePlural.list'});
                     })
                     .catch(error => {
 

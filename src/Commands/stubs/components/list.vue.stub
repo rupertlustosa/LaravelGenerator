@@ -38,8 +38,27 @@ DummyHead
                                     <tr v-for="item in items">
 DummyBody
                                         <td class="text-right">
-                                            <button class="btn btn-white btn-xs"> Editar</button>
-                                            <button class="btn btn-white btn-xs"> Remover</button>
+
+                                            <div class="dropdown">
+                                                <button class="btn btn-white dropdown-toggle" type="button"
+                                                        data-toggle="dropdown"
+                                                        aria-haspopup="true" aria-expanded="false">
+                                                    Ações
+                                                </button>
+                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                    <router-link
+                                                        class="dropdown-item"
+                                                        :to="{ name: 'DummyModulePlural.edit', params: { id: item.id }}">
+                                                        <i class="fa fa-edit"></i> Editar
+                                                    </router-link>
+                                                    <router-link
+                                                        class="dropdown-item"
+                                                        :to="{ name: 'DummyModulePlural.edit', params: { id: item.id }}">
+                                                        <i class="fa fa-trash"></i> Remover
+                                                    </router-link>
+                                                </div>
+                                            </div>
+
                                         </td>
                                     </tr>
                                     </tbody>
@@ -69,7 +88,8 @@ DummyBody
         data() {
             return {
                 items: [],
-                form: {}
+                form: {},
+                pageCount: 1
             }
         },
         methods: {

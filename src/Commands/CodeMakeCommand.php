@@ -52,6 +52,7 @@ class CodeMakeCommand extends GeneratorCommand
     private $table;
     private $myModel;
 
+    private $ignoreInNames = [];
     private $ignoreInListing = [];
     private $ignoreInForm = [];
     private $ignoreInFill = [];
@@ -102,6 +103,7 @@ class CodeMakeCommand extends GeneratorCommand
             $this->createVueForm();
             $this->createVueRoute();
             $this->updateRules();
+            $this->updateResource();
         }
 
     }
@@ -164,6 +166,18 @@ class CodeMakeCommand extends GeneratorCommand
                 $primaryKey = $primaryKey->getColumns()[0];
                 $this->ignoreInListing[] = $primaryKey;
             }*/
+
+            $this->ignoreInNames = [
+                $this->myModel::CREATED_AT,
+                $this->myModel::UPDATED_AT,
+                $this->myModel->getDeletedAtColumn(),
+                'email_verified_at',
+                'remember_token',
+                'password',
+                'user_creator_id',
+                'user_updater_id',
+                'user_eraser_id',
+            ];
 
             $this->ignoreInListing = [
                 $this->myModel->getKeyName(),
@@ -249,14 +263,13 @@ class CodeMakeCommand extends GeneratorCommand
                 $inForm[] = $columnName;
             }
 
-            if (!in_array($columnName, array_merge($this->ignoreInListing, $this->ignoreInForm))) {
+            if (!in_array($columnName, array_merge($this->ignoreInNames, $this->ignoreInForm))) {
 
                 $names[] = [
                     'id' => $columnName,
                     'label' => $label,
                 ];
             }
-
 
             if (!in_array($columnName, $this->ignoreInFill)) {
 
@@ -502,6 +515,42 @@ class CodeMakeCommand extends GeneratorCommand
     {
 
         return base_path() . '/' . str_replace('\\', '/', $fullClassNamespaced) . '.php';
+    }
+
+    protected function updateResource()
+    {
+
+        $replaces = $this->getDefaultsForClasses($this->argument('model'))['resource'];
+
+        $path = $this->getPathFromNamespace($replaces['DummyResourceFullNamed']);
+
+        $mapping = json_decode($this->files->get($this->skeletonPath));
+        $mapping = collect($mapping->names);
+
+        if (!$this->files->exists($path)) {
+
+            $this->error($path . ' missing!');
+
+            return false;
+        } else {
+
+            $toArray = $mapping->pluck('id')->map(function ($column) {
+
+                return "'{$column}' => \$this->{$column},";
+            });
+            $toArray->prepend('            ');
+
+            $stub = $this->files->get($path);
+            $replaces['//DummyResourceToArray'] = implode("\r\n            ", $toArray->toArray());
+            $this->files->put($path, str_replace(array_keys($replaces), array_values($replaces), $stub));
+        }
+
+        /*
+
+        //$replaces['DummyModulePlural'] = Str::snake(Str::pluralStudly($this->argument('model')));
+
+        */
+        $this->info('Rules successfully.');
     }
 
     /**
