@@ -271,6 +271,20 @@ class CodeMakeCommand extends GeneratorCommand
         $this->info('Skeleton created successfully.');
     }
 
+    protected function createVueBar()
+    {
+
+        $replaces = $this->getDefaultsForClasses($this->argument('model'))['model'];
+        $path = $this->componentsPath . '/' . $replaces['DummyModelClass'] . 'NavBarComponent.vue';
+        $this->makeDirectory($path);
+        $stub = $this->files->get(__DIR__ . '/stubs/components/navbar.vue.stub');
+
+        $replaces['DummyModulePlural'] = Str::snake(Str::pluralStudly($this->argument('model')));
+
+        $this->files->put($path, str_replace(array_keys($replaces), array_values($replaces), $stub));
+        $this->info('VueBar created successfully.');
+    }
+
     protected function createVueList()
     {
 
@@ -312,27 +326,43 @@ class CodeMakeCommand extends GeneratorCommand
     protected function createVueForm()
     {
 
+        $htmlView = new HtmlView();
+
+        $mapping = json_decode($this->files->get($this->skeletonPath));
+        $mappingNames = collect($mapping->names);
+
+        $headBody = collect($mapping->form)->map(function ($field) use ($htmlView, $mappingNames) {
+
+            $fields = $mappingNames->whereIn('id', is_array($field) ? $field : (array)$field);
+
+            return $htmlView->generateFormHtml($fields);
+        });
+
+        $replaces = $this->getDefaultsForClasses($this->argument('model'))['model'];
+        $path = $this->componentsPath . '/' . $replaces['DummyModelClass'] . 'FormComponent.vue';
+        $this->makeDirectory($path);
+        $stub = $this->files->get(__DIR__ . '/stubs/components/form.vue.stub');
+
+        $replaces['DummyHtml'] = implode("\r\n", $headBody->toArray());
+        $replaces['DummyModulePlural'] = Str::snake(Str::pluralStudly($this->argument('model')));
+
+        $this->files->put($path, str_replace(array_keys($replaces), array_values($replaces), $stub));
         $this->info('VueForm created successfully.');
     }
 
     protected function createVueRoute()
     {
 
-        $this->info('VueRoute created successfully.');
-    }
-
-    protected function createVueBar()
-    {
-
         $replaces = $this->getDefaultsForClasses($this->argument('model'))['model'];
-        $path = $this->componentsPath . '/' . $replaces['DummyModelClass'] . 'NavBarComponent.vue';
+        $nameFile = $replaces['DummyModelVariable'];
+        $path = $this->jsPath . '/' . $nameFile . 'Router.js';
         $this->makeDirectory($path);
-        $stub = $this->files->get(__DIR__ . '/stubs/components/navbar.vue.stub');
+        $stub = $this->files->get(__DIR__ . '/stubs/js/module.router.stub');
 
         $replaces['DummyModulePlural'] = Str::snake(Str::pluralStudly($this->argument('model')));
 
         $this->files->put($path, str_replace(array_keys($replaces), array_values($replaces), $stub));
-        $this->info('VueBar created successfully.');
+        $this->info('VueRoute created successfully.');
     }
 
     /**

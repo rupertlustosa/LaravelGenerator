@@ -19,9 +19,51 @@ class HtmlView
 
     }
 
-    public function generateFormHtml()
+    public function generateFormHtml(Collection $fields)
     {
 
+        $middleContent = '';
+
+        $countFields = $fields->count();
+
+        switch ($countFields) {
+
+            case 1:
+                $col = 12;
+                break;
+            case 2:
+                $col = 6;
+                break;
+            case 3:
+                $col = 4;
+                break;
+            case 4:
+                $col = 3;
+                break;
+            default:
+                $col = 6;
+                break;
+
+        }
+
+        foreach ($fields as $field) {
+
+            $middleContent .= '
+                                <div class="form-group col-sm-12 col-6">
+                                    <label for="name">' . $field->label . '</label>
+                                    <input type="text" v-model="form.' . $field->id . '" class="form-control" 
+                                           placeholder="' . $field->label . '">
+                                    <div v-if="errors && errors.' . $field->id . '" class="text-danger">
+                                        {{ errors.' . $field->id . '[0] }}
+                                    </div>
+                                </div>            
+            ';
+        }
+
+        return '
+                            <div class="form-row">' . $middleContent . '
+                            </div>        
+        ';
     }
 
     public function generateHtmlSearch($field)

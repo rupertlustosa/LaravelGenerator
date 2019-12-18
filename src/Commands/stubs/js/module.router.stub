@@ -1,0 +1,42 @@
+import ProductListComponent from "../components/DummyModelClassListComponent";
+import DummyModelClassFormComponent from "../components/DummyModelClassFormComponent";
+
+const DummyModelVariableRoutes = [
+    {
+        path: "/DummyModulePlural",
+        name: "DummyModulePlural.list",
+        component: DummyModelClassListComponent,
+        meta: {
+            auth: true
+        },
+        children: [
+
+        ]
+    },
+    {
+        path: '/DummyModulePlural/create',
+        name: "DummyModulePlural.create",
+        component: DummyModelClassFormComponent,
+        meta: {
+            auth: true
+        }
+    },
+    {
+        path: '/DummyModulePlural/:id/edit',
+        name: "DummyModulePlural.edit",
+        component: DummyModelClassFormComponent,
+        meta: {
+            auth: true
+        }
+    }
+]
+
+export default DummyModelVariableRoutes
+
+/**
+* Adicione na seção de imports do seu arquivo de rotas:
+* import ProductRoutes from "../../Modules/DummyModelClass/Resources/views/js/DummyModelVariableRouter";
+*
+* Dentro das rotas do VueRouter adicione:
+* ...DummyModelVariableRoutes,
+*/

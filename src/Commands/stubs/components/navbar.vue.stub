@@ -16,8 +16,8 @@
         </div>
         <div class="col-sm-4">
             <div class="title-action">
-                <router-link class="btn btn-white" to="/DummyModulePlural"><i class="fa fa-pencil"></i> Listar</router-link>&nbsp;
-                <router-link class="btn btn-primary" to="/DummyModulePlural/create">Novo</router-link>
+                <router-link class="btn btn-white" :to="{ name: 'DummyModulePlural.list'}"><i class="fa fa-pencil"></i> Listar</router-link>&nbsp;
+                <router-link class="btn btn-primary" :to="{ name: 'DummyModulePlural.create'}">Novo</router-link>
             </div>
         </div>
     </div>

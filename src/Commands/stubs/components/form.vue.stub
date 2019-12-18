@@ -1,0 +1,105 @@
+<template>
+    <div>
+
+        <DummyModelVariable-nav-bar-component></DummyModelVariable-nav-bar-component>
+
+        <div class="wrapper wrapper-content animated fadeInRight">
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox">
+                        <bootstrap-alert-component
+                            v-bind:text="alertText"
+                            v-bind:show="alertShow"
+                            v-bind:css-class="alertClass">
+                        </bootstrap-alert-component>
+                        <div class="ibox-title">
+                            <h5>{{ typeof(this.$route.params.id) === "undefined" ? 'Cadastro' : 'Edição' }}</h5>
+                        </div>
+                        <div class="ibox-content">
+
+DummyHtml
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <div class="col-12">
+                                        <button class="btn btn-primary" type="button" @click.prevent="save">
+                                            <i class="fa fa-check"></i> Salvar
+                                        </button>
+                                        <router-link class="btn btn-white" to="/">
+                                            <i class="fa fa-times-circle"></i> Cancelar
+                                        </router-link>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    import DummyModelClassNavBarComponent from "./DummyModelClassNavBarComponent";
+    import BootstrapAlertComponent from "../../../../../resources/js/components/layout/bootstrap/BootstrapAlertComponent";
+
+    export default {
+        name: "DummyModelClassFormComponent",
+        components: {BootstrapAlertComponent, DummyModelClassNavBarComponent},
+        data() {
+            return {
+                showDismissibleAlert: true,
+                form: {},
+                errors: {},
+                alertShow: false,
+                alertClass: 'warning',
+                alertText: '',
+            }
+        },
+        methods: {
+            save() {
+                this.$loading(true);
+
+                this.errors = {};
+
+                let route = typeof (this.$route.params.id) === "undefined" ? "/api/DummyModulePlural" : "/api/DummyModulePlural/" + this.$route.params.id;
+
+                axios.post(route, this.form)
+                    .then(response => {
+                        this.$router.push({name: 'DummyModulePlural'});
+                    })
+                    .catch(error => {
+
+                        this.alertShow = true;
+
+                        if (_.has(error, 'response.data.errors')) {
+
+                            this.alertText = 'Verifique os erros abaixo:';
+                            this.errors = error.response.data.errors;
+                        } else {
+
+                            this.alertText = '[' + error.response.status + '] Não foi possível realizar essa operação!';
+                        }
+
+                        console.log(error.response.status);
+                        console.log(error.response.data);
+                    })
+                    .then(() => {
+
+                        this.$loading(false);
+                        let app = this;
+                        setTimeout(function () {
+                            app.alertShow = false;
+                        }, 8000);
+                    });
+            }
+        }
+    }
+</script>
+
+<style scoped>
+
+</style>
