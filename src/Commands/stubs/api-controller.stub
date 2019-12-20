@@ -130,7 +130,7 @@ class ApiController extends Controller
      * @param int $code
      * @return JsonResponse
      */
-    public function sendBadRequest(string $error, array $errorMessages = [], int $code = Response::HTTP_BAD_REQUEST): JsonResponse
+    public function sendBadRequest(string $error, array $errorMessages = [], int $code = Response::HTTP_UNPROCESSABLE_ENTITY): JsonResponse
     {
 
         $response = [

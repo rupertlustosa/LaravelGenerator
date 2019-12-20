@@ -21,15 +21,27 @@
 DummyHtml
 
                             <div class="form-row">
-                                <div class="form-group">
-                                    <div class="col-12">
+                                <div class="form-group col-12">
+
+                                    <div class="btn-group">
                                         <button class="btn btn-primary" type="button" @click.prevent="save">
-                                            <i class="fa fa-check"></i> Salvar
+                                            <i class="fa fa-check"></i> Salvar e voltar
                                         </button>
-                                        <router-link class="btn btn-white" to="/">
-                                            <i class="fa fa-times-circle"></i> Cancelar
-                                        </router-link>
+                                        <button type="button"
+                                                class="btn btn-primary dropdown-toggle dropdown-toggle-split"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <span class="sr-only">Toggle Dropdown</span>
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <a class="dropdown-item" href="javascript:" v-on:click="saveAndNew">
+                                                Salvar e adicionar novo
+                                            </a>
+                                        </div>
                                     </div>
+                                    <router-link class="btn btn-white" :to="{ name: 'categories.list' }">
+                                        <i class="fa fa-ban"></i> Cancelar
+                                    </router-link>
+
                                 </div>
                             </div>
 
@@ -44,57 +56,75 @@ DummyHtml
 
 <script>
     import DummyModelClassNavBarComponent from "./DummyModelClassNavBarComponent";
-    import BootstrapAlertComponent from "../../../../../resources/js/components/layout/bootstrap/BootstrapAlertComponent";
+    import FormErrorComponent from "../../../../../resources/js/components/layout/bootstrap/FormErrorComponent";
 
     export default {
         name: "DummyModelClassFormComponent",
-        components: {BootstrapAlertComponent, DummyModelClassNavBarComponent},
+        components: {FormErrorComponent, DummyModelClassNavBarComponent},
         data() {
             return {
                 showDismissibleAlert: true,
+                routeToSave: "/api/DummyModulePlural",
+                routeNameToRedirect: "DummyModulePlural.list",
+                method: 'post',
                 form: {},
                 errors: {},
-                alertShow: false,
-                alertClass: 'warning',
-                alertText: '',
             }
         },
         methods: {
+            saveAndNew() {
+
+                this.routeNameToRedirect = 'DummyModulePlural.create';
+                this.save();
+            },
             save() {
+
                 this.$loading(true);
 
                 this.errors = {};
 
-                let route = typeof (this.$route.params.id) === "undefined" ? "/api/DummyModulePlural" : "/api/DummyModulePlural/" + this.$route.params.id;
-
-                axios.post(route, this.form)
+                axios.request(this.routeToSave, {
+                    method: this.method,
+                    params: this.form,
+                })
                     .then(response => {
-                        this.$router.push({name: 'DummyModulePlural.list'});
+
+                        this.$router.push({name: this.routeNameToRedirect})
+                            .catch(err => {
+                            })
+                            .then(() => {
+
+                                this.form = {};
+                            });
+
+                        this.$awn.success('Salvo com sucesso!');
                     })
                     .catch(error => {
 
-                        this.alertShow = true;
-
                         if (_.has(error, 'response.data.errors')) {
 
-                            this.alertText = 'Verifique os erros abaixo:';
+                            this.$awn.warning('Corrija os erros antes de salvar');
                             this.errors = error.response.data.errors;
                         } else {
 
-                            this.alertText = '[' + error.response.status + '] Não foi possível realizar essa operação!';
+                            let message = '[' + error.response.status + '] Não foi possível realizar essa operação!';
+                            this.$awn.alert(message);
                         }
 
-                        console.log(error.response.status);
-                        console.log(error.response.data);
+                        //console.log(error.response.data);
                     })
                     .then(() => {
 
                         this.$loading(false);
-                        let app = this;
-                        setTimeout(function () {
-                            app.alertShow = false;
-                        }, 8000);
                     });
+            }
+        },
+        mounted() {
+
+            if (typeof (this.$route.params.id) !== "undefined") {
+
+                this.routeToSave = "/api/DummyModulePlural/" + this.$route.params.id;
+                this.method = 'put';
             }
         }
     }

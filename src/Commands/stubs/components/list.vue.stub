@@ -16,9 +16,16 @@ DummySearch
                                 </div>
                                 <div class="row">
                                     <div class="col-12">
-                                        <a class="btn btn-white btn-xs float-right" href="javascript:">
-                                            Pesquisar
-                                        </a>
+                                        <div class="title-action">
+                                            <a class="btn btn-white" href="javascript:"
+                                               v-on:click="clearSearch">
+                                                <i class="fa fa-home"></i> Limpar
+                                            </a>&nbsp;
+                                            <a class="btn btn-primary" href="javascript:"
+                                               v-on:click="search">
+                                                <i class="fa fa-search"></i> Pesquisar
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -49,12 +56,12 @@ DummyBody
                                                     <router-link
                                                         class="dropdown-item"
                                                         :to="{ name: 'DummyModulePlural.edit', params: { id: item.id }}">
-                                                        <i class="fa fa-edit"></i> Editar
+                                                        <i class="fa fa-pencil fa-fw"></i> Editar
                                                     </router-link>
                                                     <router-link
                                                         class="dropdown-item"
                                                         :to="{ name: 'DummyModulePlural.edit', params: { id: item.id }}">
-                                                        <i class="fa fa-trash"></i> Remover
+                                                        <i class="fa fa-trash-o fa-fw"></i> Remover
                                                     </router-link>
                                                 </div>
                                             </div>
@@ -65,7 +72,7 @@ DummyBody
                                 </table>
                             </div>
                             <paginate-component
-                                :page-count="pageCount"
+                                :page-count="form.page"
                                 :click-handler="getData"
                                 :container-class="'pagination'"
                                 :page-class="'page-item'">
@@ -88,36 +95,48 @@ DummyBody
         data() {
             return {
                 items: [],
-                form: {},
-                pageCount: 1
+                form: {
+                    page: 1
+                }
             }
         },
         methods: {
 
-            getData(pageNum = 1) {
+            search() {
+
+                this.form.page = 1;
+                this.getData();
+            },
+            clearSearch() {
+
+                this.form = {
+                    page: 1
+                };
+                this.getData();
+            },
+            getData() {
 
                 this.$loading(true);
-                this.pageCount = 1;
 
-                axios.get("/api/DummyModulePlural?page=" + pageNum)
+                axios.request("/api/DummyModulePlural", {
+                    method: 'get',
+                    params: this.form,
+                })
                     .then((response) => {
 
                         let data = response.data.data;
                         this.items = [...data];
-                        this.pageCount = response.data.last_page;
+                        this.form.page = response.data.last_page;
+
+                        if (response.data.total === 0) {
+
+                            this.$awn.info('Nenhum resultado encontrado');
+                        }
                     })
                     .catch(error => {
 
-                        if (_.has(error, 'response.data.errors')) {
-
-
-                        } else {
-
-                            this.alertText = '[' + error.response.status + '] Não foi possível realizar essa operação!';
-                        }
-
-                        console.log(error.response.status);
-                        console.log(error.response.data);
+                        let message = '[' + error.response.status + '] Não foi possível realizar essa operação!';
+                        this.$awn.alert(message);
                     })
                     .then(() => {
 
@@ -126,6 +145,7 @@ DummyBody
             }
         },
         mounted() {
+
             this.getData();
         }
     }

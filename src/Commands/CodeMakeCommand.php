@@ -104,6 +104,7 @@ class CodeMakeCommand extends GeneratorCommand
             $this->createVueRoute();
             $this->updateRules();
             $this->updateResource();
+            $this->updateModel();
         }
 
     }
@@ -360,7 +361,6 @@ class CodeMakeCommand extends GeneratorCommand
             }
         }
 
-        $data = [];
         $rules = [];
 
         foreach ($columns as $key => $rule) {
@@ -476,19 +476,13 @@ class CodeMakeCommand extends GeneratorCommand
     {
 
         $ruleReplaces = $this->getDefaultsForClasses($this->argument('model'))['rule'];
-        $storeRequestReplaces = $this->getDefaultsForClasses($this->argument('model'))['storeRequest'];
-        $updateRequestReplaces = $this->getDefaultsForClasses($this->argument('model'))['updateRequest'];
-
         $pathRule = $this->getPathFromNamespace($ruleReplaces['DummyRuleFullNamed']);
-        $pathStoreRequest = $this->getPathFromNamespace($storeRequestReplaces['DummyStoreRequestFullNamed']);
-        $pathUpdateRequest = $this->getPathFromNamespace($updateRequestReplaces['DummyUpdateRequestFullNamed']);
 
         $mapping = json_decode($this->files->get($this->skeletonPath));
         $mappingRules = collect($mapping->rules);
 
         $definition = $mappingRules['definition'];
         $thisRules = $mappingRules['this'];
-        //dd($definition, $thisRules);
 
         if (!$this->files->exists($pathRule)) {
 
@@ -503,12 +497,36 @@ class CodeMakeCommand extends GeneratorCommand
             $this->files->put($pathRule, str_replace(array_keys($replaces), array_values($replaces), $stubRule));
         }
 
-        /*
-
-        //$replaces['DummyModulePlural'] = Str::snake(Str::pluralStudly($this->argument('model')));
-
-        */
         $this->info('Rules successfully.');
+    }
+
+    protected function updateModel()
+    {
+
+        $modelReplaces = $this->getDefaultsForClasses($this->argument('model'))['model'];
+        $pathModel = $this->getPathFromNamespace($modelReplaces['DummyModelFullNamed']);
+
+        $mapping = json_decode($this->files->get($this->skeletonPath));
+        $mappingFill = collect($mapping->fill);
+
+        if (!$this->files->exists($pathModel)) {
+
+            $this->error($pathModel . ' missing!');
+
+            return false;
+        } else {
+
+            $toArray = $mappingFill->map(function ($column) {
+
+                return "'{$column}',";
+            });
+
+            $stubModel = $this->files->get($pathModel);
+            $replaces['//DummyFillable'] = implode("\r\n        ", $toArray->toArray());
+            $this->files->put($pathModel, str_replace(array_keys($replaces), array_values($replaces), $stubModel));
+        }
+
+        $this->info('Model successfully.');
     }
 
     private function getPathFromNamespace($fullClassNamespaced)
@@ -545,12 +563,7 @@ class CodeMakeCommand extends GeneratorCommand
             $this->files->put($path, str_replace(array_keys($replaces), array_values($replaces), $stub));
         }
 
-        /*
-
-        //$replaces['DummyModulePlural'] = Str::snake(Str::pluralStudly($this->argument('model')));
-
-        */
-        $this->info('Rules successfully.');
+        $this->info('Resource successfully.');
     }
 
     /**

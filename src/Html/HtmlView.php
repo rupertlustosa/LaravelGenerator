@@ -49,13 +49,12 @@ class HtmlView
         foreach ($fields as $field) {
 
             $middleContent .= '
-                                <div class="form-group col-sm-12 col-6">
-                                    <label for="name">' . $field->label . '</label>
-                                    <input type="text" v-model="form.' . $field->id . '" class="form-control" 
-                                           placeholder="' . $field->label . '">
-                                    <div v-if="errors && errors.' . $field->id . '" class="text-danger">
+                                <div class="form-group col-md-12 col-lg-' . $col . '">
+                                    <label>' . $field->label . '</label>
+                                    <input type="text" v-model="form.' . $field->id . '" class="form-control">
+                                    <form-error-component v-if="errors.' . $field->id . '" :errors="errors">
                                         {{ errors.' . $field->id . '[0] }}
-                                    </div>
+                                    </form-error-component>
                                 </div>            
             ';
         }
@@ -70,11 +69,10 @@ class HtmlView
     {
 
         return '
-                                    <div class="col-sm-4">
+                                    <div class="col-md-4">
                                         <div class="form-group">
                                             <label class="col-form-label">' . $field->label . '</label>
-                                            <input type="text" value="" class="form-control"
-                                                    v-model="form.' . $field->id . '" placeholder="' . $field->label . '">
+                                            <input type="text" class="form-control" v-model="form.' . $field->id . '">
                                         </div>
                                     </div>
         ';
