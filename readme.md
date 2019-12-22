@@ -59,9 +59,8 @@ You'll find installation instructions and full documentation on ###########.
 
 ## TODO
 
-- Gerar views html
 - Atualizar arquivo de rotas do Laravel (Atualmente está sendo sobrescrito)
-- Gerar código de Validação para: StoreRequest, UpdateRequest e Rule
+- Gerar views html
 
 ## COMANDOS ÚTEIS
 

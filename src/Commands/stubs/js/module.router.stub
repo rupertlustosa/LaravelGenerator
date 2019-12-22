@@ -1,4 +1,4 @@
-import ProductListComponent from "../components/DummyModelClassListComponent";
+import DummyModelClassListComponent from "../components/DummyModelClassListComponent";
 import DummyModelClassFormComponent from "../components/DummyModelClassFormComponent";
 
 const DummyModelVariableRoutes = [
@@ -29,13 +29,13 @@ const DummyModelVariableRoutes = [
             auth: true
         }
     }
-]
+];
 
 export default DummyModelVariableRoutes
 
 /**
 * Adicione na seção de imports do seu arquivo de rotas:
-* import ProductRoutes from "../../Modules/DummyModelClass/Resources/views/js/DummyModelVariableRouter";
+* import DummyModelVariableRoutes from "../../Modules/DummyModule/Resources/views/js/DummyModelVariableRouter";
 *
 * Dentro das rotas do VueRouter adicione:
 * ...DummyModelVariableRoutes,

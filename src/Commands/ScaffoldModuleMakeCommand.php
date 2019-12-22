@@ -137,9 +137,9 @@ class ScaffoldModuleMakeCommand extends GeneratorCommand
 
         $pathRouteApi = $this->getRouteApiPath();
 
-        if ((!$this->hasOption('force') ||
-                !$this->option('force')) &&
-            $this->files->exists($pathRouteApi)
+        if (
+            //(!$this->hasOption('force') || !$this->option('force')) &&
+        $this->files->exists($pathRouteApi)
         ) {
 
             $this->error('Api Route to Module' . $this->qualifyClass($this->getModuleInput()) . ' already exists!');

@@ -140,7 +140,6 @@ class ControllerMakeCommand extends GeneratorCommand
 
             $newApiCode = str_replace(array_keys($replaces), array_values($replaces), $this->getCodeRoute($endTag));
             //dd($newApiCode);
-
             // Backup route file
             $this->files->put(str_replace('.php', date('_Ymd-His') . '.php', $pathRouteApi), $originalFileContent);
 

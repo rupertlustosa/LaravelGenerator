@@ -241,13 +241,10 @@ class CodeMakeCommand extends GeneratorCommand
 
         $this->makeDirectory($path);
         $stub = $this->files->get(__DIR__ . '/stubs/skeleton.stub');
-        $index = 0;
         $inListing = [];
         $inForm = [];
-        $inSearch = [];
         $fill = [];
         $names = [];
-        $inRules = [];
 
         foreach ($this->columns as $column) {
 
@@ -264,7 +261,7 @@ class CodeMakeCommand extends GeneratorCommand
                 $inForm[] = $columnName;
             }
 
-            if (!in_array($columnName, array_merge($this->ignoreInNames, $this->ignoreInForm))) {
+            if (!in_array($columnName, $this->ignoreInNames)) {
 
                 $names[] = [
                     'id' => $columnName,
@@ -467,6 +464,7 @@ class CodeMakeCommand extends GeneratorCommand
         $stub = $this->files->get(__DIR__ . '/stubs/js/module.router.stub');
 
         $replaces['DummyModulePlural'] = Str::snake(Str::pluralStudly($this->argument('model')));
+        $replaces['DummyModule'] = $this->qualifyClass($this->getModuleInput());
 
         $this->files->put($path, str_replace(array_keys($replaces), array_values($replaces), $stub));
         $this->info('VueRoute created successfully.');

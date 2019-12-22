@@ -32,7 +32,7 @@ DummySearch
                             </div>
 
                             <div class="table-responsive">
-                                <table class="table table-hover issue-tracker">
+                                <table class="table table-striped table-hover table-bordered">
                                     <thead>
                                     <tr>
 DummyHead
@@ -72,7 +72,8 @@ DummyBody
                                 </table>
                             </div>
                             <paginate-component
-                                :page-count="form.page"
+                                v-if="this.items.length"
+                                :page-count="pageCount"
                                 :click-handler="getData"
                                 :container-class="'pagination'"
                                 :page-class="'page-item'">
@@ -96,27 +97,26 @@ DummyBody
             return {
                 items: [],
                 form: {
-                    page: 1
-                }
+                    page: null
+                },
+                pageCount: 1
             }
         },
         methods: {
 
             search() {
 
-                this.form.page = 1;
-                this.getData();
+                this.getData(1);
             },
             clearSearch() {
 
-                this.form = {
-                    page: 1
-                };
-                this.getData();
+                this.form = {};
+                this.getData(1);
             },
-            getData() {
+            getData(page) {
 
                 this.$loading(true);
+                this.form.page = page;
 
                 axios.request("/api/DummyModulePlural", {
                     method: 'get',
@@ -126,7 +126,7 @@ DummyBody
 
                         let data = response.data.data;
                         this.items = [...data];
-                        this.form.page = response.data.last_page;
+                        this.pageCount = response.data.last_page;
 
                         if (response.data.total === 0) {
 
@@ -146,7 +146,7 @@ DummyBody
         },
         mounted() {
 
-            this.getData();
+            this.getData(1);
         }
     }
 </script>
