@@ -85,7 +85,7 @@ class DummyControllerClass extends ApiController
 
         try {
 
-            $data = $this->categoryService->listOfChoices();
+            $data = $this->DummyServiceVariable->listOfChoices();
 
             return $this->sendSimpleJson($data);
 
