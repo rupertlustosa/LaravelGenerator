@@ -50,7 +50,11 @@ By default the module classes are not loaded automatically. You can autoload you
 ## Preparing to Vue
 1 - Install JS packages with:
 ```
-npm install v-money vue-awesome-notifications vue-filter-date-format vue-filter-date-parse vue-router vue-select vue-the-mask vuejs-datepicker vuejs-loading-plugin --save-dev
+- composer require laravel/ui --dev
+- php artisan ui bootstrap
+- php artisan ui vue
+- npm install
+- npm install v-money vue-awesome-notifications vue-filter-date-format vue-filter-date-parse vue-router vue-select vue-the-mask vuejs-datepicker vuejs-loading-plugin --save-dev
 ```
 2 - Modify resources/js/app.js to:
 ```
