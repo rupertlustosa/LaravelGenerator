@@ -402,11 +402,6 @@ abstract class GeneratorCommand extends Command
             $mapping = $this->getDefaultsForClasses($name)[Str::lower($type)];
             $classString = 'Dummy' . Str::studly($type) . 'FullNamed';
 
-            /*if ($type == 'Resource') {
-
-
-                dd($this->getDefaultsForClasses($name), $name, Str::lower($type), $mapping[$classString]);
-            }*/
             return class_exists($mapping[$classString]);
         } else {
 
@@ -419,8 +414,9 @@ abstract class GeneratorCommand extends Command
     {
 
         return "
-        \$api->resource('DummyModulePlural', 'DummyControllerClass')->except([
-            'create', 'edit'
+        \$api->get('DummyModulePlural/list-of-choices', 'DummyControllerClass@listOfChoices');
+        \$api->apiResources([
+            'DummyModulePlural' => 'DummyControllerClass',
         ]);
     " . trim($endTag);
     }
