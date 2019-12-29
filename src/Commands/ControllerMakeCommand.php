@@ -42,7 +42,7 @@ class ControllerMakeCommand extends GeneratorCommand
         if ($this->option('model')) {
 
             $this->createService();
-            $this->createPolicy();
+            //$this->createPolicy();
             $this->createResource();
             $this->createCollection();
             $this->createRule();
