@@ -49,7 +49,7 @@ class HtmlView
         foreach ($fields as $field) {
 
             $middleContent .= '
-                                <div class="form-group col-md-12 col-lg-' . $col . '">
+                                <div class="form-group col-md-' . $col . '">
                                     <label>' . $field->label . '</label>
                                     <input type="text" v-model="form.' . $field->id . '" class="form-control">
                                     <form-error-component v-if="errors.' . $field->id . '" :errors="errors">
