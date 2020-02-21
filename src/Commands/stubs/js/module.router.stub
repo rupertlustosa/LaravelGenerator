@@ -3,27 +3,24 @@ import DummyModelClassFormComponent from "../components/DummyModelClassFormCompo
 
 const DummyModelVariableRoutes = [
     {
-        path: "/DummyModulePlural",
-        name: "DummyModulePlural.list",
+        path: "/panel/DummyModulePlural",
+        name: "panel.DummyModulePlural.list",
         component: DummyModelClassListComponent,
         meta: {
             auth: true
-        },
-        children: [
-
-        ]
+        }
     },
     {
-        path: '/DummyModulePlural/create',
-        name: "DummyModulePlural.create",
+        path: '/panel/DummyModulePlural/create',
+        name: "panel.DummyModulePlural.create",
         component: DummyModelClassFormComponent,
         meta: {
             auth: true
         }
     },
     {
-        path: '/DummyModulePlural/:id/edit',
-        name: "DummyModulePlural.edit",
+        path: '/panel/DummyModulePlural/:id/edit',
+        name: "panel.DummyModulePlural.edit",
         component: DummyModelClassFormComponent,
         meta: {
             auth: true
