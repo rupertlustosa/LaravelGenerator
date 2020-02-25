@@ -41,6 +41,7 @@ class CodeMakeCommand extends GeneratorCommand
     ];
 
     protected $viewsPath = '';
+    protected $routesPath = '';
     protected $skeletonPath = '';
     protected $jsPath = '';
     protected $componentsPath = '';
@@ -65,6 +66,7 @@ class CodeMakeCommand extends GeneratorCommand
     {
 
         $this->viewsPath = $this->getViewsPath();
+        $this->routesPath = $this->getRoutesPath();
         $this->jsPath = $this->viewsPath . '/js';
         $this->componentsPath = $this->viewsPath . '/components';
         $this->componentsSharedPath = $this->viewsPath . '/components/shared';
@@ -379,7 +381,7 @@ class CodeMakeCommand extends GeneratorCommand
     {
 
         $replaces = $this->getDefaultsForClasses($this->argument('model'))['model'];
-        $path = $this->componentsPath . '/' . $replaces['DummyModelClass'] . 'NavBarComponent.vue';
+        $path = $this->componentsPath . '/' . $replaces['DummyModelClass'] . '/' . $replaces['DummyModelClass'] . 'NavBarComponent.vue';
         $this->makeDirectory($path);
         $stub = $this->files->get(__DIR__ . '/stubs/components/navbar.vue.stub');
 
@@ -414,7 +416,7 @@ class CodeMakeCommand extends GeneratorCommand
         });
 
         $replaces = $this->getDefaultsForClasses($this->argument('model'))['model'];
-        $path = $this->componentsPath . '/' . $replaces['DummyModelClass'] . 'ListComponent.vue';
+        $path = $this->componentsPath . '/' . $replaces['DummyModelClass'] . '/' . $replaces['DummyModelClass'] . 'ListComponent.vue';
         $this->makeDirectory($path);
         $stub = $this->files->get(__DIR__ . '/stubs/components/list.vue.stub');
 
@@ -443,7 +445,7 @@ class CodeMakeCommand extends GeneratorCommand
         });
 
         $replaces = $this->getDefaultsForClasses($this->argument('model'))['model'];
-        $path = $this->componentsPath . '/' . $replaces['DummyModelClass'] . 'FormComponent.vue';
+        $path = $this->componentsPath . '/' . $replaces['DummyModelClass'] . '/' . $replaces['DummyModelClass'] . 'FormComponent.vue';
         $this->makeDirectory($path);
         $stub = $this->files->get(__DIR__ . '/stubs/components/form.vue.stub');
 
@@ -459,9 +461,9 @@ class CodeMakeCommand extends GeneratorCommand
 
         $replaces = $this->getDefaultsForClasses($this->argument('model'))['model'];
         $nameFile = $replaces['DummyModelVariable'];
-        $path = $this->jsPath . '/' . $nameFile . 'Router.js';
+        $path = $this->routesPath . '/' . $nameFile . 'Route.js';
         $this->makeDirectory($path);
-        $stub = $this->files->get(__DIR__ . '/stubs/js/module.router.stub');
+        $stub = $this->files->get(__DIR__ . '/stubs/js/module.route.stub');
 
         $replaces['DummyModulePlural'] = Str::snake(Str::pluralStudly($this->argument('model')));
         $replaces['DummyModule'] = $this->qualifyClass($this->getModuleInput());
@@ -496,35 +498,6 @@ class CodeMakeCommand extends GeneratorCommand
         }
 
         $this->info('Rules successfully.');
-    }
-
-    protected function updateModel()
-    {
-
-        $modelReplaces = $this->getDefaultsForClasses($this->argument('model'))['model'];
-        $pathModel = $this->getPathFromNamespace($modelReplaces['DummyModelFullNamed']);
-
-        $mapping = json_decode($this->files->get($this->skeletonPath));
-        $mappingFill = collect($mapping->fill);
-
-        if (!$this->files->exists($pathModel)) {
-
-            $this->error($pathModel . ' missing!');
-
-            return false;
-        } else {
-
-            $toArray = $mappingFill->map(function ($column) {
-
-                return "'{$column}',";
-            });
-
-            $stubModel = $this->files->get($pathModel);
-            $replaces['//DummyFillable'] = implode("\r\n        ", $toArray->toArray());
-            $this->files->put($pathModel, str_replace(array_keys($replaces), array_values($replaces), $stubModel));
-        }
-
-        $this->info('Model successfully.');
     }
 
     private function getPathFromNamespace($fullClassNamespaced)
@@ -562,6 +535,35 @@ class CodeMakeCommand extends GeneratorCommand
         }
 
         $this->info('Resource successfully.');
+    }
+
+    protected function updateModel()
+    {
+
+        $modelReplaces = $this->getDefaultsForClasses($this->argument('model'))['model'];
+        $pathModel = $this->getPathFromNamespace($modelReplaces['DummyModelFullNamed']);
+
+        $mapping = json_decode($this->files->get($this->skeletonPath));
+        $mappingFill = collect($mapping->fill);
+
+        if (!$this->files->exists($pathModel)) {
+
+            $this->error($pathModel . ' missing!');
+
+            return false;
+        } else {
+
+            $toArray = $mappingFill->map(function ($column) {
+
+                return "'{$column}',";
+            });
+
+            $stubModel = $this->files->get($pathModel);
+            $replaces['//DummyFillable'] = implode("\r\n        ", $toArray->toArray());
+            $this->files->put($pathModel, str_replace(array_keys($replaces), array_values($replaces), $stubModel));
+        }
+
+        $this->info('Model successfully.');
     }
 
     /**

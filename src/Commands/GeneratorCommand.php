@@ -175,14 +175,14 @@ abstract class GeneratorCommand extends Command
                 'DummyRouteServiceProviderClass' => 'RouteServiceProvider',
             ],
             'collection' => [
-                'DummyResourceNamespace' => 'Modules\ModuleName\Resources',
+                'DummyResourceNamespace' => 'Modules\ModuleName\Http\Resources',
                 'DummyCollectionClass' => 'ClassNameCollection',
-                'DummyCollectionFullNamed' => 'Modules\ModuleName\Resources\ClassNameCollection',
+                'DummyCollectionFullNamed' => 'Modules\ModuleName\Http\Resources\ClassNameCollection',
             ],
             'resource' => [
-                'DummyResourceNamespace' => 'Modules\ModuleName\Resources',
+                'DummyResourceNamespace' => 'Modules\ModuleName\Http\Resources',
                 'DummyResourceClass' => 'ClassNameResource',
-                'DummyResourceFullNamed' => 'Modules\ModuleName\Resources\ClassNameResource',
+                'DummyResourceFullNamed' => 'Modules\ModuleName\Http\Resources\ClassNameResource',
             ],
             'service' => [
                 'DummyServiceNamespace' => 'Modules\ModuleName\Services',
@@ -360,6 +360,12 @@ abstract class GeneratorCommand extends Command
     {
 
         return base_path() . '/' . str_replace('\\', '/', $this->rootModuleNamespace()) . $this->qualifyClass($this->getModuleInput()) . '/Resources/views';
+    }
+
+    protected function getRoutesPath()
+    {
+
+        return base_path() . '/' . str_replace('\\', '/', $this->rootModuleNamespace()) . $this->qualifyClass($this->getModuleInput()) . '/Resources/routes';
     }
 
     protected function getJsPath()

@@ -14,5 +14,6 @@ use Illuminate\Http\Request;
 */
 //auth:api
 Route::middleware(['web'])
+    ->prefix('panel')
     ->group(function ($api) {
     });

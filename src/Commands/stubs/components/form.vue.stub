@@ -34,7 +34,7 @@ DummyHtml
                                             </a>
                                         </div>
                                     </div>
-                                    <router-link class="btn btn-white" :to="{ name: 'DummyModulePlural.list' }">
+                                    <router-link class="btn btn-white" :to="{ name: 'panel.DummyModulePlural.list' }">
                                         <i class="fa fa-ban"></i> Cancelar
                                     </router-link>
 
@@ -52,16 +52,16 @@ DummyHtml
 
 <script>
     import DummyModelClassNavBarComponent from "./DummyModelClassNavBarComponent";
-    import FormErrorComponent from "../../../../../resources/js/components/layout/bootstrap/FormErrorComponent";
+    import FormErrorComponent from "../../../../../../resources/js/components/layout/bootstrap/FormErrorComponent";
 
     export default {
         name: "DummyModelClassFormComponent",
         components: {FormErrorComponent, DummyModelClassNavBarComponent},
         data() {
             return {
-                routeToSave: "/api/DummyModulePlural",
-                routeNameToRedirect: "DummyModulePlural.list",
-                method: 'post',
+                urlToSave: "/api/panel/DummyModulePlural",
+                redirectToRoute: "panel.DummyModulePlural.list",
+                method: "post",
                 form: {},
                 errors: {},
                 isCreateMode: true,
@@ -72,7 +72,7 @@ DummyHtml
 
                 this.$loading(true);
 
-                axios.request(this.routeToSave, {
+                axios.request(this.urlToSave, {
                     method: 'get',
                     params: this.form,
                 })
@@ -100,7 +100,7 @@ DummyHtml
             },
             saveAndNew() {
 
-                this.routeNameToRedirect = 'DummyModulePlural.create';
+                this.redirectToRoute = this.routeCreate;
                 this.save();
             },
             save() {
@@ -109,19 +109,19 @@ DummyHtml
 
                 this.errors = {};
 
-                axios.request(this.routeToSave, {
+                axios.request(this.urlToSave, {
                     method: this.method,
                     params: this.form,
                 })
                     .then(response => {
 
-                        this.$router.push({name: this.routeNameToRedirect})
+                        this.$router.push({name: this.redirectToRoute})
                             .catch(err => {
                             })
                             .then(() => {
 
                                 this.form = {};
-                                this.routeNameToRedirect = "DummyModulePlural.list";
+                                this.redirectToRoute = this.routeList;
                             });
 
                         this.$awn.success('Salvo com sucesso!');
@@ -151,10 +151,12 @@ DummyHtml
             if (typeof (this.$route.params.id) !== "undefined") {
 
                 this.isCreateMode = false;
-                this.routeToSave = "/api/DummyModulePlural/" + this.$route.params.id;
+                this.urlToSave = "/api/panel/DummyModulePlural/" + this.$route.params.id;
                 this.method = 'put';
                 this.getData();
             }
+
+            this.redirectToRoute = this.routeList;
         }
     }
 </script>

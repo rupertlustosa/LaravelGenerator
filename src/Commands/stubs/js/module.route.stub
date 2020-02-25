@@ -1,5 +1,5 @@
-import DummyModelClassListComponent from "../components/DummyModelClassListComponent";
-import DummyModelClassFormComponent from "../components/DummyModelClassFormComponent";
+import DummyModelClassListComponent from "../views/components/DummyModelClass/DummyModelClassListComponent";
+import DummyModelClassFormComponent from "../views/components/DummyModelClass/DummyModelClassFormComponent";
 
 const DummyModelVariableRoutes = [
     {
@@ -32,7 +32,7 @@ export default DummyModelVariableRoutes
 
 /**
 * Adicione na seção de imports do seu arquivo de rotas:
-* import DummyModelVariableRoutes from "../../Modules/DummyModule/Resources/views/js/DummyModelVariableRouter";
+* import DummyModelVariableRoutes from "../../Modules/DummyModule/Resources/routes/DummyModelVariableRoute";
 *
 * Dentro das rotas do VueRouter adicione:
 * ...DummyModelVariableRoutes,

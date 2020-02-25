@@ -55,12 +55,12 @@ DummyBody
                                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                                     <router-link
                                                         class="dropdown-item"
-                                                        :to="{ name: 'DummyModulePlural.edit', params: { id: item.id }}">
+                                                        :to="{ name: 'panel.DummyModulePlural.edit', params: { id: item.id }}">
                                                         <i class="fa fa-pencil fa-fw"></i> Editar
                                                     </router-link>
                                                     <router-link
                                                         class="dropdown-item"
-                                                        :to="{ name: 'DummyModulePlural.edit', params: { id: item.id }}">
+                                                        :to="{ name: 'panel.DummyModulePlural.edit', params: { id: item.id }}">
                                                         <i class="fa fa-trash-o fa-fw"></i> Remover
                                                     </router-link>
                                                 </div>
@@ -118,7 +118,7 @@ DummyBody
                 this.$loading(true);
                 this.form.page = page;
 
-                axios.request("/api/DummyModulePlural", {
+                axios.request("/api/panel/DummyModulePlural", {
                     method: 'get',
                     params: this.form,
                 })
