@@ -49,19 +49,19 @@ class HtmlView
         foreach ($fields as $field) {
 
             $middleContent .= '
-                                <div class="form-group col-md-' . $col . '">
-                                    <label>' . $field->label . '</label>
-                                    <input type="text" v-model="form.' . $field->id . '" class="form-control">
-                                    <form-error-component v-if="errors.' . $field->id . '" :errors="errors">
-                                        {{ errors.' . $field->id . '[0] }}
-                                    </form-error-component>
-                                </div>            
+                                    <div class="form-group col-md-' . $col . '">
+                                        <label>' . $field->label . '</label>
+                                        <input type="text" v-model="form.' . $field->id . '" class="form-control">
+                                        <form-error-component v-if="errors.' . $field->id . '" :errors="errors">
+                                            {{ errors.' . $field->id . '[0] }}
+                                        </form-error-component>
+                                    </div>            
             ';
         }
 
         return '
-                            <div class="form-row">' . $middleContent . '
-                            </div>        
+                                <div class="form-row">' . $middleContent . '
+                                </div>        
         ';
     }
 
@@ -69,12 +69,12 @@ class HtmlView
     {
 
         return '
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label class="col-form-label">' . $field->label . '</label>
-                                            <input type="text" class="form-control" v-model="form.' . $field->id . '">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="col-form-label">' . $field->label . '</label>
+                                                <input type="text" class="form-control" v-model="form.' . $field->id . '">
+                                            </div>
                                         </div>
-                                    </div>
         ';
     }
 

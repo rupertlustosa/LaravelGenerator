@@ -10,36 +10,38 @@
                     <div class="ibox">
 
                         <div class="ibox-title">
-                            <h5>{{ isCreateMode ? 'Cadastro' : 'Edição' }}</h5>
+                            <h5>{{ isCreateMode ? $t('labels.register_mode') : $t('labels.edition_mode') }}</h5>
                         </div>
                         <div class="ibox-content">
 
+                            <form v-on:keyup.enter="save">
 DummyHtml
 
-                            <div class="form-row">
-                                <div class="form-group col-12">
+                                <div class="form-row">
+                                    <div class="form-group col-12">
 
-                                    <div class="btn-group">
-                                        <button class="btn btn-primary" type="button" @click.prevent="save">
-                                            <i class="fa fa-check"></i> Salvar e voltar
-                                        </button>
-                                        <button type="button"
-                                                class="btn btn-primary dropdown-toggle dropdown-toggle-split"
-                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <span class="sr-only">Toggle Dropdown</span>
-                                        </button>
-                                        <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="javascript:" v-on:click="saveAndNew">
-                                                Salvar e adicionar novo
-                                            </a>
+                                        <div class="btn-group">
+                                            <button class="btn btn-primary" type="button" @click.prevent="save">
+                                                <i class="fa fa-check"></i> {{ $t('buttons.save_and_back') }}
+                                            </button>
+                                            <button type="button"
+                                                    class="btn btn-primary dropdown-toggle dropdown-toggle-split"
+                                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <span class="sr-only">Toggle Dropdown</span>
+                                            </button>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="javascript:" v-on:click="saveAndNew">
+                                                    {{ $t('buttons.save_and_new') }}
+                                                </a>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <router-link class="btn btn-white" :to="{ name: 'panel.DummyModulePlural.list' }">
-                                        <i class="fa fa-ban"></i> Cancelar
-                                    </router-link>
+                                        <router-link class="btn btn-white" :to="{ name: 'panel.DummyModulePlural.list' }">
+                                            <i class="fa fa-ban"></i> {{ $t('buttons.cancel') }}
+                                        </router-link>
 
+                                    </div>
                                 </div>
-                            </div>
+                            </form>
 
                         </div>
 
@@ -60,8 +62,10 @@ DummyHtml
         data() {
             return {
                 urlToSave: "/api/panel/DummyModulePlural",
-                redirectToRoute: "panel.DummyModulePlural.list",
-                method: "post",
+                routeList: "panel.DummyModulePlural.list",
+                routeCreate: "panel.DummyModulePlural.create",
+                redirectToRoute: "",
+                method: "POST",
                 form: {},
                 errors: {},
                 isCreateMode: true,
@@ -73,7 +77,7 @@ DummyHtml
                 this.$loading(true);
 
                 axios.request(this.urlToSave, {
-                    method: 'get',
+                    method: 'GET',
                     params: this.form,
                 })
                     .then((response) => {
@@ -84,7 +88,7 @@ DummyHtml
 
                         if (_.has(error, 'error.response.status')) {
 
-                            const message = '[' + error.response.status + '] Não foi possível realizar essa operação!';
+                            let message = '[' + error.response.status + '] ' + this.$root.$t('messages.server_error');
                             this.$awn.alert(message);
 
                         } else {
@@ -124,21 +128,21 @@ DummyHtml
                                 this.redirectToRoute = this.routeList;
                             });
 
-                        this.$awn.success('Salvo com sucesso!');
+                        this.$awn.success(this.$root.$t('messages.saved_successfully'));
                     })
                     .catch(error => {
 
                         if (_.has(error, 'response.data.errors')) {
 
-                            this.$awn.warning('Corrija os erros antes de salvar');
+                            this.$awn.warning(this.$root.$t('messages.server_error'));
                             this.errors = error.response.data.errors;
                         } else {
 
-                            let message = '[' + error.response.status + '] Não foi possível realizar essa operação!';
+                            let message = '[' + error.response.status + '] ' + this.$root.$t('messages.server_error');
                             this.$awn.alert(message);
                         }
 
-                        //console.log(error.response.data);
+                        //console.log(error);
                     })
                     .then(() => {
 
@@ -151,8 +155,8 @@ DummyHtml
             if (typeof (this.$route.params.id) !== "undefined") {
 
                 this.isCreateMode = false;
-                this.urlToSave = "/api/panel/DummyModulePlural/" + this.$route.params.id;
-                this.method = 'put';
+                this.urlToSave = this.urlToSave + "/" + this.$route.params.id;
+                this.method = 'PUT';
                 this.getData();
             }
 
