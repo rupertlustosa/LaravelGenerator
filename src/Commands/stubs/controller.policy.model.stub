@@ -101,7 +101,7 @@ class DummyControllerClass extends ApiController
             }
 
             $storeRequest = new DummyModelClassStoreRequest();
-            $validator = Validator::make(request()->all(), $storeRequest->rules());
+            $validator = Validator::make(request()->all(), $storeRequest->rules(), $storeRequest->messages());
 
             if ($validator->fails()) {
 
@@ -135,7 +135,7 @@ class DummyControllerClass extends ApiController
             }
 
             $updateRequest = new DummyModelClassUpdateRequest();
-            $validator = Validator::make(request()->all(), $updateRequest->rules());
+            $validator = Validator::make(request()->all(), $updateRequest->rules(), $updateRequest->messages());
 
             if ($validator->fails()) {
 

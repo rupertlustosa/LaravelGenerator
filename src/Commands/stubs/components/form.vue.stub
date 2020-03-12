@@ -61,7 +61,7 @@ DummyHtml
         components: {FormErrorComponent, DummyModelClassNavBarComponent},
         data() {
             return {
-                urlToSave: "/api/panel/DummyModulePlural",
+                urlToSave: "/api/DummyModulePlural",
                 routeList: "panel.DummyModulePlural.list",
                 routeCreate: "panel.DummyModulePlural.create",
                 redirectToRoute: "",

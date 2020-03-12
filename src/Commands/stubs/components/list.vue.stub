@@ -119,7 +119,7 @@ DummyBody
                 this.$loading(true);
                 this.form.page = page;
 
-                axios.request("/api/panel/DummyModulePlural", {
+                axios.request("/api/DummyModulePlural", {
                     method: 'get',
                     params: this.form,
                 })
