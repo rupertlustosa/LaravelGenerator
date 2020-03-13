@@ -10,7 +10,7 @@
                     <div class="ibox">
                         <div class="ibox-content">
 
-                            <form v-on:keyup.enter="search">
+                            <form v-on:keyup.enter="search" v-on:submit.prevent>
                                 <div class="ibox-content m-b-sm border-bottom">
                                     <div class="row">
 DummySearch

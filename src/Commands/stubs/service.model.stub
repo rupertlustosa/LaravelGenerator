@@ -27,7 +27,7 @@ class DummyServiceClass
             return $query->where('id', 'LIKE', '%' . $search . '%');
         });
 
-        return $query;
+        return $query->orderByDesc('id');
     }
 
     public function paginate(int $limit): LengthAwarePaginator

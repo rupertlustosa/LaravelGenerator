@@ -112,11 +112,9 @@ DummyHtml
                 this.$loading(true);
 
                 this.errors = {};
+                this.form._method = this.method;
 
-                axios.request(this.urlToSave, {
-                    method: this.method,
-                    params: this.form,
-                })
+                axios.post(this.urlToSave, this.form)
                     .then(response => {
 
                         this.$router.push({name: this.redirectToRoute})
