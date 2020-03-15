@@ -76,10 +76,7 @@ DummyHtml
 
                 this.$loading(true);
 
-                axios.request(this.urlToSave, {
-                    method: 'GET',
-                    params: this.form,
-                })
+                axios.get(this.urlToSave)
                     .then((response) => {
 
                         this.form = response.data.data;

@@ -37,7 +37,7 @@ DummySearch
                                     <thead>
                                     <tr>
 DummyHead
-                                        <th class="text-right">
+                                        <th class="text-right" style="width: 140px">
                                             {{ $t('labels.actions') }}
                                         </th>
                                     </tr>
@@ -100,7 +100,7 @@ DummyBody
                 form: {
                     page: null
                 },
-                pageCount: 1
+                pageCount: 1,
             }
         },
         methods: {
