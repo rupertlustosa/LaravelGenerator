@@ -52,7 +52,7 @@ class ModuleMakeCommand extends GeneratorCommand
 
         $this->call('rlustosa:make-scaffold', [
             'module' => $this->getModuleInput(),
-            '--force' => $this->option('force') ? true : null,
+            //'--force' => $this->option('force') ? true : null,
         ]);
     }
 
