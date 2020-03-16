@@ -79,7 +79,7 @@ class CodeMakeCommand extends GeneratorCommand
             return false;
         }
 
-        $this->skeletonPath = $this->viewsPath . '/.skeleton.' . $this->table . '.json';
+        $this->skeletonPath = $this->viewsPath . '/.skeleton/' . $this->table . '.json';
 
         if (!$this->option('skeleton') && !$this->option('code')) {
 
