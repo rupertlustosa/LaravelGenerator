@@ -59,15 +59,16 @@ class MigrationMakeCommand extends GeneratorCommand
 
         $replaces['DummyTable'] = $table;
         $replaces['DummyClass'] = $className;
+        $replaces['DummyModuleName'] = $this->qualifyClass($this->getModuleInput());
         $this->files->put($path, str_replace(array_keys($replaces), array_values($replaces), $stub));
 
         $this->info('Migration created successfully.');
 
         // Seed
-        $path = $this->getSeedsPath() . '/' . $className . 'TableSeeder.php';
+        $path = $this->getSeedsPath() . '/' . $className . 'Seeder.php';
 
         $this->makeDirectory($path);
-        $stub = $this->files->get($this->getStub());
+        $stub = $this->files->get(__DIR__ . '/stubs/seeder.stub');
         $this->files->put($path, str_replace(array_keys($replaces), array_values($replaces), $stub));
 
         $this->composer->dumpAutoloads();
