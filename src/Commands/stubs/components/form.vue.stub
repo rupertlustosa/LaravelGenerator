@@ -131,13 +131,16 @@ DummyHtml
 
                             this.$awn.warning(this.$root.$t('messages.server_error'));
                             this.errors = error.response.data.errors;
-                        } else {
+                        } else if (_.has(error, 'error.response.status')) {
 
                             let message = '[' + error.response.status + '] ' + this.$root.$t('messages.server_error');
                             this.$awn.alert(message);
-                        }
 
-                        //console.log(error);
+                        } else {
+
+                            this.$awn.alert(error.message);
+                            console.log(error);
+                        }
                     })
                     .then(() => {
 
