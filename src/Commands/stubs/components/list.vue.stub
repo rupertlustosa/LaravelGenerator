@@ -89,65 +89,20 @@ DummyBody
 </template>
 
 <script>
+    import defaultListMixin from "../../../../../Shared/mixins/defaultListMixin";
     import DummyModelClassNavBarComponent from "./DummyModelClassNavBarComponent";
 
     export default {
         name: "DummyModelClassListComponent",
         components: {DummyModelClassNavBarComponent},
+        mixins: [defaultListMixin],
         data() {
             return {
-                items: [],
-                form: {
-                    page: null
-                },
-                pageCount: 1,
+                apiUrl: '/api/DummyModulePlural',
             }
         },
-        methods: {
-
-            search() {
-
-                this.getData(1);
-            },
-            clearSearch() {
-
-                this.form = {};
-                this.getData(1);
-            },
-            getData(page) {
-
-                this.$loading(true);
-                this.form.page = page;
-
-                axios.request("/api/DummyModulePlural", {
-                    method: 'get',
-                    params: this.form,
-                })
-                    .then((response) => {
-
-                        let data = response.data.data;
-                        this.items = [...data];
-                        this.pageCount = response.data.last_page;
-
-                        if (response.data.total === 0) {
-
-                            this.$awn.info(this.$root.$t('messages.no_results_found'));
-                        }
-                    })
-                    .catch(error => {
-
-                        let message = '[' + error.response.status + '] ' + this.$root.$t('messages.server_error');
-                        this.$awn.alert(message);
-                    })
-                    .then(() => {
-
-                        this.$loading(false);
-                    });
-            }
-        },
+        methods: {},
         mounted() {
-
-            this.getData(1);
         }
     }
 </script>

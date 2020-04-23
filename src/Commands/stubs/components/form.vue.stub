@@ -83,7 +83,7 @@ DummyHtml
                     })
                     .catch(error => {
 
-                        if (_.has(error, 'error.response.status')) {
+                        if (_.has(error, 'response.status')) {
 
                             let message = '[' + error.response.status + '] ' + this.$root.$t('messages.server_error');
                             this.$awn.alert(message);
@@ -91,6 +91,7 @@ DummyHtml
                         } else {
 
                             this.$awn.alert(error.message);
+                            console.log(error);
                         }
 
                     })
@@ -129,9 +130,9 @@ DummyHtml
 
                         if (_.has(error, 'response.data.errors')) {
 
-                            this.$awn.warning(this.$root.$t('messages.server_error'));
+                            this.$awn.warning(this.$root.$t('messages.validation_error'));
                             this.errors = error.response.data.errors;
-                        } else if (_.has(error, 'error.response.status')) {
+                        } else if (_.has(error, 'response.status')) {
 
                             let message = '[' + error.response.status + '] ' + this.$root.$t('messages.server_error');
                             this.$awn.alert(message);
