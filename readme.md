@@ -16,7 +16,15 @@
 To install through Composer, by run the following command:
 
 ``` bash
-composer require rlustosa/laravel-generator:~0.0.1
+composer require rlustosa/laravel-generator::dev-master
+```
+
+``` bash
+composer remove rlustosa/laravel-generator && composer require rlustosa/laravel-generator:dev-master -vvv
+```
+
+``` bash
+composer require rlustosa/laravel-generator:~0.0.2
 ```
 
 The package will automatically register a service provider and alias.
