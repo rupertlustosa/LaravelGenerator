@@ -16,7 +16,7 @@
 To install through Composer, by run the following command:
 
 ``` bash
-composer require rlustosa/laravel-generator::dev-master
+composer require rlustosa/laravel-generator:dev-master
 ```
 
 ``` bash
