@@ -25,7 +25,7 @@
                 <router-link
                     v-if="this.$router.currentRoute.name !== 'panel.DummyModulePlural.list'" class="btn btn-white"
                     :to="{ name: 'panel.DummyModulePlural.list'}">
-                    <i class="fa fa-pencil"></i> {{ $t('buttons.list') }}
+                    <i class="fa fa-list"></i> {{ $t('buttons.list') }}
                 </router-link>&nbsp;
                 <router-link
                     :to="{ name: 'panel.DummyModulePlural.create'}"
