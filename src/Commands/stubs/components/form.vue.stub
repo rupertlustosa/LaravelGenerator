@@ -83,16 +83,22 @@ DummyHtml
                     })
                     .catch(error => {
 
-                        if (_.has(error, 'response.status')) {
+                        let message = '';
+                        if (_.has(error, 'response.data.friendly_message')) {
 
-                            let message = '[' + error.response.status + '] ' + this.$root.$t('messages.server_error');
-                            this.$awn.alert(message);
+                            message = error.response.status + ' - ' + error.response.data.friendly_message;
+
+                        } else if (_.has(error, 'response.status')) {
+
+                            message = this.$root.$t('messages.server_error') + ' ' + error.response.status;
 
                         } else {
 
-                            this.$awn.alert(error.message);
+                            message = this.$root.$t('messages.application_error') + ' ' + error.message;
                             console.log(error);
                         }
+
+                        this.$awn.alert(message);
 
                     })
                     .then(() => {
@@ -128,20 +134,29 @@ DummyHtml
                     })
                     .catch(error => {
 
+                        this.$root.scrollToTop();
+
+                        let message = '';
                         if (_.has(error, 'response.data.errors')) {
 
-                            this.$awn.warning(this.$root.$t('messages.validation_error'));
+                            message = this.$root.$t('messages.validation_error');
                             this.errors = error.response.data.errors;
+
+                        } else if (_.has(error, 'response.data.friendly_message')) {
+
+                            message = error.response.status + ' - ' + error.response.data.friendly_message;
+
                         } else if (_.has(error, 'response.status')) {
 
-                            let message = '[' + error.response.status + '] ' + this.$root.$t('messages.server_error');
-                            this.$awn.alert(message);
+                            message = this.$root.$t('messages.server_error') + ' ' + error.response.status;
 
                         } else {
 
-                            this.$awn.alert(error.message);
+                            message = this.$root.$t('messages.application_error') + ' ' + error.message;
                             console.log(error);
                         }
+
+                        this.$awn.alert(message);
                     })
                     .then(() => {
 
