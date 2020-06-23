@@ -383,7 +383,15 @@ class CodeMakeCommand extends GeneratorCommand
         $replaces = $this->getDefaultsForClasses($this->argument('model'))['model'];
         $path = $this->componentsPath . '/' . $replaces['DummyModelClass'] . '/' . $replaces['DummyModelClass'] . 'NavBarComponent.vue';
         $this->makeDirectory($path);
-        $stub = $this->files->get(__DIR__ . '/stubs/components/navbar.vue.stub');
+
+        $fileStub = '/components/navbar.vue.stub';
+        if (file_exists($this->getCustomStubPath() . $fileStub)) {
+
+            $stub = $this->files->get($this->getCustomStubPath() . $fileStub);
+        } else {
+
+            $stub = $this->files->get(__DIR__ . '/stubs' . $fileStub);
+        }
 
         $replaces['DummyModulePlural'] = Str::snake(Str::pluralStudly($this->argument('model')));
 
@@ -418,7 +426,15 @@ class CodeMakeCommand extends GeneratorCommand
         $replaces = $this->getDefaultsForClasses($this->argument('model'))['model'];
         $path = $this->componentsPath . '/' . $replaces['DummyModelClass'] . '/' . $replaces['DummyModelClass'] . 'ListComponent.vue';
         $this->makeDirectory($path);
-        $stub = $this->files->get(__DIR__ . '/stubs/components/list.vue.stub');
+
+        $fileStub = '/components/list.vue.stub';
+        if (file_exists($this->getCustomStubPath() . $fileStub)) {
+
+            $stub = $this->files->get($this->getCustomStubPath() . $fileStub);
+        } else {
+
+            $stub = $this->files->get(__DIR__ . '/stubs' . $fileStub);
+        }
 
         $replaces['DummyHead'] = implode("\r\n", $headBody->pluck('head')->toArray());
         $replaces['DummyBody'] = implode("\r\n", $headBody->pluck('body')->toArray());
@@ -447,7 +463,15 @@ class CodeMakeCommand extends GeneratorCommand
         $replaces = $this->getDefaultsForClasses($this->argument('model'))['model'];
         $path = $this->componentsPath . '/' . $replaces['DummyModelClass'] . '/' . $replaces['DummyModelClass'] . 'FormComponent.vue';
         $this->makeDirectory($path);
-        $stub = $this->files->get(__DIR__ . '/stubs/components/form.vue.stub');
+
+        $fileStub = '/components/form.vue.stub';
+        if (file_exists($this->getCustomStubPath() . $fileStub)) {
+
+            $stub = $this->files->get($this->getCustomStubPath() . $fileStub);
+        } else {
+
+            $stub = $this->files->get(__DIR__ . '/stubs' . $fileStub);
+        }
 
         $replaces['DummyHtml'] = implode("\r\n", $headBody->toArray());
         $replaces['DummyModulePlural'] = Str::snake(Str::pluralStudly($this->argument('model')));

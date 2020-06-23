@@ -37,7 +37,7 @@ abstract class GeneratorCommand extends Command
      * Create a new controller creator command instance.
      *
      * @param Filesystem $files
-     * @param Composer $composer
+     * @param Composer   $composer
      */
     public function __construct(Filesystem $files, Composer $composer)
     {
@@ -354,6 +354,12 @@ abstract class GeneratorCommand extends Command
     {
 
         return base_path() . '/' . str_replace('\\', '/', $this->rootModuleNamespace()) . $this->qualifyClass($this->getModuleInput()) . '/Config';
+    }
+
+    protected function getCustomStubPath()
+    {
+
+        return base_path() . '/' . str_replace('\\', '/', $this->rootModuleNamespace()) . '/stubs';
     }
 
     protected function getViewsPath()

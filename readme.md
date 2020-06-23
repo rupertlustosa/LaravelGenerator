@@ -62,7 +62,7 @@ By default the module classes are not loaded automatically. You can autoload you
 - php artisan ui bootstrap
 - php artisan ui vue
 - npm install
-- npm install v-money vue-awesome-notifications vue-filter-date-format vue-filter-date-parse vue-router vue-select vue-the-mask vuejs-datepicker vuejs-loading-plugin --save-dev
+- npm install @ckeditor/ckeditor5-build-classic @ckeditor/ckeditor5-vue coffee-script luxon v-money vue-awesome-notifications vue-datetime": "^ vue-filter-date-format vue-filter-date-parse vue-i18n vue-router vue-select vue-the-mask vuejs-datepicker vuejs-loading-plugin vuex weekstart --save-dev
 ```
 2 - Modify resources/js/app.js to:
 ```
@@ -87,11 +87,12 @@ import VueLoading from 'vuejs-loading-plugin'
 import VueFilterDateFormat from 'vue-filter-date-format';
 import VueFilterDateParse from 'vue-filter-date-parse'
 import VueAWN from "vue-awesome-notifications"
+import i18n from './i18n';
 
 // overwrite defaults
 Vue.use(VueLoading, {
     dark: false, // default false
-    text: 'Carregando dados...', // default 'Loading'
+    text: 'Loading...', // default 'Loading'
     loading: false, // default false
     //customLoader: myVueComponent, // replaces the spinner and text with your own
     //background: 'rgb(47, 64, 80)', // set custom background
@@ -134,7 +135,6 @@ let optionsVueAWN = {
     icons: {
         enabled: false,
     }
-    //durations: {success: 0}
 };
 
 Vue.use(VueAWN, optionsVueAWN);
@@ -151,15 +151,43 @@ Vue.filter('currencydecimal', function (value) {
 });
 
 Vue.filter('fromBoolean', function (value) {
-    if (!value) return '-';
-    return value == 1 ? 'Sim' : 'Não';
+    return value == 1 ? 'Yes' : 'No';
 });
 
 const app = new Vue({
+    i18n,
     el: '#app',
     router: Routes,
-    render: h => h(App)
+    render: h => h(App),
+    data() {
+        return {
+            componentKey: 0,
+            viewKey: 1
+        };
+    },
+    methods: {
+        scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                left: 0,
+                behavior: 'smooth'
+            });
+        },
+        updateViewKey() {
+            this.viewKey += 1;
+        }
+    }
 });
+
+$('#app').tooltip({
+    selector: "[data-toggle=tooltip]",
+    container: "body"
+});
+
+$('.popover-dismiss').popover({
+    trigger: 'focus'
+});
+
 
 ```
 
