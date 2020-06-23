@@ -251,7 +251,8 @@ class CodeMakeCommand extends GeneratorCommand
         foreach ($this->columns as $column) {
 
             $columnName = $column->getName();
-            $label = Str::upper(str_replace('_', ' ', $columnName));
+            $label = Str::ucfirst(str_replace('_', ' ', $columnName));
+            //$label = Str::upper(str_replace('_', ' ', $columnName));
 
             if (!in_array($columnName, $this->ignoreInListing)) {
 
