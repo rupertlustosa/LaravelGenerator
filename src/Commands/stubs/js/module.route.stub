@@ -1,5 +1,5 @@
-import DummyModelClassListComponent from "../views/components/DummyModelClass/DummyModelClassListComponent";
-import DummyModelClassFormComponent from "../views/components/DummyModelClass/DummyModelClassFormComponent";
+import DummyModelClassListComponent = () => import(/* webpackChunkName: "js/async/DummyModelClassComponent" */ '../views/components/DummyModelClass/DummyModelClassListComponent');
+import DummyModelClassFormComponentv = () => import(/* webpackChunkName: "js/async/DummyModelClassComponent" */ '../views/components/DummyModelClass/DummyModelClassFormComponent');
 
 const DummyModelVariableRoutes = [
     {
