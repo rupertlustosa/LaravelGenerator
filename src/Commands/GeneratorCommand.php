@@ -359,7 +359,7 @@ abstract class GeneratorCommand extends Command
     protected function getCustomStubPath()
     {
 
-        return base_path() . '/' . str_replace('\\', '/', $this->rootModuleNamespace()) . '/stubs';
+        return base_path() . '/' . str_replace('\\', '/', $this->rootModuleNamespace()) . 'Shared/stubs';
     }
 
     protected function getViewsPath()
