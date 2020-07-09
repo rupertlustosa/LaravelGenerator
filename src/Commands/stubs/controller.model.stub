@@ -174,19 +174,19 @@ class DummyControllerClass extends ApiController
     }
 
     /**
-     * Display the specified resource.
+     * Remove the specified resource.
      *
      * @param DummyModelClass $DummyModelVariable
      * @return JsonResponse
      */
-    public function delete(DummyModelClass $DummyModelVariable): JsonResponse
+    public function destroy(DummyModelClass $DummyModelVariable): JsonResponse
     {
 
         try {
 
-            $item = $this->DummyServiceVariable->find($DummyModelVariable);
+            $item = $this->DummyServiceVariable->delete($DummyModelVariable);
 
-            return $this->sendResource(new DummyModelClassResource($item));
+            return $this->sendResponse([]);
 
         } catch (Exception $exception) {
 
