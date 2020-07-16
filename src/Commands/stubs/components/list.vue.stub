@@ -73,11 +73,12 @@ DummyBody
                                 </table>
                             </div>
                             <paginate-component
-                                v-if="this.items.length"
-                                :page-count="pageCount"
                                 :click-handler="getData"
                                 :container-class="'pagination'"
-                                :page-class="'page-item'">
+                                :item-count="this.items.length"
+                                :page-class="'page-item'"
+                                :page-count="pageCount"
+                                v-if="this.items.length">
                             </paginate-component>
                         </div>
 
