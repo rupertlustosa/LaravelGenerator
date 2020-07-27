@@ -184,12 +184,12 @@ class DummyControllerClass extends ApiController
      * @param DummyModelClass $DummyModelVariable
      * @return JsonResponse
      */
-    public function delete(DummyModelClass $DummyModelVariable): JsonResponse
+    public function destroy(DummyModelClass $DummyModelVariable): JsonResponse
     {
 
         try {
 
-            $item = $this->DummyServiceVariable->find($DummyModelVariable);
+            $item = $this->DummyServiceVariable->delete($DummyModelVariable);
 
             if (!Auth::user()->can('delete', $item)) {
 
